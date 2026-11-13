@@ -5,6 +5,8 @@ on:
     paths:
       - 'pulsefit/**'
       - '.github/workflows/build-pulsefit-apk.yml'
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
