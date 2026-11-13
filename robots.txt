@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/sitemap.xml
