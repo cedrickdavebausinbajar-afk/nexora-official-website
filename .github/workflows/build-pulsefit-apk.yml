@@ -24,9 +24,9 @@ jobs:
           mkdir pulsefit-android
           cd pulsefit-android
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           mkdir www
-          cp -r ../pulsefit/* www/
+          cp -r ../pulsefit/. www/
           npx cap init PulseFit com.cedrickbajar.pulsefit --web-dir www
           npx cap add android
           npx cap sync android
@@ -36,9 +36,16 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
           cp app/build/outputs/apk/debug/app-debug.apk ../../PulseFit-free.apk
+      - name: Upload APK build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PulseFit-free-APK
+          path: PulseFit-free.apk
+          if-no-files-found: error
+          retention-days: 30
       - name: Publish APK release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="pulsefit-build-${{ github.run_number }}"
-          gh release create "$TAG" PulseFit-free.apk --repo "$GITHUB_REPOSITORY" --title "PulseFit Free Android APK" --notes "Free PulseFit Android build. No subscription or Plus lock. This is a debug-signed APK for testing."
+          gh release create "$TAG" PulseFit-free.apk --repo "$GITHUB_REPOSITORY" --title "PulseFit Free Android APK" --notes "Free PulseFit Android build. No subscription or Plus lock. Debug-signed APK for testing."
