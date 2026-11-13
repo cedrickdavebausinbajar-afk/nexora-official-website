@@ -1,10 +1,10 @@
-name: Build PulseFit Android APK
+name: Build Workout Planner Android APK
 on:
   workflow_dispatch:
   push:
     paths:
-      - 'pulsefit/**'
-      - '.github/workflows/build-pulsefit-apk.yml'
+      - 'workout-planner/**'
+      - '.github/workflows/build-workout-planner-apk.yml'
 permissions:
   contents: write
 jobs:
@@ -21,31 +21,31 @@ jobs:
           java-version: '17'
       - name: Prepare Android project
         run: |
-          mkdir pulsefit-android
-          cd pulsefit-android
+          mkdir workout-planner-android
+          cd workout-planner-android
           npm init -y
           npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           mkdir www
-          cp -r ../pulsefit/. www/
-          npx cap init PulseFit com.cedrickbajar.pulsefit --web-dir www
+          cp -r ../workout-planner/. www/
+          npx cap init Workout Planner com.cedrickbajar.workout-planner --web-dir www
           npx cap add android
           npx cap sync android
       - name: Build debug APK
         run: |
-          cd pulsefit-android/android
+          cd workout-planner-android/android
           chmod +x gradlew
           ./gradlew assembleDebug
-          cp app/build/outputs/apk/debug/app-debug.apk ../../PulseFit-free.apk
+          cp app/build/outputs/apk/debug/app-debug.apk ../../Workout Planner-free.apk
       - name: Upload APK build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PulseFit-free-APK
-          path: PulseFit-free.apk
+          name: Workout Planner-free-APK
+          path: Workout Planner-free.apk
           if-no-files-found: error
           retention-days: 30
       - name: Publish APK release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="pulsefit-build-${{ github.run_number }}"
-          gh release create "$TAG" PulseFit-free.apk --repo "$GITHUB_REPOSITORY" --title "PulseFit Free Android APK" --notes "Free PulseFit Android build. No subscription or Plus lock. Debug-signed APK for testing."
+          TAG="workout-planner-build-${{ github.run_number }}"
+          gh release create "$TAG" Workout Planner-free.apk --repo "$GITHUB_REPOSITORY" --title "Workout Planner Free Android APK" --notes "Free Workout Planner Android build. No subscription or Plus lock. Debug-signed APK for testing."
