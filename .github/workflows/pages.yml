@@ -21,6 +21,11 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Install and bundle local Three.js engine
+        run: |
+          npm install --no-save --no-package-lock three@0.152.2
+          mkdir -p games/nexora-runner/vendor
+          cp node_modules/three/build/three.min.js games/nexora-runner/vendor/three.min.js
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
