@@ -25,6 +25,11 @@ function cylinder(rt,rb,h,m,x=0,y=0,z=0,parent=scene){const o=new THREE.Mesh(new
 function makeAvatar(){const g=new THREE.Group();
 const torso=box(.68,.92,.4,mats.body,0,1.48,0,g);torso.rotation.x=-.08;
 const chest=box(.48,.22,.43,mats.cyan,0,1.7,.015,g);
+const shoulderL=box(.29,.25,.34,mats.steel,-.43,1.86,0,g),shoulderR=box(.29,.25,.34,mats.steel,.43,1.86,0,g);
+const belt=box(.66,.13,.43,mats.gold,0,1.02,.015,g);
+const pack=box(.43,.52,.22,mats.dark,0,1.48,-.29,g);
+const packLight=box(.24,.08,.035,mats.cyan,0,1.55,-.415,g);
+const kneeL=box(.27,.2,.32,mats.purple,-.2,.53,.12,g),kneeR=box(.27,.2,.32,mats.purple,.2,.53,.12,g);
 const head=new THREE.Mesh(new THREE.SphereGeometry(.32,24,18),mats.white);head.position.set(0,2.23,.02);head.castShadow=true;g.add(head);
 const hair=new THREE.Mesh(new THREE.SphereGeometry(.325,20,12,0,Math.PI*2,0,Math.PI*.48),mats.dark);hair.position.set(0,2.31,-.015);g.add(hair);
 const visor=box(.43,.13,.075,mats.dark,0,2.25,.29,g);const visorGlow=box(.31,.035,.025,mats.cyan,0,2.25,.335,g);
@@ -39,6 +44,21 @@ box(12,.35,150,mats.road,0,-.22,-58);
 const asphaltMarks=mat('#263d58'),railMat=mat('#a8bacb',.8,.28),sleeperMat=mat('#53677d');
 for(let laneX of [-2.65,0,2.65]){box(.12,.08,150,railMat,laneX-.62,-.02,-58);box(.12,.08,150,railMat,laneX+.62,-.02,-58);for(let z=12;z>-138;z-=2.4){const tie=box(1.42,.12,.34,sleeperMat,laneX,-.02,z);scenery.push(tie)}}
 for(let x of [-1.33,1.33]){box(.035,.025,150,mats.cyan,x,.01,-58);for(let z=12;z>-135;z-=12)box(.08,.03,1.2,asphaltMarks,x,.015,z)}
+/* Raised neon sidewalks and repeating illuminated street furniture */
+for(const side of [-1,1]){
+ box(1.25,.28,150,mats.dark,side*6.35,-.08,-58);
+ box(.08,.09,150,mats.cyan,side*5.78,.08,-58);
+ for(let z=9;z>-140;z-=13){
+  const planter=box(1.05,.38,1.05,mats.steel,side*6.35,.18,z);
+  const trunk=cylinder(.11,.16,1.15,mats.red,side*6.35,.9,z);
+  const crown=new THREE.Mesh(new THREE.SphereGeometry(.62,12,10),mats.cyan);
+  crown.position.set(side*6.35,1.65,z);scene.add(crown);scenery.push(planter,trunk,crown);
+  const bollard=cylinder(.09,.12,.85,mats.purple,side*5.82,.48,z-3.2);
+  const cap=box(.23,.07,.23,mats.gold,side*5.82,.91,z-3.2);
+  scenery.push(bollard,cap);
+ }
+}
+
 
 for(let i=0;i<32;i++){let z=10-i*4.5;for(let side of [-1,1]){const w=2.4+(i%3)*.6,h=4+(i*7%9),g=new THREE.Group();g.position.set(side*(8+(i%4)*1.5),0,z);box(w,h,3,mats.building,0,h/2-.2,0,g);const facade=box(w*.82,h*.86,.045,mats.dark,0,h/2-.2,1.53,g);for(let wy=1;wy<h-1;wy+=1.5)for(let wx=-w/2+.45;wx<w/2-.2;wx+=.9){const windowMat=(i+Math.floor(wy)+Math.floor(wx*2))%4===0?mats.gold:mats.cyan;const win=box(.22,.32,.055,windowMat,wx,wy,1.58,g);win.material.transparent=true;win.material.opacity=.48}const roof=box(w*.7,.12,.35,mats.steel,0,h+.02,0,g);const antenna=cylinder(.035,.045,1.4,mats.cyan,w*.22,h+.75,0,g);scene.add(g);scenery.push(g)}}
 for(let i=0;i<18;i++){let z=8-i*8;for(let side of [-1,1]){const pole=cylinder(.045,.06,4.8,mats.steel,side*4.1,2.4,z);box(.65,.09,.12,mats.cyan,side*3.8,4.75,z);const lamp=box(.38,.12,.32,mats.gold,side*3.8,4.62,z);lamp.material.emissive=new THREE.Color('#ffbf4a');lamp.material.emissiveIntensity=1.4;scenery.push(pole)}}
@@ -67,7 +87,7 @@ function slide(){if(running&&!paused&&player.position.y<.03)slideT=.65}
 function pauseToggle(){if(!running)return;paused=!paused;if(paused){cancelAnimationFrame(raf);$('ovTitle').textContent='Paused';$('ovText').textContent='Your 3D run is paused.';$('start').textContent='RESUME';$('overlay').classList.remove('hide')}else{$('overlay').classList.add('hide');last=performance.now();raf=requestAnimationFrame(loop)}}
 function finish(){running=false;let n=Math.floor(score);if(n>best){best=n;localStorage.setItem('nexora-runner-best',best);$('best').textContent=String(best).padStart(4,'0')}$('ovTitle').textContent='Run over!';$('ovText').textContent='Distance: '+n+' • Coins: '+coins+' • Best: '+best+'. Ready for another run?';$('powerStatus').textContent='';$('start').textContent='RUN AGAIN';$('overlay').classList.remove('hide')}
 function update(dt){score+=dt*speed*.9;speed=Math.min(48,22+score/145);$('speed').textContent=Math.round(speed);shield=Math.max(0,shield-dt);magnet=Math.max(0,magnet-dt);doubleCoins=Math.max(0,doubleCoins-dt);$('powerStatus').textContent=shield>0?'🛡 SHIELD '+Math.ceil(shield)+'s':magnet>0?'🧲 COIN MAGNET '+Math.ceil(magnet)+'s':doubleCoins>0?'✦ DOUBLE COINS '+Math.ceil(doubleCoins)+'s':'';spawn-=dt;if(spawn<=0){spawnWave();spawn=Math.max(.72,1.5-(speed-22)*.025)}powerSpawn-=dt;if(powerSpawn<=0){spawnPowerup();powerSpawn=17+Math.random()*7}player.position.x+=(targetX-player.position.x)*Math.min(1,dt*12);if(jumpV){player.position.y+=jumpV*dt;jumpV-=24*dt;if(player.position.y<0){player.position.y=0;jumpV=0}}if(slideT>0)slideT-=dt;
-const u=player.userData,runPhase=score*1.05;u.armL.rotation.x=Math.sin(runPhase)*.85;u.armR.rotation.x=-Math.sin(runPhase)*.85;u.legL.rotation.x=-Math.sin(runPhase)*.78;u.legR.rotation.x=Math.sin(runPhase)*.78;u.torso.rotation.x=-.08+Math.sin(runPhase*2)*.025;player.scale.y=slideT>0?.55:1;player.rotation.z+=( (targetX-player.position.x)*-.035-player.rotation.z)*dt*8;u.shadow.position.x=player.position.x;u.shadow.material.opacity=Math.max(.22,.58-player.position.y*.12);u.shadow.scale.setScalar(1+player.position.y*.08);
+const u=player.userData,runPhase=score*1.05;u.armL.rotation.x=Math.sin(runPhase)*.85;u.armR.rotation.x=-Math.sin(runPhase)*.85;u.legL.rotation.x=-Math.sin(runPhase)*.78;u.legR.rotation.x=Math.sin(runPhase)*.78;u.torso.rotation.x=-.08+Math.sin(runPhase*2)*.025;player.scale.y=slideT>0?.55:1;u.armL.rotation.z=Math.sin(runPhase)*.08;u.armR.rotation.z=-Math.sin(runPhase)*.08;player.rotation.z+=( (targetX-player.position.x)*-.035-player.rotation.z)*dt*8;u.shadow.position.x=player.position.x;u.shadow.material.opacity=Math.max(.22,.58-player.position.y*.12);u.shadow.scale.setScalar(1+player.position.y*.08);
 camera.position.x+=(player.position.x*.28-camera.position.x)*dt*2.2;camera.position.y=5.1+player.position.y*.22;camera.lookAt(player.position.x*.22,1.25,-9);
 for(const o of objects){o.group.position.z+=speed*dt;if(!o.hit&&o.group.position.z>1.5&&o.group.position.z<4.4&&Math.abs(player.position.x-(o.lane-1)*2.65)<1.15){o.hit=true;let safe=o.kind==='barrier'?player.position.y>1.0:o.kind==='sign'?slideT>0:false;if(!safe){if(shield>0){shield=0;o.group.visible=false}else{finish();return}}}}
 objects=objects.filter(o=>{if(o.group.position.z>9){scene.remove(o.group);return false}return true});
