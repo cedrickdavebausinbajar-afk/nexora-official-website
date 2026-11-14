@@ -1,6 +1,6 @@
 {
-  "version": "1.2.2",
-  "versionCode": 8,
+  "version": "1.2.3",
+  "versionCode": 9,
   "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk",
-  "releaseNotes": "NEXORA FIT improvements: restore workout backups, improved data safety, and updated app experience."
+  "releaseNotes": "NEXORA FIT now includes an Owner profile in the menu, with official website, Facebook, and Telegram links."
 }
