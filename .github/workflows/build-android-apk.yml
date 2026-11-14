@@ -49,13 +49,16 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
+      - name: Rename APK for download
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk "android/app/build/outputs/apk/debug/NEXORA FIT.apk"
+
       - name: Publish APK release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nexora-fit-build-${{ github.run_number }}
           name: NEXORA FIT Android build ${{ github.run_number }}
           make_latest: true
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+          files: android/app/build/outputs/apk/debug/NEXORA FIT.apk
           body: |
             Installable Android debug APK for NEXORA FIT.
             This build packages the current NEXORA FIT web app in a Capacitor Android shell.
