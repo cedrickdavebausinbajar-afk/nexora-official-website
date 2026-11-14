@@ -77,12 +77,12 @@ if(db.draft&&db.draft.exercises){active=db.draft;seconds=Math.max(0,Math.floor((
 
 /* NEXORA FIT in-app update checker */
 (()=>{
- const CURRENT_VERSION_CODE=4;
+ const CURRENT_VERSION_CODE=6;
  const VERSION_URL='https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/version.json';
  const APK_URL='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk';
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
  if(!status||!button)return;
- label.textContent='Installed build '+CURRENT_VERSION_CODE;
+ label.textContent='Installed v1.2.0 · build '+CURRENT_VERSION_CODE;
  async function check(){
    status.textContent='Checking for updates…';button.disabled=true;button.textContent='Checking…';
    try{
@@ -94,8 +94,8 @@ if(db.draft&&db.draft.exercises){active=db.draft;seconds=Math.max(0,Math.floor((
        notes.textContent=info.releaseNotes||'Install the latest version to get improvements.';
        download.href=info.apkUrl||APK_URL;download.classList.remove('hidden');
      }else{
-       status.textContent='You are using the latest version.';
-       notes.textContent='No update is available right now. We’ll check again later.';
+       status.textContent='Your app is up to date!';
+       notes.textContent='You have the latest NEXORA FIT version installed. We’ll check again later.';
        download.classList.add('hidden');
      }
    }catch(e){status.textContent='Could not check for updates. Please try again later.';}
