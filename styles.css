@@ -109,3 +109,27 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:18px;pa
 
 /* NEXORA FIT realistic hero cover */
 .card-apps{min-height:390px}.card-photo{object-position:center 48%;opacity:.86}.card-apps:after{background:linear-gradient(90deg,rgba(4,11,20,.96) 0%,rgba(4,11,20,.78) 39%,rgba(4,11,20,.18) 100%),linear-gradient(0deg,rgba(4,11,20,.62),transparent 68%)}.card-apps:hover .card-photo{opacity:.98;transform:scale(1.035)}@media(max-width:650px){.card-apps{min-height:340px}.card-photo{object-position:58% center}}
+
+
+/* Dedicated photographic cover behind the NEXORA FIT title and description */
+.card-apps .card-copy{
+  position:relative;
+  isolation:isolate;
+  max-width:560px;
+  padding:26px 28px 24px;
+  margin:18px 0 0;
+  border:1px solid rgba(190,225,238,.25);
+  border-radius:20px;
+  overflow:hidden;
+  background:
+    linear-gradient(90deg,rgba(3,10,18,.88),rgba(3,10,18,.58)),
+    url("https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=90") center 48%/cover;
+  box-shadow:0 18px 50px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter:blur(2px);
+}
+.card-apps .card-copy h3{color:#fff;text-shadow:0 2px 18px #000b}
+.card-apps .card-copy>p:not(.card-kicker){color:#eef5fb!important}
+.card-apps .card-copy .apk-download{margin-left:0}
+@media(max-width:650px){
+  .card-apps .card-copy{padding:21px 19px;margin-top:14px;border-radius:17px;background-position:58% center}
+}
