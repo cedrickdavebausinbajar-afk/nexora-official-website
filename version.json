@@ -1,6 +1,6 @@
 {
-  "version": "1.2.4",
-  "versionCode": 10,
+  "version": "1.2.5",
+  "versionCode": 11,
   "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk",
-  "releaseNotes": "NEXORA FIT now includes the NEXORA AI DRAMA-style update popup, automatic update checks on launch, a Check for Updates menu shortcut, and an improved update center. Your workout data and FIT features remain unchanged."
+  "releaseNotes": "NEXORA FIT 1.2.5 adds a premium daily activity dashboard with manually logged steps, calories and active minutes; a smart workout interval timer with optional voice cues; and a nutrition diary with calories, macros and water tracking. Existing workout history, routines and custom exercises are preserved."
 }
