@@ -1,6 +1,6 @@
 {
   "version": "1.3.0",
   "versionCode": 30,
-  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk",
+  "apkUrl": null,
   "releaseNotes": "NEXORA FIT 1.3.0 (Build 30): improved Android backup export and restore, refreshed activity and nutrition views after restoring a backup, corrected app version information, and improved external link handling."
 }
