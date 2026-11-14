@@ -158,3 +158,6 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:18px;pa
 .card-drama .apk-download-count{display:block;margin-top:10px;color:#b7a9ca;font:600 10px/1.4 "DM Sans",sans-serif;letter-spacing:.12em}
 .card-drama .apk-download-count strong{color:#fff}
 @media(max-width:650px){.card-drama{min-height:340px}.card-drama .card-copy{padding:21px 19px;margin-top:14px;border-radius:17px}}
+
+/* NEXORA AI DRAMA premium cover artwork */
+.card-drama{background-image:linear-gradient(90deg,rgba(7,5,18,.96) 0%,rgba(12,7,28,.82) 48%,rgba(15,8,30,.42) 100%),url("./nexora-drama-cover.svg");background-size:cover;background-position:center}.card-drama .card-copy{background:linear-gradient(110deg,rgba(13,7,27,.84),rgba(27,12,48,.72));backdrop-filter:blur(8px)}
