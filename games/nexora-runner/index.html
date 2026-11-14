@@ -89,7 +89,20 @@ player=makeAvatar();
 const shadow=new THREE.Mesh(new THREE.CircleGeometry(.72,24),new THREE.MeshBasicMaterial({color:'#020914',transparent:true,opacity:.58,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.set(0,.015,3);scene.add(shadow);player.userData.shadow=shadow;
 resize();window.addEventListener('resize',resize)}
 function resize(){if(!renderer)return;const r=c.getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.updateProjectionMatrix()}
-function makeObstacle(kind,l,z){const g=new THREE.Group();if(kind==='train'){box(1.55,2.8,5,mats.red,0,1.4,0,g);box(1.2,.75,.08,mats.glass,0,2.2,2.54,g);box(1.25,.85,.08,mats.dark,0,1.15,2.55,g);for(let x of [-.48,.48])cylinder(.2,.2,.12,mats.gold,x,.25,2.58,g).rotation.x=Math.PI/2}
+function makeObstacle(kind,l,z){const g=new THREE.Group();if(kind==='train'){
+box(1.55,2.8,5,mats.red,0,1.4,0,g);
+box(1.2,.75,.08,mats.glass,0,2.2,2.54,g);
+box(1.25,.85,.08,mats.dark,0,1.15,2.55,g);
+box(1.42,.16,.09,mats.gold,0,1.78,2.58,g);
+box(1.5,.12,.08,mats.cyan,0,.72,2.58,g);
+for(let x of [-.48,.48]){
+ cylinder(.2,.2,.12,mats.gold,x,.25,2.58,g).rotation.x=Math.PI/2;
+ const lamp=new THREE.Mesh(new THREE.SphereGeometry(.12,12,10),new THREE.MeshBasicMaterial({color:'#fff0b0'}));
+ lamp.position.set(x,.48,2.64);g.add(lamp);
+ const glow=new THREE.PointLight('#ffcc77',.8,4);glow.position.set(x,.5,2.8);g.add(glow);
+}
+for(let x of [-.58,.58]){box(.12,.42,.12,mats.steel,x,2.48,2.52,g);box(.3,.08,.1,mats.cyan,x,2.73,2.57,g)}
+}
 else if(kind==='barrier'){box(1.5,.72,.5,mats.barrier,0,.36,0,g);box(1.6,.12,.58,mats.gold,0,.55,.02,g)}
 else{box(2.3,.18,.35,mats.purple,0,2.1,0,g);for(let x of [-.98,.98])box(.12,2.15,.12,mats.steel,x,1.05,0,g)}
 g.position.set((l-1)*2.65,0,z);scene.add(g);objects.push({group:g,kind,lane:l,hit:false})}
@@ -106,7 +119,7 @@ function pauseToggle(){if(!running)return;paused=!paused;if(paused){cancelAnimat
 function finish(){running=false;let n=Math.floor(score);if(n>best){best=n;localStorage.setItem('nexora-runner-best',best);$('best').textContent=String(best).padStart(4,'0')}$('ovTitle').textContent='Run over!';$('ovText').textContent='Distance: '+n+' • Coins: '+coins+' • Best: '+best+'. Ready for another run?';$('powerStatus').textContent='';$('start').textContent='RUN AGAIN';$('overlay').classList.remove('hide')}
 function update(dt){score+=dt*speed*.9;speed=Math.min(48,22+score/145);$('speed').textContent=Math.round(speed);shield=Math.max(0,shield-dt);magnet=Math.max(0,magnet-dt);doubleCoins=Math.max(0,doubleCoins-dt);$('powerStatus').textContent=shield>0?'🛡 SHIELD '+Math.ceil(shield)+'s':magnet>0?'🧲 COIN MAGNET '+Math.ceil(magnet)+'s':doubleCoins>0?'✦ DOUBLE COINS '+Math.ceil(doubleCoins)+'s':'';spawn-=dt;if(spawn<=0){spawnWave();spawn=Math.max(.72,1.5-(speed-22)*.025)}powerSpawn-=dt;if(powerSpawn<=0){spawnPowerup();powerSpawn=17+Math.random()*7}player.position.x+=(targetX-player.position.x)*Math.min(1,dt*12);if(jumpV){player.position.y+=jumpV*dt;jumpV-=24*dt;if(player.position.y<0){player.position.y=0;jumpV=0}}if(slideT>0)slideT-=dt;
 const u=player.userData,runPhase=score*1.05;u.armL.rotation.x=Math.sin(runPhase)*.85;u.armR.rotation.x=-Math.sin(runPhase)*.85;u.legL.rotation.x=-Math.sin(runPhase)*.78;u.legR.rotation.x=Math.sin(runPhase)*.78;u.torso.rotation.x=-.08+Math.sin(runPhase*2)*.025;player.scale.y=slideT>0?.55:1;u.armL.rotation.z=Math.sin(runPhase)*.08;u.armR.rotation.z=-Math.sin(runPhase)*.08;player.rotation.z+=( (targetX-player.position.x)*-.035-player.rotation.z)*dt*8;u.shadow.position.x=player.position.x;u.shadow.material.opacity=Math.max(.22,.58-player.position.y*.12);u.shadow.scale.setScalar(1+player.position.y*.08);
-camera.position.x+=(player.position.x*.28-camera.position.x)*dt*2.2;camera.position.y=5.1+player.position.y*.22;camera.lookAt(player.position.x*.22,1.25,-9);
+camera.position.x+=(player.position.x*.28-camera.position.x)*dt*2.2;camera.position.y=5.1+player.position.y*.22;camera.fov=66+Math.min(5,(speed-22)*.22);camera.updateProjectionMatrix();camera.lookAt(player.position.x*.22,1.25,-9);
 for(const o of objects){o.group.position.z+=speed*dt;if(!o.hit&&o.group.position.z>1.5&&o.group.position.z<4.4&&Math.abs(player.position.x-(o.lane-1)*2.65)<1.15){o.hit=true;let safe=o.kind==='barrier'?player.position.y>1.0:o.kind==='sign'?slideT>0:false;if(!safe){if(shield>0){shield=0;o.group.visible=false}else{finish();return}}}}
 objects=objects.filter(o=>{if(o.group.position.z>9){scene.remove(o.group);return false}return true});
 for(const o of coins3d){o.mesh.position.z+=speed*dt;o.mesh.rotation.z+=dt*4;if(magnet>0&&o.mesh.position.z>-8&&o.mesh.position.z<5)o.mesh.position.x+=(player.position.x-o.mesh.position.x)*Math.min(1,dt*5);if(!o.hit&&o.mesh.position.z>1.6&&o.mesh.position.z<4.5&&Math.abs(player.position.x-o.mesh.position.x)<1.1){o.hit=true;coins+=doubleCoins>0?2:1;$('coins').textContent=coins;scene.remove(o.mesh)}}
