@@ -21,7 +21,12 @@
 <section id="view-routines" class="view hidden"><div class="panel"><div class="sectionhead"><div><h2>Your routines</h2><span class="muted">Start a template or create your own</span></div><button class="btn small" id="newRoutine">＋ Create routine</button></div><div id="routineList"></div></div></section>
 <section id="view-progress" class="view hidden"><div class="stats" style="margin-top:0"><div class="stat"><small>Completed sets</small><strong id="metricSets">0</strong><em>All time</em></div><div class="stat"><small>Average session</small><strong id="metricDuration">0m</strong><em>Workout duration</em></div><div class="stat"><small>Training streak</small><strong id="metricStreak">0</strong><em>Consecutive days</em></div><div class="stat"><small>Estimated 1RM</small><strong id="metricMax">—</strong><em>Best calculated lift</em></div></div><div class="layout"><div class="panel"><h2>Training volume</h2><p class="muted">Total weight × reps per completed session</p><canvas class="chart" id="volumeChart" aria-label="Training volume chart"></canvas></div><div class="panel"><h2>Personal records</h2><p class="muted">Your best logged weight for each exercise</p><div class="prgrid" id="prList"></div></div></div><div class="panel" style="margin-top:15px"><h2>Muscle group breakdown</h2><p class="muted">Where your completed training volume is going</p><div id="muscleBreakdown" style="display:grid;gap:13px;margin-top:18px"></div></div><div class="panel" style="margin-top:15px"><h2>Strength estimates</h2><p class="muted">Estimated one-rep max based on your heaviest completed sets (Epley formula)</p><div id="strengthEstimates" class="prgrid" style="margin-top:14px"></div></div></section>
 <section id="view-history" class="view hidden"><div class="panel"><div class="sectionhead"><div><h2>Workout history</h2><span class="muted">Your completed training sessions</span></div><button class="btn secondary small" id="exportData">Export data</button></div><div id="historyList"></div></div></section>
-</main><footer class="foot">NEXORA FIT · Independent workout tracker · Your data is stored locally on this device</footer></div>
+</main><section class="panel" id="appUpdatePanel" style="margin:18px 0">
+<div class="sectionhead"><div><p class="eyebrow">NEXORA FIT APP</p><h2>App updates</h2><span class="muted" id="appUpdateStatus">Checking for updates…</span></div><span class="pill" id="appVersionLabel">Installed v1.0.0</span></div>
+<div class="actions"><button class="btn secondary small" id="checkAppUpdate">Check for updates</button><a class="btn small hidden" id="downloadAppUpdate" href="https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk" target="_blank" rel="noopener">UPDATE NOW ↓</a></div>
+<p class="notice" id="appUpdateNotes">Your workout data is stored on this device. Back it up before major updates.</p>
+</section>
+<footer class="foot">NEXORA FIT · Independent workout tracker · Your data is stored locally on this device</footer></div>
 <div id="modal" class="modal hidden"><div class="modalbox"><div class="sectionhead"><h2 id="modalTitle">Create</h2><button class="btn secondary small" id="closeModal">✕</button></div><div id="modalBody"></div></div></div><div id="toast" class="toast hidden"></div>
 <script>
 const $=id=>document.getElementById(id);
@@ -69,4 +74,35 @@ $('startBtn').onclick=()=>{if(active)view('workout');else startWorkout()};$('add
 window.addEventListener('pagehide',()=>{if(active)saveDraft()});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&active)saveDraft()});
 $('quickRoutines').innerHTML='';renderStats();renderDash();renderQuick();renderHistory();
 if(db.draft&&db.draft.exercises){active=db.draft;seconds=Math.max(0,Math.floor((Date.now()-new Date(active.started).getTime())/1000));if(!Number.isFinite(seconds))seconds=db.draft.seconds||0;timerInterval=setInterval(()=>{seconds++;$('timer').textContent=time(seconds);$('workoutSub').textContent=(active?.exercises.length||0)+' exercises · '+time(seconds);if(seconds%5===0)saveDraft()},1000);renderActive();toast('Previous workout restored')}
+
+/* NEXORA FIT in-app update checker */
+(()=>{
+ const CURRENT_VERSION_CODE=4;
+ const VERSION_URL='https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/version.json';
+ const APK_URL='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk';
+ const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
+ if(!status||!button)return;
+ label.textContent='Installed build '+CURRENT_VERSION_CODE;
+ async function check(){
+   status.textContent='Checking for updates…';button.disabled=true;button.textContent='Checking…';
+   try{
+     const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
+     if(!response.ok)throw new Error('Update service unavailable');
+     const info=await response.json();
+     if(Number(info.versionCode)>CURRENT_VERSION_CODE){
+       status.textContent='A new version is available: '+(info.version||'Latest');
+       notes.textContent=info.releaseNotes||'Install the latest version to get improvements.';
+       download.href=info.apkUrl||APK_URL;download.classList.remove('hidden');
+     }else{
+       status.textContent='You are using the latest version.';
+       notes.textContent='No update is available right now. We’ll check again later.';
+       download.classList.add('hidden');
+     }
+   }catch(e){status.textContent='Could not check for updates. Please try again later.';}
+   finally{button.disabled=false;button.textContent='Check for updates';}
+ }
+ button.addEventListener('click',check);
+ check();
+ setInterval(check,6*60*60*1000);
+})();
 </script></body></html>
