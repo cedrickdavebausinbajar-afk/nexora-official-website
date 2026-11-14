@@ -41,7 +41,7 @@ label{display:block;font-size:11px;color:#b7c7d9;font-weight:700;margin:12px 0 7
 </section>
 <section class="view" id="assistant">
 <div class="head"><div><h2>Talk to NEXORA</h2><p>Your daily assistant for organizing tasks and planning.</p></div><span class="pill">ASSISTANT PREVIEW</span></div>
-<a id="openChatGPT" class="btn secondary" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" style="display:inline-block;text-decoration:none;margin:0 0 12px">Open ChatGPT ↗</a>
+
 <div class="panel" style="margin-bottom:12px"><h3>Connect real AI</h3><p class="note">Paste your deployed Cloudflare Worker URL once. Your Gemini key stays on the server, never in this website.</p><label for="aiEndpoint">Secure AI endpoint</label><input id="aiEndpoint" type="url" placeholder="https://your-worker.your-subdomain.workers.dev"><button class="btn secondary" id="saveAiEndpoint" type="button">Save AI connection</button><span id="aiStatus" class="note">Not connected — using local assistant mode.</span></div>
 <div class="chatbox" id="chatbox"><div class="bubble bot">Hi! I'm your NEXORA assistant. I can help organize your day, add tasks and create reminders in this browser. Try: “Add task finish my homework”, “Remind me to take a break at 3pm tomorrow”, or “Show my tasks”.</div></div>
 <div class="chips"><button class="chip" data-prompt="Show my tasks">Show my tasks</button><button class="chip" data-prompt="Help me plan my day">Plan my day</button><button class="chip" data-prompt="Add task study for 30 minutes">Add a study task</button></div>
