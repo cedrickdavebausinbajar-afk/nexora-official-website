@@ -105,3 +105,7 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:18px;pa
 .apk-download{display:inline-flex;align-items:center;gap:8px;margin:12px 0 0 9px;padding:11px 15px;border:1px solid #d7e8f5a8;border-radius:999px;background:linear-gradient(110deg,#e8f4ff,#a9c8df);color:#071522;text-decoration:none;font-size:9px;font-weight:900;letter-spacing:.12em;box-shadow:0 8px 22px #00121f66;transition:transform .2s,filter .2s}
 .apk-download:hover{transform:translateY(-2px);filter:brightness(1.08)}
 @media(max-width:650px){.apk-download{margin-left:0;margin-top:10px}}
+
+
+/* NEXORA FIT realistic hero cover */
+.card-apps{min-height:390px}.card-photo{object-position:center 48%;opacity:.86}.card-apps:after{background:linear-gradient(90deg,rgba(4,11,20,.96) 0%,rgba(4,11,20,.78) 39%,rgba(4,11,20,.18) 100%),linear-gradient(0deg,rgba(4,11,20,.62),transparent 68%)}.card-apps:hover .card-photo{opacity:.98;transform:scale(1.035)}@media(max-width:650px){.card-apps{min-height:340px}.card-photo{object-position:58% center}}
