@@ -22,6 +22,8 @@ class MainActivity : Activity() {
             )
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
+            settings.allowFileAccess = true
+            settings.allowContentAccess = true
             settings.javaScriptCanOpenWindowsAutomatically = false
             settings.setSupportMultipleWindows(false)
             webViewClient = object : WebViewClient() {
@@ -30,11 +32,11 @@ class MainActivity : Activity() {
                     request: WebResourceRequest
                 ): Boolean {
                     val url = request.url
-                    return url.scheme != "https" && url.scheme != "http"
+                    return url.scheme != "https" && url.scheme != "http" && url.scheme != "file"
                 }
             }
             webChromeClient = WebChromeClient()
-            loadUrl("https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/fit/")
+            loadUrl("file:///android_asset/fit/index.html")
         }
         setContentView(webView)
     }
