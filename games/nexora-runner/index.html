@@ -138,6 +138,31 @@ for(let x of [-.48,.48]){
  const glow=new THREE.PointLight('#ffcc77',.8,4);glow.position.set(x,.5,2.8);g.add(glow);
 }
 for(let x of [-.58,.58]){box(.12,.42,.12,mats.steel,x,2.48,2.52,g);box(.3,.08,.1,mats.cyan,x,2.73,2.57,g)}
+/* Detailed subway carriage: roof equipment, side windows, doors, safety stripe and wheels */
+box(1.42,.12,4.55,mats.steel,0,2.84,0,g);
+box(1.58,.13,4.7,mats.dark,0,2.68,0,g);
+for(const side of [-1,1]){
+  box(.055,.18,4.45,mats.cyan,side*.79,2.35,0,g);
+  box(.055,.16,4.45,mats.gold,side*.795,.88,0,g);
+  for(let j=0;j<4;j++){
+    const winMat=new THREE.MeshStandardMaterial({color:billboardColors[j%billboardColors.length],emissive:billboardColors[j%billboardColors.length],emissiveIntensity:.32,metalness:.2,roughness:.25});
+    const win=box(.045,.62,.72,winMat,side*.805,1.95,-1.65+j*1.05,g);
+    colorCycle.push({material:winMat,offset:j*.16,rate:.07});
+    box(.06,.82,.12,mats.steel,side*.81,1.55,-1.1+j*1.05,g);
+  }
+  for(const zWheel of [-1.65,1.65]){
+    const wheel=cylinder(.25,.25,.14,mats.dark,side*.81,.35,zWheel,g);
+    wheel.rotation.z=Math.PI/2;
+    const hub=cylinder(.11,.11,.16,mats.gold,side*.82,.35,zWheel,g);
+    hub.rotation.z=Math.PI/2;
+  }
+  box(.07,.13,.62,mats.red,side*.82,1.35,0,g);
+}
+for(const zRoof of [-1.35,0,1.35]){
+  box(.38,.12,.58,mats.steel,0,2.96,zRoof,g);
+}
+const destination=new THREE.MeshBasicMaterial({color:'#e8ffff'});
+box(.62,.16,.045,destination,0,2.42,2.61,g);
 }
 else if(kind==='barrier'){box(1.5,.72,.5,mats.barrier,0,.36,0,g);box(1.6,.12,.58,mats.gold,0,.55,.02,g)}
 else{box(2.3,.18,.35,mats.purple,0,2.1,0,g);for(let x of [-.98,.98])box(.12,2.15,.12,mats.steel,x,1.05,0,g)}
