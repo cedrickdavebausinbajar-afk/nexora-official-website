@@ -51,6 +51,7 @@ for(const o of objects){o.group.position.z+=speed*dt;if(!o.hit&&o.group.position
 objects=objects.filter(o=>{if(o.group.position.z>9){scene.remove(o.group);return false}return true});
 for(const o of coins3d){o.mesh.position.z+=speed*dt;o.mesh.rotation.z+=dt*4;if(!o.hit&&o.mesh.position.z>1.6&&o.mesh.position.z<4.5&&Math.abs(player.position.x-o.mesh.position.x)<1.1){o.hit=true;coins++;$('coins').textContent=coins;scene.remove(o.mesh)}}
 coins3d=coins3d.filter(o=>!o.hit&&o.mesh.position.z<9);
+for(const p of powerups){p.mesh.position.z+=speed*dt;p.mesh.rotation.x+=dt*1.8;p.mesh.rotation.y+=dt*2.5;p.mesh.position.y=1.45+Math.sin(score*.08+p.mesh.position.z)*.16;if(!p.hit&&p.mesh.position.z>1.5&&p.mesh.position.z<4.5&&Math.abs(player.position.x-p.mesh.position.x)<1.25){p.hit=true;if(p.type==='shield')shield=9;if(p.type==='magnet')magnet=10;if(p.type==='double')doubleCoins=10;scene.remove(p.mesh)}}powerups=powerups.filter(p=>!p.hit&&p.mesh.position.z<9);
 for(const b of scenery){b.position.z+=speed*dt*.42;if(b.position.z>18)b.position.z=-125}
 $('score').textContent=String(Math.floor(score)).padStart(4,'0')}
 function loop(t){if(!running||paused)return;let dt=Math.min((t-last)/1000,.04);last=t;update(dt);renderer.render(scene,camera);if(running)raf=requestAnimationFrame(loop)}
