@@ -12,7 +12,6 @@ on:
       - "capacitor.config.json"
       - "scripts/prepare-android.js"
       - ".github/workflows/build-android-apk.yml"
-      - "version.json"
 
 permissions:
   contents: write
@@ -262,6 +261,7 @@ jobs:
         run: cp android/app/build/outputs/apk/release/app-release.apk "NEXORA.FIT.apk"
 
       - name: Publish APK release
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nexora-fit-build-${{ github.run_number }}
