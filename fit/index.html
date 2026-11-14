@@ -52,6 +52,7 @@
 .meal-row:last-child{border:0}
 .water-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
 .water-row button{border:1px solid #45e0d044;background:#45e0d012;color:var(--cyan);border-radius:10px;padding:9px 12px;font-weight:800}
+.nutrition-camera{padding:13px;border:1px solid #45e0d033;border-radius:14px;background:#45e0d009;margin:10px 0 16px}.camera-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.food-photo-preview{display:block;width:min(100%,360px);max-height:240px;object-fit:cover;border-radius:12px;margin-top:12px;border:1px solid var(--line)}
 @media(max-width:700px){.activity-strip{grid-template-columns:1fr}.nutrition-grid{grid-template-columns:repeat(2,1fr)}.meal-form{grid-template-columns:1fr 1fr}.meal-form input:first-child{grid-column:1/-1}.meal-form button{grid-column:1/-1}.activity-rings{justify-content:center}}
 
 </style>
@@ -108,6 +109,12 @@
   <div class="nutrition-stat"><small>Protein</small><b id="nutProtein">0 g</b><div class="macro-track"><i id="proteinBar" style="width:0%"></i></div></div>
   <div class="nutrition-stat"><small>Carbs</small><b id="nutCarbs">0 g</b><div class="macro-track"><i id="carbsBar" style="width:0%"></i></div></div>
   <div class="nutrition-stat"><small>Fat</small><b id="nutFat">0 g</b><div class="macro-track"><i id="fatBar" style="width:0%"></i></div></div>
+ </div>
+ <h2 style="font-size:16px">Food camera & quick nutrition estimate</h2>
+ <div class="nutrition-camera">
+  <div class="camera-actions"><label class="btn secondary small" for="foodPhoto">📷 Take photo / Choose image</label><input id="foodPhoto" type="file" accept="image/*" capture="environment" class="hidden"><button class="btn small" id="estimateFood" type="button">Estimate nutrition</button></div>
+  <img id="foodPhotoPreview" class="food-photo-preview hidden" alt="Selected food photo preview">
+  <p class="notice">Take a food photo as a visual reference, then type the food name below and tap Estimate nutrition to fill approximate macros. Photo-only AI recognition is not connected in this version; check estimates and adjust serving sizes.</p>
  </div>
  <h2 style="font-size:16px">Add a meal</h2>
  <div class="meal-form"><input id="mealName" placeholder="Food or meal name" aria-label="Food name"><input id="mealKcal" type="number" min="0" placeholder="kcal" aria-label="Calories"><input id="mealProtein" type="number" min="0" placeholder="Protein g" aria-label="Protein grams"><input id="mealCarbs" type="number" min="0" placeholder="Carbs g" aria-label="Carbohydrates grams"><input id="mealFat" type="number" min="0" placeholder="Fat g" aria-label="Fat grams"><button class="btn small" id="addMeal">＋ Add</button></div>
@@ -207,6 +214,35 @@ function renderNutrition(){
  $('waterTotal').textContent=fmt(db.nutrition.waterMl)+' / 2,000 ml';$('waterBar').style.width=Math.min(100,db.nutrition.waterMl/2000*100)+'%';
 }
 $('addMeal').onclick=()=>{const name=$('mealName').value.trim();if(!name){toast('Enter a food or meal name');return}const val=id=>Math.max(0,Number($(id).value)||0);db.nutrition.meals.push({name,kcal:val('mealKcal'),protein:val('mealProtein'),carbs:val('mealCarbs'),fat:val('mealFat'),at:new Date().toISOString()});['mealName','mealKcal','mealProtein','mealCarbs','mealFat'].forEach(id=>$(id).value='');save();renderNutrition();toast('Meal added to today’s diary')};
+/* Food photo preview + transparent, name-based nutrition estimates (no image AI claim) */
+let foodPhotoUrl=null;
+$('foodPhoto').onchange=e=>{
+ const file=e.target.files?.[0];if(!file)return;
+ if(!file.type.startsWith('image/')){toast('Please choose an image');return}
+ if(foodPhotoUrl)URL.revokeObjectURL(foodPhotoUrl);
+ foodPhotoUrl=URL.createObjectURL(file);
+ $('foodPhotoPreview').src=foodPhotoUrl;$('foodPhotoPreview').classList.remove('hidden');
+};
+const foodEstimates=[
+ {keys:['banana'],name:'Banana (1 medium)',kcal:105,protein:1,carbs:27,fat:0},
+ {keys:['apple'],name:'Apple (1 medium)',kcal:95,protein:0,carbs:25,fat:0},
+ {keys:['egg','boiled egg'],name:'Egg (1 large)',kcal:78,protein:6,carbs:1,fat:5},
+ {keys:['rice','white rice'],name:'Cooked white rice (1 cup)',kcal:205,protein:4,carbs:45,fat:0},
+ {keys:['chicken breast','grilled chicken','chicken'],name:'Cooked chicken breast (100 g)',kcal:165,protein:31,carbs:0,fat:4},
+ {keys:['salmon'],name:'Cooked salmon (100 g)',kcal:206,protein:22,carbs:0,fat:12},
+ {keys:['oat','oatmeal'],name:'Oatmeal (1 cup cooked)',kcal:154,protein:6,carbs:27,fat:3},
+ {keys:['bread','toast'],name:'Bread (2 slices)',kcal:160,protein:6,carbs:28,fat:2},
+ {keys:['pasta','spaghetti'],name:'Cooked pasta (1 cup)',kcal:220,protein:8,carbs:43,fat:1},
+ {keys:['potato'],name:'Potato (1 medium)',kcal:163,protein:4,carbs:37,fat:0}
+];
+$('estimateFood').onclick=()=>{
+ const q=$('mealName').value.trim().toLowerCase();
+ if(!q){toast('Type the food name first');$('mealName').focus();return}
+ const match=foodEstimates.find(x=>x.keys.some(k=>q.includes(k)));
+ if(!match){toast('No quick estimate found. Enter the macros manually.');return}
+ $('mealName').value=match.name;$('mealKcal').value=match.kcal;$('mealProtein').value=match.protein;$('mealCarbs').value=match.carbs;$('mealFat').value=match.fat;
+ toast('Approximate values filled — review serving size');
+};
 function addWater(ml){ensureNutritionDay();db.nutrition.waterMl=Math.min(10000,(db.nutrition.waterMl||0)+ml);save();renderNutrition();toast(ml+' ml water added')}
 $('water250').onclick=()=>addWater(250);$('water500').onclick=()=>addWater(500);$('waterReset').onclick=()=>{if(confirm('Reset today’s water total?')){db.nutrition.waterMl=0;save();renderNutrition()}};
 renderActivity();

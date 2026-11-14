@@ -1,6 +1,6 @@
 {
-  "version": "1.2.6",
-  "versionCode": 12,
+  "version": "1.2.7",
+  "versionCode": 13,
   "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk",
-  "releaseNotes": "NEXORA FIT 1.2.6 adds automatic in-app APK downloading with progress and an install handoff to Android. Android still requires user approval to install. The updater replaces only its own previous update download; it does not delete unrelated files. Also includes the premium activity dashboard, smart workout interval and voice coach, and nutrition tracker."
+  "releaseNotes": "NEXORA FIT 1.2.7 adds a food photo capture/preview and quick nutrition estimates for common foods. Estimates are based on the typed food name, not automatic AI image recognition; review serving sizes and macros. Existing workout, activity, nutrition and updater features remain."
 }
