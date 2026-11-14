@@ -161,3 +161,8 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:18px;pa
 
 /* NEXORA AI DRAMA premium cover artwork */
 .card-drama{background-image:linear-gradient(90deg,rgba(7,5,18,.96) 0%,rgba(12,7,28,.82) 48%,rgba(15,8,30,.42) 100%),url("./nexora-drama-cover.svg");background-size:cover;background-position:center}.card-drama .card-copy{background:linear-gradient(110deg,rgba(13,7,27,.84),rgba(27,12,48,.72));backdrop-filter:blur(8px)}
+
+/* Dedicated cinematic cover directly behind the NEXORA AI DRAMA title and copy */
+.card-drama .card-copy{background-image:linear-gradient(90deg,rgba(8,5,18,.86),rgba(12,7,27,.66)),url("./drama/drama-card-cover.svg");background-size:cover;background-position:center 48%;border-color:rgba(210,160,255,.55);box-shadow:0 18px 50px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.15)}
+.card-drama .card-copy h3,.card-drama .card-copy>p:not(.card-kicker){text-shadow:0 2px 15px #000}
+@media(max-width:650px){.card-drama .card-copy{background-position:58% center}}
