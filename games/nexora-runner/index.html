@@ -16,7 +16,7 @@
 (()=>{const c=document.getElementById('game'),$=id=>document.getElementById(id);
 if(!window.THREE){$('ovTitle').textContent='3D engine unavailable';$('ovText').textContent='Please reload while connected to the internet.';$('start').disabled=true;['left','right','jump','slide','pause'].forEach(id=>$(id).disabled=true);return}
 const THREE=window.THREE;
-let scene,camera,renderer,clock,player,avatar,objects=[],scenery=[],coins3d=[],powerups=[],particles=[],lane=1,targetX=0,running=false,paused=false,score=0,coins=0,best=+(localStorage.getItem('nexora-runner-best')||0),speed=22,spawn=0,powerSpawn=11,shield=0,magnet=0,doubleCoins=0,last=0,raf=0,jumpV=0,slideT=0,audioCtx=null,musicNodes=[],soundOn=true,lastCoinSound=0;
+let scene,camera,renderer,clock,player,avatar,objects=[],scenery=[],coins3d=[],powerups=[],particles=[],colorCycle=[],lane=1,targetX=0,running=false,paused=false,score=0,coins=0,best=+(localStorage.getItem('nexora-runner-best')||0),speed=22,spawn=0,powerSpawn=11,shield=0,magnet=0,doubleCoins=0,last=0,raf=0,jumpV=0,slideT=0,audioCtx=null,musicNodes=[],soundOn=true,lastCoinSound=0;
 $('best').textContent=String(best).padStart(4,'0');
 function audioReady(){if(!soundOn)return false;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;if(!audioCtx)audioCtx=new AC();if(audioCtx.state==='suspended')audioCtx.resume();return true}catch(e){return false}}
 function tone(freq,duration,wave='sine',volume=.07,slideTo=null){if(!audioReady())return;const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=wave;o.frequency.setValueAtTime(freq,t);if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+duration);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+duration+.03)}
@@ -88,6 +88,36 @@ for(let i=0;i<10;i++){
  }
  scene.add(frame);scenery.push(frame);
 }
+/* Colorful animated arcade billboards and rainbow station lighting */
+const billboardColors=['#ff3f9f','#ffb52e','#53f4df','#8c72ff','#5aa8ff'];
+for(let i=0;i<12;i++){
+ const z=5-i*13;
+ for(const side of [-1,1]){
+  const g=new THREE.Group();g.position.set(side*5.05,0,z);
+  box(.16,3.5,.18,mats.steel,0,1.75,0,g);
+  box(2.25,1.45,.2,mats.dark,side*-.05,3.45,0,g);
+  const frame=box(2.12,1.32,.07,mats.purple,0,3.45,.13,g);
+  const screenMat=new THREE.MeshBasicMaterial({color:billboardColors[i%billboardColors.length]});
+  const screen=box(1.94,1.12,.045,screenMat,0,3.45,.19,g);
+  colorCycle.push({material:screenMat,offset:i*.11,rate:.12+(i%4)*.035});
+  for(let k=0;k<4;k++){
+   const stripeMat=new THREE.MeshBasicMaterial({color:billboardColors[(i+k+1)%billboardColors.length]});
+   const stripe=box(.22,.72,.035,stripeMat,-.68+k*.45,3.45,.23,g);
+   colorCycle.push({material:stripeMat,offset:i*.13+k*.17,rate:.18});
+  }
+  const glow=box(2.28,.08,.12,mats.cyan,0,2.68,.1,g);
+  scene.add(g);scenery.push(g);
+ }
+}
+for(let i=0;i<6;i++){
+ const z=2-i*24, arch=new THREE.Group();arch.position.z=z;
+ for(let x of [-3.95,-1.32,1.32,3.95]){
+  const stripMat=new THREE.MeshBasicMaterial({color:billboardColors[i%billboardColors.length]});
+  const strip=box(.16,.08,12,stripMat,x,5.16,0,arch);
+  colorCycle.push({material:stripMat,offset:i*.2+x*.04,rate:.16});
+ }
+ scene.add(arch);scenery.push(arch);
+}
 const moon=new THREE.Mesh(new THREE.SphereGeometry(3,24,18),new THREE.MeshBasicMaterial({color:'#9cecff'}));moon.position.set(-25,25,-95);scene.add(moon);
 const halo=new THREE.Mesh(new THREE.TorusGeometry(4,.045,8,64),new THREE.MeshBasicMaterial({color:'#55e8e6',transparent:true,opacity:.45}));halo.position.copy(moon.position);halo.rotation.x=.45;scene.add(halo);
 const skylineMat=mat('#102844');for(let i=0;i<14;i++){const h=10+(i*13%17),x=(i%2?1:-1)*(19+(i%4)*5),z=-35-i*7;const tower=box(3.5,h,3.5,skylineMat,x,h/2-1,z);scenery.push(tower);const crown=box(2.1,.18,2.1,mats.cyan,x,h-.9,z);scenery.push(crown)}
@@ -133,6 +163,7 @@ objects=objects.filter(o=>{if(o.group.position.z>9){scene.remove(o.group);return
 for(const o of coins3d){o.mesh.position.z+=speed*dt;o.mesh.rotation.z+=dt*4;if(magnet>0&&o.mesh.position.z>-8&&o.mesh.position.z<5)o.mesh.position.x+=(player.position.x-o.mesh.position.x)*Math.min(1,dt*5);if(!o.hit&&o.mesh.position.z>1.6&&o.mesh.position.z<4.5&&Math.abs(player.position.x-o.mesh.position.x)<1.1){o.hit=true;burst(o.mesh.position.x,o.mesh.position.y,o.mesh.position.z,'coin',10);coins+=doubleCoins>0?2:1;$('coins').textContent=coins;if(performance.now()-lastCoinSound>85){sfx('coin');lastCoinSound=performance.now()}scene.remove(o.mesh)}}
 coins3d=coins3d.filter(o=>!o.hit&&o.mesh.position.z<9);
 for(const p of powerups){p.mesh.position.z+=speed*dt;p.mesh.rotation.x+=dt*1.8;p.mesh.rotation.y+=dt*2.5;p.mesh.position.y=1.45+Math.sin(score*.08+p.mesh.position.z)*.16;if(!p.hit&&p.mesh.position.z>1.5&&p.mesh.position.z<4.5&&Math.abs(player.position.x-p.mesh.position.x)<1.25){p.hit=true;burst(p.mesh.position.x,p.mesh.position.y,p.mesh.position.z,p.type==='magnet'?'pink':'cyan',16);if(p.type==='shield')shield=9;if(p.type==='magnet')magnet=10;if(p.type==='double')doubleCoins=10;sfx('power');scene.remove(p.mesh)}}powerups=powerups.filter(p=>!p.hit&&p.mesh.position.z<9);
+for(const item of colorCycle){const hue=(score*.018*item.rate+item.offset)%1;item.material.color.setHSL(hue,.92,.58)}
 for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;p.mesh.position.x+=p.vx*dt;p.mesh.position.y+=p.vy*dt;p.mesh.position.z+=p.vz*dt;p.vy-=8*dt;p.mesh.scale.setScalar(Math.max(.05,p.life/p.max));if(p.life<=0){scene.remove(p.mesh);particles.splice(i,1)}}
 for(const b of scenery){b.position.z+=speed*dt*.58;if(b.position.z>18)b.position.z=-155}
 $('score').textContent=String(Math.floor(score)).padStart(4,'0')}
