@@ -5,6 +5,8 @@ on:
   push:
     paths:
       - "fit/**"
+      - "logo.svg"
+      - "assets/logo.svg"
       - "package.json"
       - "package-lock.json"
       - "capacitor.config.json"
@@ -42,6 +44,7 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+          npx --yes @capacitor/assets generate --android --assetPath assets --iconBackgroundColor "#071522" --iconBackgroundColorDark "#071522" --splashBackgroundColor "#071522" --splashBackgroundColorDark "#071522"
 
       - name: Build installable APK
         run: |
