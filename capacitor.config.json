@@ -1,0 +1,8 @@
+{
+  "appId": "com.nexora.fit",
+  "appName": "NEXORA FIT",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
