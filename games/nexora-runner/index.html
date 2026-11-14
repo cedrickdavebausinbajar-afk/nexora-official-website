@@ -37,7 +37,7 @@ function init(){scene=new THREE.Scene();scene.background=new THREE.Color('#07132
 scene.add(new THREE.HemisphereLight('#a9dfff','#17213b',2));const sun=new THREE.DirectionalLight('#d4f5ff',2.6);sun.position.set(-7,15,8);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
 box(12,.35,150,mats.road,0,-.22,-58);
 const asphaltMarks=mat('#263d58'),railMat=mat('#a8bacb',.8,.28),sleeperMat=mat('#53677d');
-for(let laneX of [-2.65,0,2.65]){box(.12,.08,150,railMat,laneX-.62,-.02,-58);box(.12,.08,150,railMat,laneX+.62,-.02,-58);for(let z=12;z>-138;z-=2.4){box(1.42,.12,.34,sleeperMat,laneX,-.02,z)}}
+for(let laneX of [-2.65,0,2.65]){box(.12,.08,150,railMat,laneX-.62,-.02,-58);box(.12,.08,150,railMat,laneX+.62,-.02,-58);for(let z=12;z>-138;z-=2.4){const tie=box(1.42,.12,.34,sleeperMat,laneX,-.02,z);scenery.push(tie)}}
 for(let x of [-1.33,1.33]){box(.035,.025,150,mats.cyan,x,.01,-58);for(let z=12;z>-135;z-=12)box(.08,.03,1.2,asphaltMarks,x,.015,z)}
 
 for(let i=0;i<32;i++){let z=10-i*4.5;for(let side of [-1,1]){const w=2.4+(i%3)*.6,h=4+(i*7%9);let b=box(w,h,3,mats.building,side*(8+(i%4)*1.5),h/2-.2,z);for(let wy=1;wy<h-1;wy+=1.5)for(let wx=-w/2+.45;wx<w/2-.2;wx+=.9){box(.22,.32,.035,mats.cyan,b.position.x+wx,wy,z+1.53).material.transparent=true;scene.children[scene.children.length-1].material.opacity=.55}scenery.push(b)}}
