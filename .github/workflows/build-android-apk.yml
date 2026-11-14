@@ -1,0 +1,62 @@
+name: Build NEXORA FIT APK
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "fit/**"
+      - "package.json"
+      - "package-lock.json"
+      - "capacitor.config.json"
+      - "scripts/prepare-android.js"
+      - ".github/workflows/build-android-apk.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Prepare app files
+        run: npm run prepare:android
+
+      - name: Generate Android project
+        run: |
+          npx cap add android
+          npx cap sync android
+
+      - name: Build installable APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Publish APK release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nexora-fit-build-${{ github.run_number }}
+          name: NEXORA FIT Android build ${{ github.run_number }}
+          make_latest: true
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          body: |
+            Installable Android debug APK for NEXORA FIT.
+            This build packages the current NEXORA FIT web app in a Capacitor Android shell.
