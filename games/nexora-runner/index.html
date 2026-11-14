@@ -11,30 +11,8 @@
 <section class="stage"><canvas id="game" aria-label="Third-person 3D endless runner game"></canvas><div class="overlay" id="overlay"><p class="eyebrow">NEXORA ARCADE</p><h2 id="ovTitle">Ready to run?</h2><p id="ovText">Swipe left and right to change lanes. Swipe up to jump, down to slide. Dodge obstacles and collect coins!</p><button class="btn" id="start">START RUN</button></div></section>
 <div class="controls"><button class="control" id="left">◀ LEFT</button><button class="control" id="jump">⬆ JUMP</button><button class="control" id="slide">⬇ SLIDE</button><button class="control" id="right">RIGHT ▶</button><button class="control" id="pause">Ⅱ PAUSE</button></div>
 <p class="hint">Swipe in any direction or use the buttons. Avoid trains and barriers. Your best distance is saved on this phone.</p><footer class="foot">NEXORA RUNNER · <a href="https://t.me/nexorastudioteam" target="_blank" rel="noopener">Join Telegram</a></footer></main>
+<script src="./vendor/three.min.js"></script>
 <script>
-(function loadThree(){
- const sources=[
-  'https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js',
-  'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js',
-  'https://unpkg.com/three@0.152.2/build/three.min.js'
- ];
- let index=0;
- function next(){
-  if(index>=sources.length){
-   document.getElementById('ovTitle').textContent='3D engine could not load';
-   document.getElementById('ovText').textContent='All game engine sources failed. Check your internet connection, then reload.';
-   document.getElementById('start').disabled=true;
-   ['left','right','jump','slide','pause'].forEach(id=>document.getElementById(id).disabled=true);
-   return;
-  }
-  const script=document.createElement('script');
-  script.src=sources[index++];
-  script.onload=()=>bootGame();
-  script.onerror=()=>{script.remove();next()};
-  document.head.appendChild(script);
- }
- next();
-})();
 function bootGame(){
 (()=>{const c=document.getElementById('game'),$=id=>document.getElementById(id);
 if(!window.THREE){$('ovTitle').textContent='3D engine unavailable';$('ovText').textContent='Please reload while connected to the internet.';$('start').disabled=true;['left','right','jump','slide','pause'].forEach(id=>$(id).disabled=true);return}
@@ -84,7 +62,7 @@ let touch=null;c.addEventListener('pointerdown',e=>touch={x:e.clientX,y:e.client
 $('start').onclick=()=>{if(paused){paused=false;$('overlay').classList.add('hide');last=performance.now();raf=requestAnimationFrame(loop)}else start()};
 $('left').onclick=()=>move(-1);$('right').onclick=()=>move(1);$('jump').onclick=jump;$('slide').onclick=slide;$('pause').onclick=pauseToggle;
 window.addEventListener('keydown',e=>{if(e.code==='ArrowLeft'||e.code==='KeyA')move(-1);if(e.code==='ArrowRight'||e.code==='KeyD')move(1);if(e.code==='ArrowUp'||e.code==='Space')jump();if(e.code==='ArrowDown')slide();if(e.code==='Escape'||e.code==='KeyP')pauseToggle()});
+if(!window.THREE){$('ovTitle').textContent='3D engine file missing';$('ovText').textContent='The locally hosted 3D engine was not included in this deployment. Please wait for the site build to finish, then reload.';$('start').disabled=true;['left','right','jump','slide','pause'].forEach(id=>$(id).disabled=true);return}
 try{init();renderer.render(scene,camera)}catch(e){$('ovTitle').textContent='3D graphics unavailable';$('ovText').textContent='This browser could not start WebGL. Try Chrome with hardware acceleration enabled.';$('start').disabled=true;['left','right','jump','slide','pause'].forEach(id=>$(id).disabled=true)}
 })();
-}
 </script></body></html>
