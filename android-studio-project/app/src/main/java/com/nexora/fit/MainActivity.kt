@@ -11,11 +11,15 @@ import android.webkit.WebViewClient
 import android.webkit.WebResourceRequest
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
+import android.widget.Toast
 
 class MainActivity : Activity() {
     private lateinit var webView: WebView
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private val filePickerRequest = 4107
+    private val backupSaveRequest = 4108
+    private var pendingBackupContent: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +38,7 @@ class MainActivity : Activity() {
             settings.setSupportMultipleWindows(false)
             settings.loadsImagesAutomatically = true
             settings.databaseEnabled = true
+            addJavascriptInterface(BackupBridge(), "NexoraNative")
 
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(
@@ -117,6 +122,44 @@ class MainActivity : Activity() {
             } else null
             filePathCallback?.onReceiveValue(result)
             filePathCallback = null
+        } else if (requestCode == backupSaveRequest) {
+            val content = pendingBackupContent
+            pendingBackupContent = null
+            val uri = if (resultCode == RESULT_OK) data?.data else null
+            if (content != null && uri != null) {
+                try {
+                    contentResolver.openOutputStream(uri)?.use { output ->
+                        output.write(content.toByteArray(Charsets.UTF_8))
+                    } ?: throw IllegalStateException("Could not open the selected file")
+                    Toast.makeText(this, "NEXORA FIT backup saved", Toast.LENGTH_LONG).show()
+                } catch (_: Exception) {
+                    Toast.makeText(this, "Could not save backup. Please try again.", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private inner class BackupBridge {
+        @JavascriptInterface
+        fun exportBackup(fileName: String, content: String) {
+            runOnUiThread {
+                if (!::webView.isInitialized || webView.url?.startsWith("file:///android_asset/fit/") != true) {
+                    Toast.makeText(this@MainActivity, "Backup export is available inside NEXORA FIT", Toast.LENGTH_SHORT).show()
+                    return@runOnUiThread
+                }
+                pendingBackupContent = content
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    type = "application/json"
+                    putExtra(Intent.EXTRA_TITLE, fileName.ifBlank { "nexora-fit-backup.json" })
+                }
+                try {
+                    startActivityForResult(intent, backupSaveRequest)
+                } catch (_: Exception) {
+                    pendingBackupContent = null
+                    Toast.makeText(this@MainActivity, "No file picker is available", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
@@ -145,6 +188,7 @@ class MainActivity : Activity() {
         filePathCallback?.onReceiveValue(null)
         filePathCallback = null
         if (::webView.isInitialized) {
+            webView.removeJavascriptInterface("NexoraNative")
             webView.stopLoading()
             webView.loadUrl("about:blank")
             webView.removeAllViews()
