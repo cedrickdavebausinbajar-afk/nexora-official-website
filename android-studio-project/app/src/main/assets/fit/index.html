@@ -252,7 +252,7 @@ renderActivity();
  const CURRENT_VERSION_CODE=30;
  const CURRENT_VERSION_NAME='1.3.0';
  const VERSION_URL='https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/nexora-fit-android-studio-project/version.json';
- const APK_URL='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk';
+ const APK_URL='';
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
  let updateInfo={status:'checking',latest:'',url:APK_URL,notes:''},popupShown=false;
  const nativeUpdater=(window.NexoraNative?.downloadUpdate&&window.NexoraNative?.getUpdateStatus)?{getDownloadStatus:async()=>{try{return JSON.parse(window.NexoraNative.getUpdateStatus())}catch(e){return null}},downloadUpdate:async args=>window.NexoraNative.downloadUpdate(args.url,args.version),installUpdate:async()=>window.NexoraNative.installUpdate()}:window.Capacitor?.Plugins?.FitUpdater;
@@ -287,7 +287,13 @@ renderActivity();
      const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
      if(!response.ok)throw new Error('Update service unavailable');
      const info=await response.json();
-     updateInfo={status:Number(info.versionCode)>CURRENT_VERSION_CODE?'available':'current',latest:info.version||'Latest',url:info.apkUrl||APK_URL,notes:info.releaseNotes||''};
+     updateInfo={status:Number(info.versionCode)>CURRENT_VERSION_CODE?'available':'current',latest:info.version||'Latest',url:info.apkUrl||'',notes:info.releaseNotes||''};
+     if(updateInfo.status==='available'&&!updateInfo.url){
+       status.textContent='A newer version is listed, but its installer is not published yet.';
+       notes.textContent='The update is not downloadable yet. Please check again later; your installed app has not been changed.';
+       download.classList.add('hidden');
+       return;
+     }
      if(updateInfo.status==='available'){
        status.textContent='A new version is available: '+updateInfo.latest;
        notes.textContent=updateInfo.notes||'Install the latest version to get improvements.';
