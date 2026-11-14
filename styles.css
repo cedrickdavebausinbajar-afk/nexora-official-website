@@ -84,3 +84,18 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:18px;pa
 @media(max-width:950px){.hero-visual{right:-125px;opacity:.38}.hero-content{max-width:620px}.about-section{grid-template-columns:120px 1fr;gap:30px}.about-mark{width:115px;height:115px;border-radius:34px}.about-mark img{width:94px;height:94px}.about-side{display:none}}
 @media(max-width:650px){.site-header{height:70px;padding:0 18px}.brand{font-size:12px;gap:8px;letter-spacing:.1em}.brand-logo{width:36px;height:36px}nav{gap:12px}nav>a:not(.nav-cta){display:none}nav .nav-cta{font-size:11px;padding:9px 13px}.hero{min-height:650px;padding:78px 24px 105px}.hero-content{width:100%}.hero-visual{width:300px;height:300px;right:-130px;top:67%;opacity:.2}.nucleus{width:116px;height:116px;border-radius:34px}.nucleus img{width:82px;height:82px}.nucleus small{font-size:7px}.hero-meta{gap:8px;margin-top:40px;font-size:8px;letter-spacing:.08em}.scroll-cue{left:24px}.hub-section{padding:78px 22px}.section-top{align-items:flex-start;flex-direction:column;gap:14px}.section-description{max-width:450px}.hub-grid{grid-template-columns:1fr}.hub-card{min-height:250px;padding:24px}.about-section{grid-template-columns:1fr;padding:78px 24px;gap:28px}.about-mark{width:90px;height:90px;border-radius:27px}.about-mark img{width:74px;height:74px}.about-copy h2{font-size:38px}footer{align-items:flex-start;flex-direction:column;padding:24px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
+
+
+/* NEXORA FIT feature card refinement */
+.card-icon-fitness{position:relative;overflow:hidden;width:54px;height:54px;border-radius:17px;background:linear-gradient(145deg,#193c4b 0%,#0a202c 58%,#081722 100%);border:1px solid #68e8df70;box-shadow:inset 0 1px 0 #ffffff25,0 9px 24px #00101899,0 0 22px #29d9d022}
+.card-icon-fitness:before{content:"";position:absolute;inset:3px;border-radius:13px;border:1px solid #b5fff01b;pointer-events:none}
+.card-icon-fitness svg{width:39px;height:39px;overflow:visible;filter:drop-shadow(0 4px 4px #0009)}
+.card-index{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #a9e9e52c;border-radius:999px;background:#061722a8;color:#d8f4f2;font-size:10px;letter-spacing:.16em;backdrop-filter:blur(12px)}
+.card-index i{font-style:normal;color:#61dccc;opacity:.85}
+.card-copy{max-width:480px}
+.card-kicker{margin:0 0 9px!important;color:#7af0df!important;font-size:10px!important;letter-spacing:.2em!important;font-weight:800!important}
+.card-copy h3{font-size:clamp(27px,3.2vw,36px);font-weight:700;letter-spacing:-.045em;line-height:1.12;margin:0 0 11px;text-shadow:0 2px 18px #0008}
+.card-copy>p:not(.card-kicker){max-width:410px!important;color:#d0dce7!important;font-size:13px!important;line-height:1.8!important;text-shadow:0 1px 12px #0009}
+.card-apps .coming-label{display:inline-flex;gap:10px;align-items:center;margin-top:22px;padding:11px 15px;border:1px solid #65e8d55c;border-radius:999px;background:linear-gradient(100deg,#0b665d99,#0a2935c9);color:#e7fffb;font-size:9px;letter-spacing:.14em;box-shadow:inset 0 1px 0 #ffffff1c,0 8px 24px #001b1a66}
+.card-apps .coming-label i{width:7px;height:7px;flex:0 0 auto}
+@media(max-width:650px){.card-icon-fitness{width:50px;height:50px}.card-copy h3{font-size:29px}.card-copy>p:not(.card-kicker){font-size:12px!important}.card-index{font-size:9px;padding:7px 10px}}
