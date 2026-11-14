@@ -1,6 +1,6 @@
 {
-  "version": "1.1.0",
-  "versionCode": 5,
+  "version": "1.2.0",
+  "versionCode": 6,
   "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk",
-  "releaseNotes": "NEXORA FIT update checker and improvements."
+  "releaseNotes": "NEXORA FIT update checker improvements and Android version alignment."
 }
