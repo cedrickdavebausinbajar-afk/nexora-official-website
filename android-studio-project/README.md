@@ -1,23 +1,27 @@
-# NEXORA FIT — Android Studio starter project
+# NEXORA FIT — Android Studio project
 
-This isolated Android Studio project wraps the existing official NEXORA FIT website in an Android WebView.
+This isolated Android project packages the existing NEXORA FIT web app inside the APK. The original website and its default branch are not modified by this project.
 
 ## App identity
 - Application ID: `com.nexora.fit`
-- Version: `1.2.8` (versionCode 28)
+- Version: `1.2.9` (versionCode 29)
 - Minimum Android: 6.0 (API 23)
-- Website loaded: https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/fit/
+- App content: bundled from `app/src/main/assets/fit/index.html`; it does not need to load the app shell from the hosted website.
+- Remote images and web fonts still require an internet connection.
 
-## Open and build
-1. Download this project folder or clone the branch containing it.
-2. Open the `android-studio-project` folder in Android Studio.
-3. Allow Android Studio to install the required Android SDK and Gradle components.
-4. Use **Build → Build Bundle(s) / APK(s) → Build APK(s)**.
+## Android integration
+- WebView JavaScript and DOM storage enabled for the existing app.
+- Native file picker wired to HTML file inputs (JSON backup restore and food-image selection).
+- Back navigation, WebView pause/resume, and saved navigation state.
+- External HTTP(S) links are handed to the device browser, except the official NEXORA GitHub Pages domain.
+- The APK is built as debug and signed release artifacts by GitHub Actions.
 
-## Important limitations
-- This is a starter Android wrapper, not a verified release APK.
-- It loads the current hosted website; it does not add the requested Lite/Pro subscription checkout to that website.
-- No payment provider, recurring billing, trial enrollment, server-side subscription records, webhook handling, or cancellation portal is connected.
-- Do not publish this build as a paid subscription app until those systems are implemented and tested.
-- The original website and existing APK release have not been changed by this branch.
-- Although the application ID is set to `com.nexora.fit`, installing over an existing APK requires the exact same signing certificate. The signing key was not available for verification, so update compatibility is not confirmed.
+## Build
+Open the `android-studio-project` folder in Android Studio, allow Gradle and SDK setup, then use **Build → Build Bundle(s) / APK(s)**. Or run the repository GitHub Actions workflow.
+
+## Important release checks
+- A successful build is not the same as a complete device QA pass. Test file selection, backup restore, photo preview, local workout history, rotation, and external links on a real Android device.
+- Installing over an existing app requires the same application ID and signing certificate. The current project uses the configured release keystore; compare its SHA-256 certificate fingerprint with the certificate of the APK already installed on the user's device before updating.
+- Existing data saved by the hosted website/browser is not automatically imported into the Android app's local WebView storage.
+- The Lite/Pro subscription checkout, 3-day trial enrollment, recurring payment processing, server-side subscription records, webhooks, and cancellation portal are not implemented in this Android project. Those require a configured payment-provider merchant account and secure backend; do not advertise paid billing as active until end-to-end sandbox and live tests pass.
+- The existing website and published APK release are not changed by this branch.
