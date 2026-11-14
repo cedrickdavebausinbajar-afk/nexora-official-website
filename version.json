@@ -1,6 +1,6 @@
 {
-  "version": "1.2.3",
-  "versionCode": 9,
+  "version": "1.2.4",
+  "versionCode": 10,
   "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk",
-  "releaseNotes": "NEXORA FIT now includes an Owner profile in the menu, with official website, Facebook, and Telegram links."
+  "releaseNotes": "NEXORA FIT now includes the NEXORA AI DRAMA-style update popup, automatic update checks on launch, a Check for Updates menu shortcut, and an improved update center. Your workout data and FIT features remain unchanged."
 }
