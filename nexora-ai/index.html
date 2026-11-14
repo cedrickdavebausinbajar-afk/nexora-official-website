@@ -2,6 +2,14 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080d19"><meta name="description" content="NEXORA AI Studio — free everyday writing, study, summarizing and productivity tools."><meta name="robots" content="index,follow"><title>NEXORA AI Studio — Create More</title><link rel="icon" type="image/svg+xml" href="./nexora-ai-logo.svg"><link rel="apple-touch-icon" href="./nexora-ai-logo.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{color-scheme:dark;--bg:#080d19;--panel:#101a2b;--line:#243550;--muted:#91a4bd;--text:#edf5ff;--cyan:#56e0ed;--blue:#668bff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#17335b 0,transparent 38%),var(--bg);color:var(--text);font-family:"DM Sans",sans-serif;min-height:100vh}button,textarea,input,select{font:inherit}button{cursor:pointer}.top{max-width:1200px;margin:auto;padding:22px 26px;display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);font:700 21px "Space Grotesk"}.logo{width:42px;height:42px;border-radius:13px;display:block;object-fit:cover;box-shadow:0 0 20px #27bfff55}.top a.back{color:var(--muted);text-decoration:none;font-size:14px}.wrap{max-width:1200px;margin:20px auto 60px;padding:0 26px}.hero{margin-bottom:25px}.eyebrow{color:var(--cyan);letter-spacing:2px;font-size:11px;font-weight:800}.hero h1{font:700 clamp(32px,5vw,52px) "Space Grotesk";margin:10px 0}.hero h1 span{background:linear-gradient(90deg,var(--cyan),#9d9aff);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{color:var(--muted);max-width:650px;line-height:1.65;margin:0}.status{display:inline-flex;align-items:center;gap:7px;border:1px solid #31556a;background:#102a36;color:#a9f5ef;border-radius:30px;padding:7px 11px;font-size:11px;margin-top:16px}.dot{width:7px;height:7px;border-radius:50%;background:#65e5b0;box-shadow:0 0 12px #65e5b0}.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px}.side,.main{border:1px solid var(--line);background:#0d1727ef;border-radius:20px;box-shadow:0 20px 70px #0003}.side{padding:13px;height:max-content}.navbtn{width:100%;display:flex;align-items:center;gap:12px;padding:13px 12px;border:0;border-radius:12px;background:transparent;color:#b4c4d8;text-align:left;margin:2px 0}.navbtn b{font-size:17px;width:22px;text-align:center;color:var(--cyan)}.navbtn.active,.navbtn:hover{background:linear-gradient(100deg,#173b54,#1c2c50);color:white}.side-note{border-top:1px solid var(--line);margin:14px 5px 0;padding:14px 6px 4px;color:var(--muted);font-size:11px;line-height:1.6}.main{padding:clamp(16px,3vw,28px);min-height:530px}.toolhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}.toolhead h2{font:700 24px "Space Grotesk";margin:0 0 6px}.toolhead p{color:var(--muted);margin:0;font-size:13px;line-height:1.5}.tag{font-size:10px;color:var(--cyan);border:1px solid #285366;border-radius:30px;padding:7px 10px;white-space:nowrap}.fieldlabel{display:block;color:#b6c7da;font-size:12px;font-weight:700;margin:16px 0 8px}textarea,input,select{width:100%;background:#091321;border:1px solid #2b3e59;border-radius:12px;color:var(--text);padding:14px;outline:none}textarea{min-height:150px;resize:vertical;line-height:1.6}textarea:focus,input:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #56e0ed18}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800;color:#071421;background:linear-gradient(100deg,var(--cyan),#8b9bff);margin-top:13px}.btn.secondary{background:#1b2b43;color:#d9e8fb;border:1px solid #334963}.output{margin-top:18px;background:#0a1422;border:1px solid #2a3d57;border-radius:14px;padding:16px;white-space:pre-wrap;line-height:1.7;min-height:70px;color:#dce9f8}.output:empty{display:none}.quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}.quick button{background:#122137;border:1px solid #293e5b;border-radius:13px;padding:14px;color:#e4f0ff;text-align:left}.quick button strong{display:block;margin-bottom:5px}.quick button span{font-size:11px;color:var(--muted)}.chatlog{height:290px;overflow:auto;border:1px solid #293e58;background:#091321;border-radius:14px;padding:14px}.bubble{max-width:88%;padding:11px 13px;border-radius:13px;margin:8px 0;line-height:1.5;font-size:13px;white-space:pre-wrap}.bot{background:#172941;color:#dceaff}.user{background:#17404b;margin-left:auto;color:#eaffff}.chatrow{display:flex;gap:8px;margin-top:10px}.chatrow input{flex:1}.chatrow button{margin:0}.hint{color:var(--muted);font-size:11px;line-height:1.6;margin-top:12px}.hidden{display:none!important}.footer{text-align:center;color:#71849d;font-size:11px;margin:22px 0}@media(max-width:760px){.top{padding:16px}.wrap{padding:0 13px;margin-top:12px}.layout{grid-template-columns:1fr}.side{display:flex;overflow:auto;gap:5px;padding:8px}.navbtn{width:auto;white-space:nowrap;padding:10px}.side-note{display:none}.main{min-height:500px}.hero h1{font-size:34px}.tag{display:none}.quick{grid-template-columns:1fr 1fr}}
+
+/* NEXORA AI Studio quality upgrade */
+.toolhead .tag{letter-spacing:.5px}
+textarea{min-height:160px}
+.output{overflow-wrap:anywhere}
+.tool-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tool-actions .btn{margin-top:0}
+#chatlog .bubble{overflow-wrap:anywhere}
 </style></head><body>
 <header class="top"><a class="brand" href="../"><img class="logo" src="./nexora-ai-logo.svg" alt="NEXORA AI logo"><span>NEXORA <span style="color:var(--cyan)">AI</span></span></a><a class="back" href="../">← Official NEXORA website</a></header>
 <div class="wrap"><section class="hero"><div class="eyebrow">YOUR EVERYDAY CREATIVE COMPANION</div><h1>Think bigger. <span>Create faster.</span></h1><p>Free browser-based tools for writing, studying, summarizing and planning. No paid API, subscription, or account required.</p><div class="status"><i class="dot"></i> FREE MODE · No account · No API key</div></section>
@@ -21,4 +29,61 @@ $('makeSum').onclick=()=>{let t=$('sumText').value.trim();if(!t)return $('sumOut
 $('makeStudy').onclick=()=>{let t=$('studyText').value.trim();if(!t)return $('studyOut').textContent='Enter a subject or lesson first.';let s=(t.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[t]).map(x=>x.trim()).filter(Boolean);$('studyOut').textContent='REVISION NOTES\n'+s.slice(0,5).map((x,i)=>(i+1)+'. '+x).join('\n')+'\n\nPRACTICE QUESTIONS\n1. What is the main idea of this lesson?\n2. Explain one important point in your own words.\n3. What is an example or application of this topic?\n\nSTUDY TIP\nRead each note, hide it, then try to explain it from memory.\n\nNote: These are starter revision prompts, not verified answers.';copyFrom($('studyOut'),$('copyStudy'));};
 $('makeIdea').onclick=()=>{let t=$('ideaText').value.trim();if(!t)return $('ideaOut').textContent='Describe your idea first.';$('ideaOut').textContent='Create a '+$('ideaGoal').value.toLowerCase()+' based on this idea: '+t+'\n\nVISUAL DIRECTION\nUse a '+$('ideaStyle').value.toLowerCase()+' style. Establish a clear hierarchy, intuitive flow, accessible contrast, thoughtful spacing and polished details.\n\nDELIVERABLE\nProvide a complete, practical result with the key features, audience, user benefit and clear next steps. Avoid unnecessary complexity.\n\nQUALITY CHECK\nMake it original, usable on mobile, consistent, and easy for a first-time user to understand.';copyFrom($('ideaOut'),$('copyIdea'));};
 function reply(q){let s=q.toLowerCase();if(s.includes('app'))return 'Start with one clear problem and build the smallest useful version. Ask 5 people to test it, observe where they get stuck, then improve that flow.';if(s.includes('study')||s.includes('learn'))return 'Try active recall: read a short section, close your notes, explain it from memory, then check what you missed. Repeat after a short break.';if(s.includes('write')||s.includes('caption'))return 'A useful writing structure is: hook → one clear message → benefit → simple call to action. Keep the first draft short, then edit for clarity.';if(s.includes('hello')||s.includes('hi'))return 'Hello! Welcome to NEXORA. I can share simple tips about writing, studying and app ideas in this demo.';return 'Thanks for your question! This is the local chat preview, not a live AI model. Try the Writer, Summarizer, Study Helper or Idea Lab for tools that work directly in your browser.';}function send(){let v=$('chatInput').value.trim();if(!v)return;let log=$('chatlog');let u=document.createElement('div');u.className='bubble user';u.textContent=v;log.append(u);let a=document.createElement('div');a.className='bubble bot';a.textContent=reply(v);log.append(a);$('chatInput').value='';log.scrollTop=log.scrollHeight;}$('sendChat').onclick=send;$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+
+// Quality upgrades: local history, stronger text extraction, study cards and safer controls.
+(function(){
+  const log=$('chatlog');
+  try {
+    const saved=JSON.parse(localStorage.getItem('nexora-chat-history')||'[]');
+    if(Array.isArray(saved)) saved.slice(-30).forEach(m=>{const el=document.createElement('div');el.className='bubble '+(m.role==='user'?'user':'bot');el.textContent=m.text;log.append(el);});
+    if(saved.length) log.scrollTop=log.scrollHeight;
+  } catch(e) {}
+  const originalSend=send;
+  window.send= function(){
+    const v=$('chatInput').value.trim(); if(!v)return;
+    const answer=reply(v);
+    try {
+      const history=JSON.parse(localStorage.getItem('nexora-chat-history')||'[]');
+      history.push({role:'user',text:v},{role:'bot',text:answer});
+      localStorage.setItem('nexora-chat-history',JSON.stringify(history.slice(-40)));
+    } catch(e) {}
+    originalSend();
+  };
+  // Replace the basic extractive picker with sentence scoring based on recurring meaningful terms.
+  $('makeSum').onclick=()=>{
+    const raw=$('sumText').value.trim();
+    if(!raw){$('sumOut').textContent='Paste some text first.';return;}
+    const sentences=(raw.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[raw]).map(x=>x.trim()).filter(Boolean);
+    const words=(raw.toLowerCase().match(/[a-z0-9]{3,}/g)||[]);
+    const stop=new Set('the and for are but not you your with that this from have was were has had its into about then than them they their there what when where which while will would could should also very more most some such only just over under each other been being use using used'.split(' '));
+    const freq={}; words.forEach(w=>{if(!stop.has(w))freq[w]=(freq[w]||0)+1;});
+    const scored=sentences.map((s,i)=>{const ws=s.toLowerCase().match(/[a-z0-9]{3,}/g)||[];const score=ws.reduce((n,w)=>n+(stop.has(w)?0:(freq[w]||0)),0)/Math.max(1,Math.sqrt(ws.length));return {s,i,score};});
+    const ratio=$('sumLength').value==='short'?.2:$('sumLength').value==='medium'?.4:.65;
+    const count=Math.max(1,Math.min(sentences.length,Math.ceil(sentences.length*ratio)));
+    const chosen=scored.sort((a,b)=>b.score-a.score).slice(0,count).sort((a,b)=>a.i-b.i);
+    const style=$('sumStyle').value;
+    $('sumOut').textContent=(style==='Plain paragraph'?chosen.map(x=>x.s).join(' '):'KEY POINTS\n'+chosen.map(x=>'• '+x.s).join('\n'))+'\n\nNote: This offline summary selects important-looking sentences using word frequency. Verify details against the source.';
+    copyFrom($('sumOut'),$('copySum'));
+  };
+  // Generate useful revision cards from supplied notes, without inventing answers.
+  $('makeStudy').onclick=()=>{
+    const raw=$('studyText').value.trim();
+    if(!raw){$('studyOut').textContent='Enter a subject or lesson first.';return;}
+    const points=(raw.match(/[^.!?\n]+[.!?]?/g)||[raw]).map(x=>x.trim()).filter(x=>x.length>12);
+    const cards=points.slice(0,12);
+    $('studyOut').textContent='REVISION NOTES\n'+cards.map((x,i)=>(i+1)+'. '+x).join('\n')+'\n\nACTIVE RECALL CARDS\n'+cards.map((x,i)=>'CARD '+(i+1)+'\nQuestion: Explain this point in your own words: '+x+'\nAnswer: Cover the point above and recall it from memory.').join('\n\n')+'\n\nPRACTICE CHECK\n1. Which point is most important, and why?\n2. How do two points connect?\n3. Give a real-life example based on your lesson.\n\nNote: Cards are generated from your supplied text; check your lesson for accuracy.';
+    copyFrom($('studyOut'),$('copyStudy'));
+  };
+  // Add clear-chat control.
+  const chatControls=document.createElement('div');chatControls.className='tool-actions';
+  const clear=document.createElement('button');clear.className='btn secondary';clear.textContent='Clear chat history';
+  clear.onclick=()=>{log.innerHTML='';const el=document.createElement('div');el.className='bubble bot';el.textContent='Chat history cleared on this device. This remains a local demo, not a live AI assistant.';log.append(el);try{localStorage.removeItem('nexora-chat-history');}catch(e){}};
+  chatControls.append(clear);$('chatlog').insertAdjacentElement('afterend',chatControls);
+  // Add character/word counters to main text inputs.
+  ['writeTopic','sumText','studyText','ideaText'].forEach(id=>{
+    const field=$(id);if(!field)return;
+    const counter=document.createElement('div');counter.className='hint';counter.textContent='0 words · 0 characters';field.insertAdjacentElement('afterend',counter);
+    field.addEventListener('input',()=>{const t=field.value.trim();counter.textContent=(t?t.split(/\s+/).length:0)+' words · '+field.value.length+' characters';});
+  });
+})();
 </script></body></html>
