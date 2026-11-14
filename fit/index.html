@@ -126,7 +126,7 @@
 </div></section>
 </main><section class="panel" id="appUpdatePanel" style="margin:18px 0">
 <div class="sectionhead"><div><p class="eyebrow">NEXORA FIT APP</p><h2>App updates</h2><span class="muted" id="appUpdateStatus">Checking for updates…</span></div><span class="pill" id="appVersionLabel">Installed v1.0.0</span></div>
-<div class="actions"><button class="btn secondary small" id="checkAppUpdate">Check for updates</button><a class="btn small hidden" id="downloadAppUpdate" href="https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk" target="_blank" rel="noopener">UPDATE NOW ↓</a></div>
+<div class="actions"><button class="btn secondary small" id="checkAppUpdate">Check for updates</button><a class="btn small hidden" id="downloadAppUpdate" href="https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-30/NEXORA.FIT-1.apk" target="_blank" rel="noopener">UPDATE NOW ↓</a></div>
 <p class="notice" id="appUpdateNotes">Your workout data is stored on this device. Back it up before major updates.</p>
 </section>
 <footer class="foot">NEXORA FIT · Independent workout tracker · Your data is stored locally on this device</footer></div>
@@ -252,7 +252,7 @@ renderActivity();
  const CURRENT_VERSION_CODE=13;
  const CURRENT_VERSION_NAME='1.2.7';
  const VERSION_URL='https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/version.json';
- const APK_URL='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk';
+ const APK_URL='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-30/NEXORA.FIT-1.apk';
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
  let updateInfo={status:'checking',latest:'',url:APK_URL,notes:''},popupShown=false;
  const nativeUpdater=window.Capacitor?.Plugins?.FitUpdater;
