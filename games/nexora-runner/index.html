@@ -101,6 +101,29 @@ for(let i=0;i<10;i++){
  }
  scene.add(frame);scenery.push(frame);
 }
+/* Neon subway tunnel: repeating reinforced ribs, wall panels and animated guide lights */
+const tunnelWallMat=mat('#0b172b',.35,.72),tunnelRibMat=mat('#61758e',.82,.3),tunnelGlowMats=['#38e9ff','#ff55c8','#a88aff','#ffc85a'];
+for(let i=0;i<11;i++){
+ const z=12-i*15,section=new THREE.Group();section.position.z=z;
+ const arch=new THREE.Mesh(new THREE.TorusGeometry(5.55,.16,8,36,Math.PI),tunnelRibMat);arch.position.set(0,2.25,0);arch.castShadow=true;section.add(arch);
+ for(const side of [-1,1]){
+  box(.3,4.55,14.7,tunnelWallMat,side*5.55,2.25,0,section);
+  box(.12,3.7,.18,tunnelRibMat,side*5.35,2.35,0,section);
+  const wallStrip=box(.075,3.3,13.8,new THREE.MeshBasicMaterial({color:tunnelGlowMats[(i+(side===1?1:0))%4]}),side*5.31,2.35,0,section);
+  colorCycle.push({material:wallStrip.material,offset:i*.09+(side===1?.3:0),rate:.1});
+  for(let k=0;k<3;k++){
+   const panel=box(.035,.72,.045,mats.steel,side*5.29,.95+k*1.25,5.8,section);
+  }
+ }
+ box(10.9,.22,14.7,tunnelWallMat,0,6.25,0,section);
+ for(let x of [-4.2,-2.1,0,2.1,4.2]){
+  const lightMat=new THREE.MeshBasicMaterial({color:tunnelGlowMats[(i+Math.round(x+4.2))%4]});
+  const strip=box(.16,.07,13.8,lightMat,x,6.08,0,section);
+  colorCycle.push({material:lightMat,offset:i*.12+x*.025,rate:.14});
+ }
+ const warning=box(1.1,.16,.08,mats.gold,0,5.65,6.8,section);
+ scene.add(section);scenery.push(section);
+}
 /* Colorful animated arcade billboards and rainbow station lighting */
 const billboardColors=['#ff3f9f','#ffb52e','#53f4df','#8c72ff','#5aa8ff'];
 for(let i=0;i<12;i++){
