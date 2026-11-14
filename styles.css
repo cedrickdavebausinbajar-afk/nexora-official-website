@@ -53,6 +53,15 @@ h2{font-size:clamp(34px,4.4vw,52px);line-height:1.14;letter-spacing:-.035em;marg
 .hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 .hub-card{position:relative;min-height:280px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:29px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(145deg,#12233aeb,#0b1524f2);isolation:isolate;transition:transform .25s,border-color .25s,box-shadow .25s}
 .hub-card:hover{transform:translateY(-5px);border-color:#50cde65e;box-shadow:0 20px 55px #0003}
+.card-apps{background:#0b1725}
+.card-apps:after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(5,13,24,.98) 0%,rgba(5,13,24,.88) 42%,rgba(5,13,24,.38) 100%),linear-gradient(0deg,rgba(5,13,24,.55),transparent 65%);pointer-events:none}
+.card-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 42%;opacity:.78;z-index:-2;transition:transform .55s ease,opacity .3s ease}
+.card-apps:hover .card-photo{transform:scale(1.045);opacity:.9}
+.card-apps .card-top,.card-apps .card-copy,.card-apps .card-watermark{position:relative;z-index:1}
+.card-apps .card-icon{background:#06232bba;border-color:#55e4e777;color:#70f0e7}
+.card-apps .coming-label{color:#d9f8f5}
+.card-apps .coming-label i{background:#45e0c7;box-shadow:0 0 12px #45e0c799}
+.card-apps .card-watermark{z-index:0}
 .hub-card:before{content:"";position:absolute;width:230px;height:230px;right:-90px;top:-120px;border-radius:50%;background:var(--glow);filter:blur(5px);opacity:.2;z-index:-1}
 .card-apps{--glow:#25d9d0}.card-tools{--glow:#568bff}.card-resources{--glow:#9b83ff}.card-updates{--glow:#e4b77b}
 .card-top{display:flex;align-items:center;justify-content:space-between}
