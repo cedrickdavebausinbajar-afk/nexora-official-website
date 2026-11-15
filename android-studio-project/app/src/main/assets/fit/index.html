@@ -7,7 +7,7 @@ const call=(action,args={})=>new Promise((resolve,reject)=>{const id=String(++se
 window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),getUpdateMetadata:()=>call('getUpdateMetadata'),getUpdateStatus:()=>call('getUpdateStatus'),downloadUpdate:(url,version)=>call('downloadUpdate',{url,version}),installUpdate:()=>call('installUpdate'),exportBackup:(fileName,content)=>call('exportBackup',{fileName,content})};
 })();
 </script>
-<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: data:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'none'; object-src 'none'; base-uri 'self'"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'none'; object-src 'none'; base-uri 'self'"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090d14"><link rel="icon" type="image/svg+xml" sizes="any" href="logo.svg"><meta name="description" content="NEXORA FIT — your personal gym workout tracker. Log lifts, build routines and track strength progress.">
 <title>NEXORA FIT — Gym Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -118,11 +118,11 @@ window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),g
  </div>
  <h2 style="font-size:16px">Food camera & quick nutrition estimate</h2>
  <div class="nutrition-camera">
-  <div class="camera-actions"><label class="btn secondary small" for="foodPhoto">📷 Take photo / Choose image</label><input id="foodPhoto" type="file" accept="image/*" capture="environment" class="hidden"><button class="btn small" id="estimateFood" type="button">Estimate nutrition</button></div>
-  <img id="foodPhotoPreview" class="food-photo-preview hidden" alt="Selected food photo preview">
-  <p class="notice">Take a food photo as a visual reference, then type the food name below and tap Estimate nutrition to fill approximate macros. Photo-only AI recognition is not connected in this version; check estimates and adjust serving sizes.</p>
- </div>
- <h2 style="font-size:16px">Add a meal</h2>
+   <div class="camera-actions"><label class="btn secondary small" for="foodPhoto">📷 Take photo / Choose image</label><input id="foodPhoto" type="file" accept="image/*" capture="environment" class="hidden"><button class="btn small" id="recognizeFood" type="button">✨ Recognize food</button><button class="btn secondary small" id="estimateFood" type="button">Estimate by name</button></div>
+   <img id="foodPhotoPreview" class="food-photo-preview hidden" alt="Selected food photo preview">
+   <p class="notice" id="foodRecognitionStatus" role="status" aria-live="polite">Choose a food photo, then tap Recognize food. AI will suggest a likely food; nutrition values are approximate and should be checked against your serving size.</p>
+  </div>
+  <h2 style="font-size:16px">Add a meal</h2>
  <div class="meal-form"><input id="mealName" placeholder="Food or meal name" aria-label="Food name"><input id="mealKcal" type="number" min="0" placeholder="kcal" aria-label="Calories"><input id="mealProtein" type="number" min="0" placeholder="Protein g" aria-label="Protein grams"><input id="mealCarbs" type="number" min="0" placeholder="Carbs g" aria-label="Carbohydrates grams"><input id="mealFat" type="number" min="0" placeholder="Fat g" aria-label="Fat grams"><button class="btn small" id="addMeal">＋ Add</button></div>
  <div id="mealList"><div class="empty">No meals logged today. Add your first meal above.</div></div>
  <div class="sectionhead" style="margin-top:22px"><div><h2 style="font-size:16px">Water intake</h2><span class="muted">Daily hydration goal: 2,000 ml</span></div><b id="waterTotal">0 / 2,000 ml</b></div>
@@ -267,35 +267,93 @@ function renderNutrition(){
  $('waterTotal').textContent=fmt(db.nutrition.waterMl)+' / 2,000 ml';$('waterBar').style.width=Math.min(100,db.nutrition.waterMl/2000*100)+'%';
 }
 $('addMeal').onclick=()=>{ensureNutritionDay();const name=$('mealName').value.trim();if(!name){toast('Enter a food or meal name');return}const val=id=>Math.min(100000,Math.max(0,Number($(id).value)||0));db.nutrition.meals.push({name,kcal:val('mealKcal'),protein:val('mealProtein'),carbs:val('mealCarbs'),fat:val('mealFat'),at:new Date().toISOString()});if(!save()){db.nutrition.meals.pop();return}['mealName','mealKcal','mealProtein','mealCarbs','mealFat'].forEach(id=>$(id).value='');renderNutrition();toast('Meal added to today’s diary')};
-/* Food photo preview + transparent, name-based nutrition estimates (no image AI claim) */
-let foodPhotoUrl=null;
+/* Food photo recognition and transparent nutrition estimates */
+let foodPhotoUrl=null,foodClassifier=null,foodRecognitionBusy=false;
+const foodStatus=$('foodRecognitionStatus'),recognizeButton=$('recognizeFood');
+function loadFoodScript(src){
+ return new Promise((resolve,reject)=>{
+  const existing=[...document.scripts].find(x=>x.src===src);
+  if(existing){if(existing.dataset.loaded==='1')return resolve();existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',reject,{once:true});return}
+  const script=document.createElement('script');script.src=src;script.async=true;
+  script.onload=()=>{script.dataset.loaded='1';resolve()};script.onerror=()=>reject(new Error('Could not load the photo recognition library'));
+  document.head.appendChild(script);
+ });
+}
 $('foodPhoto').onchange=e=>{
  const file=e.target.files?.[0];if(!file)return;
- if(!file.type.startsWith('image/')){toast('Please choose an image');return}
+ if(!file.type.startsWith('image/')){toast('Please choose an image');e.target.value='';return}
+ if(file.size>12*1024*1024){toast('Choose an image smaller than 12 MB');e.target.value='';return}
  if(foodPhotoUrl)URL.revokeObjectURL(foodPhotoUrl);
  foodPhotoUrl=URL.createObjectURL(file);
  $('foodPhotoPreview').src=foodPhotoUrl;$('foodPhotoPreview').classList.remove('hidden');
+ foodStatus.textContent='Photo ready. Tap Recognize food to identify a likely food item.';
 };
 const foodEstimates=[
- {keys:['banana'],name:'Banana (1 medium)',kcal:105,protein:1,carbs:27,fat:0},
- {keys:['apple'],name:'Apple (1 medium)',kcal:95,protein:0,carbs:25,fat:0},
- {keys:['egg','boiled egg'],name:'Egg (1 large)',kcal:78,protein:6,carbs:1,fat:5},
- {keys:['rice','white rice'],name:'Cooked white rice (1 cup)',kcal:205,protein:4,carbs:45,fat:0},
- {keys:['chicken breast','grilled chicken','chicken'],name:'Cooked chicken breast (100 g)',kcal:165,protein:31,carbs:0,fat:4},
+ {keys:['banana','plantain'],name:'Banana (1 medium)',kcal:105,protein:1,carbs:27,fat:0},
+ {keys:['apple','granny smith'],name:'Apple (1 medium)',kcal:95,protein:0,carbs:25,fat:0},
+ {keys:['egg'],name:'Egg (1 large)',kcal:78,protein:6,carbs:1,fat:5},
+ {keys:['rice'],name:'Cooked white rice (1 cup)',kcal:205,protein:4,carbs:45,fat:0},
+ {keys:['chicken','hen'],name:'Cooked chicken breast (100 g)',kcal:165,protein:31,carbs:0,fat:4},
  {keys:['salmon'],name:'Cooked salmon (100 g)',kcal:206,protein:22,carbs:0,fat:12},
  {keys:['oat','oatmeal'],name:'Oatmeal (1 cup cooked)',kcal:154,protein:6,carbs:27,fat:3},
  {keys:['bread','toast'],name:'Bread (2 slices)',kcal:160,protein:6,carbs:28,fat:2},
- {keys:['pasta','spaghetti'],name:'Cooked pasta (1 cup)',kcal:220,protein:8,carbs:43,fat:1},
- {keys:['potato'],name:'Potato (1 medium)',kcal:163,protein:4,carbs:37,fat:0}
+ {keys:['pasta','spaghetti','carbonara'],name:'Cooked pasta (1 cup)',kcal:220,protein:8,carbs:43,fat:1},
+ {keys:['potato'],name:'Potato (1 medium)',kcal:163,protein:4,carbs:37,fat:0},
+ {keys:['pizza'],name:'Cheese pizza (1 slice)',kcal:285,protein:12,carbs:36,fat:10},
+ {keys:['cheeseburger','hamburger','burger'],name:'Hamburger (1 regular)',kcal:295,protein:17,carbs:30,fat:12},
+ {keys:['french fries','fry','fries'],name:'French fries (medium serving)',kcal:365,protein:4,carbs:48,fat:17},
+ {keys:['hotdog','hot dog'],name:'Hot dog (1)',kcal:290,protein:10,carbs:24,fat:18},
+ {keys:['broccoli'],name:'Broccoli (1 cup)',kcal:55,protein:4,carbs:11,fat:1},
+ {keys:['carrot'],name:'Carrot (1 medium)',kcal:25,protein:1,carbs:6,fat:0},
+ {keys:['orange'],name:'Orange (1 medium)',kcal:62,protein:1,carbs:15,fat:0},
+ {keys:['strawberry'],name:'Strawberries (1 cup)',kcal:49,protein:1,carbs:12,fat:0},
+ {keys:['lemon'],name:'Lemon (1 medium)',kcal:17,protein:1,carbs:5,fat:0},
+ {keys:['cucumber'],name:'Cucumber (1 cup)',kcal:16,protein:1,carbs:4,fat:0},
+ {keys:['cauliflower'],name:'Cauliflower (1 cup)',kcal:27,protein:2,carbs:5,fat:0},
+ {keys:['burrito'],name:'Burrito (1 medium)',kcal:350,protein:18,carbs:42,fat:12},
+ {keys:['taco'],name:'Taco (1 medium)',kcal:170,protein:9,carbs:16,fat:8}
 ];
+function findFoodEstimate(query){const q=String(query||'').toLowerCase();return foodEstimates.find(x=>x.keys.some(k=>q.includes(k)))}
+function fillFoodEstimate(match){$('mealName').value=match.name;$('mealKcal').value=match.kcal;$('mealProtein').value=match.protein;$('mealCarbs').value=match.carbs;$('mealFat').value=match.fat}
 $('estimateFood').onclick=()=>{
- const q=$('mealName').value.trim().toLowerCase();
- if(!q){toast('Type the food name first');$('mealName').focus();return}
- const match=foodEstimates.find(x=>x.keys.some(k=>q.includes(k)));
- if(!match){toast('No quick estimate found. Enter the macros manually.');return}
- $('mealName').value=match.name;$('mealKcal').value=match.kcal;$('mealProtein').value=match.protein;$('mealCarbs').value=match.carbs;$('mealFat').value=match.fat;
- toast('Approximate values filled — review serving size');
+ const q=$('mealName').value.trim();if(!q){toast('Type a food name or recognize a photo first');$('mealName').focus();return}
+ const match=findFoodEstimate(q);if(!match){toast('No matching quick estimate. Enter the macros manually.');return}
+ fillFoodEstimate(match);foodStatus.textContent='Estimated '+match.name+'. Check the portion size and adjust the values before adding your meal.';
+ toast('Approximate nutrition filled — review serving size');
 };
+recognizeButton.onclick=async()=>{
+ if(foodRecognitionBusy)return;
+ const photo=$('foodPhotoPreview');
+ if(!photo.src||photo.classList.contains('hidden')){toast('Take or choose a food photo first');return}
+ foodRecognitionBusy=true;recognizeButton.disabled=true;recognizeButton.textContent='Recognizing…';
+ foodStatus.textContent='Loading the image-recognition model. First use needs internet and may take a little while.';
+ try{
+  if(!window.tf||!window.mobilenet){
+   await loadFoodScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
+   await loadFoodScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js');
+  }
+  if(!foodClassifier){await window.tf.ready();foodClassifier=await window.mobilenet.load({version:2,alpha:1.0})}
+  const predictions=await foodClassifier.classify(photo,5);
+  const best=predictions?.[0],label=String(best?.className||'').split(',')[0].trim();
+  if(!label)throw new Error('The photo could not be recognized. Try a clearer, closer photo.');
+  const match=findFoodEstimate(predictions.map(x=>x.className).join(' '));
+  const confidence=Math.round((best.probability||0)*100);
+  if(match){
+   fillFoodEstimate(match);
+   foodStatus.textContent='AI guess: '+label+' ('+confidence+'% model confidence). Filled '+match.name+' as a rough reference. Confirm the food and serving size; the model can be wrong.';
+   toast('Food guess found — review the estimate');
+  }else{
+   $('mealName').value=label;
+   foodStatus.textContent='AI guess: '+label+' ('+confidence+'% model confidence). No matching quick nutrition profile is available, so macros were not invented. Enter or adjust the nutrition values manually.';
+   toast('Food identified; add nutrition values manually');
+  }
+ }catch(error){
+  console.error('Food photo recognition failed',error);
+  foodStatus.textContent=(error?.message||'Photo recognition is unavailable')+'. Check your connection and try again, or type the food name to estimate it.';
+  toast('Could not recognize the photo');
+ }finally{foodRecognitionBusy=false;recognizeButton.disabled=false;recognizeButton.textContent='✨ Recognize food'}
+};
+window.addEventListener('beforeunload',()=>{if(foodPhotoUrl)URL.revokeObjectURL(foodPhotoUrl)});
 function addWater(ml){ensureNutritionDay();const previous=db.nutrition.waterMl||0;db.nutrition.waterMl=Math.min(10000,previous+ml);if(!save()){db.nutrition.waterMl=previous;renderNutrition();return}renderNutrition();toast(ml+' ml water added')}
 $('water250').onclick=()=>addWater(250);$('water500').onclick=()=>addWater(500);$('waterReset').onclick=()=>{if(confirm('Reset today’s water total?')){const previous=db.nutrition.waterMl||0;db.nutrition.waterMl=0;if(!save())db.nutrition.waterMl=previous;renderNutrition()}};
 renderActivity();
