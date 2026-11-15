@@ -345,7 +345,9 @@ class MainActivity : Activity() {
                 val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                 val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
                 val oldId = prefs.getLong("download_id", -1L)
-                if (oldId >= 0) manager.remove(oldId)
+                val buildCode = uri.path.orEmpty()
+                    .substringAfterLast("/nexora-fit-build-")
+                    .substringBefore("/")
                 val request = DownloadManager.Request(uri)
                     .setTitle("NEXORA FIT $version")
                     .setDescription("Downloading your NEXORA FIT update")
@@ -353,9 +355,12 @@ class MainActivity : Activity() {
                     .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                     .setAllowedOverMetered(true)
                     .setAllowedOverRoaming(false)
-                    .setDestinationInExternalFilesDir(this@MainActivity, Environment.DIRECTORY_DOWNLOADS, "NEXORA-FIT-update.apk")
+                    // Keep the previous download intact until Android accepts this new one.
+                    .setDestinationInExternalFilesDir(this@MainActivity, Environment.DIRECTORY_DOWNLOADS, "NEXORA-FIT-update-$buildCode.apk")
                 val id = manager.enqueue(request)
                 prefs.edit().putLong("download_id", id).putString("download_version", version).apply()
+                // Only retire the previous download after the replacement was successfully queued.
+                if (oldId >= 0 && oldId != id) manager.remove(oldId)
                 true
             } catch (_: Exception) { false }
         }
