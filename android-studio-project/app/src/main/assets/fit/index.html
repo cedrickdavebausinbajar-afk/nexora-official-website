@@ -273,9 +273,18 @@ const foodStatus=$('foodRecognitionStatus'),recognizeButton=$('recognizeFood');
 function loadFoodScript(src){
  return new Promise((resolve,reject)=>{
   const existing=[...document.scripts].find(x=>x.src===src);
-  if(existing){if(existing.dataset.loaded==='1')return resolve();existing.addEventListener('load',resolve,{once:true});existing.addEventListener('error',reject,{once:true});return}
+  if(existing){
+   if(existing.dataset.loaded==='1')return resolve();
+   if(existing.dataset.failed==='1')return reject(new Error('The photo recognition library failed to load. Check your internet connection.'));
+   let timer;const done=()=>{clearTimeout(timer);resolve()},fail=()=>{clearTimeout(timer);reject(new Error('The photo recognition library could not be downloaded.'))};
+   existing.addEventListener('load',done,{once:true});existing.addEventListener('error',fail,{once:true});
+   timer=setTimeout(()=>{existing.removeEventListener('load',done);existing.removeEventListener('error',fail);reject(new Error('The photo recognition library download timed out.'))},30000);
+   return;
+  }
   const script=document.createElement('script');script.src=src;script.async=true;
-  script.onload=()=>{script.dataset.loaded='1';resolve()};script.onerror=()=>reject(new Error('Could not load the photo recognition library'));
+  const timer=setTimeout(()=>{script.dataset.failed='1';script.remove();reject(new Error('The photo recognition library download timed out. Check your connection.'))},30000);
+  script.onload=()=>{clearTimeout(timer);script.dataset.loaded='1';resolve()};
+  script.onerror=()=>{clearTimeout(timer);script.dataset.failed='1';reject(new Error('Could not download the photo recognition library. Check your internet connection or content blocker.'))};
   document.head.appendChild(script);
  });
 }
@@ -332,34 +341,45 @@ recognizeButton.onclick=async()=>{
  const photo=$('foodPhotoPreview');
  if(!photo.src||photo.classList.contains('hidden')){toast('Take or choose a food photo first');return}
  foodRecognitionBusy=true;recognizeButton.disabled=true;recognizeButton.textContent='Recognizing…';
- foodStatus.textContent='Loading the image-recognition model. First use needs internet and may take a little while.';
+ foodStatus.textContent='Loading the photo recognition model. Keep this screen open; first use needs internet.';
  try{
+  if(typeof photo.decode==='function')await photo.decode();
+  if(!photo.naturalWidth||!photo.naturalHeight)throw new Error('The selected photo is not ready. Choose it again and retry.');
   if(!window.tf||!window.mobilenet){
    await loadFoodScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
    await loadFoodScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js');
   }
-  if(!foodClassifier){await window.tf.ready();foodClassifier=await window.mobilenet.load({version:2,alpha:1.0})}
-  const predictions=await foodClassifier.classify(photo,5);
-  const best=predictions?.[0],label=String(best?.className||'').split(',')[0].trim();
-  if(!label)throw new Error('The photo could not be recognized. Try a clearer, closer photo.');
-  const match=findFoodEstimate(label);
-  const confidence=Math.round((best.probability||0)*100);
-  $('mealName').value=label;
-  if(match&&confidence>=30){
-   fillFoodEstimate(match);
-   foodStatus.textContent='Possible match: '+label+' ('+confidence+'% image-model confidence). Filled '+match.name+' as a rough reference. Confirm the food and serving size; this general image model can misidentify meals.';
-   toast('Possible food match — review the estimate');
-  }else if(match){
-   foodStatus.textContent='Low-confidence guess: '+label+' ('+confidence+'%). Nutrition was not auto-filled to avoid a misleading estimate. Confirm the food name or enter macros manually.';
-   toast('Low-confidence guess; review manually');
+  if(!window.tf||!window.mobilenet)throw new Error('The recognition model did not initialize. Please retry with a stable internet connection.');
+  await window.tf.ready();
+  if(!foodClassifier)foodClassifier=await window.mobilenet.load({version:2,alpha:1.0});
+  let predictions;
+  try{predictions=await foodClassifier.classify(photo,10)}
+  catch(classifyError){
+   if(window.tf.getBackend&&window.tf.getBackend()!=='cpu'&&await window.tf.setBackend('cpu')){
+    await window.tf.ready();predictions=await foodClassifier.classify(photo,10);
+   }else throw classifyError;
+  }
+  if(!Array.isArray(predictions)||!predictions.length)throw new Error('The model returned no predictions. Try a brighter, closer photo with one food item.');
+  const ranked=predictions.map(p=>({label:String(p.className||'').split(',')[0].trim(),probability:Number(p.probability)||0})).filter(p=>p.label).sort((x,y)=>y.probability-x.probability);
+  if(!ranked.length)throw new Error('No recognizable object was found. Try a clear photo with the food centered.');
+  const candidate=ranked.map(p=>({...p,match:findFoodEstimate(p.label)})).find(p=>p.match&&p.probability>=0.08);
+  const best=ranked[0];
+  $('mealName').value=candidate?candidate.match.name:best.label;
+  if(candidate){
+   fillFoodEstimate(candidate.match);
+   const picked=Math.round(candidate.probability*100);
+   foodStatus.textContent='Possible food match: '+candidate.label+' ('+picked+'% model confidence). Filled '+candidate.match.name+' with an approximate serving estimate. Check the food and portion before saving.';
+   toast('Possible food match found — review the estimate');
   }else{
-   foodStatus.textContent='Image-model guess: '+label+' ('+confidence+'%). No matching quick nutrition profile is available, so macros were not invented. Confirm the food name and enter nutrition values manually.';
-   toast('Food guess found; add nutrition values manually');
+   const alternatives=ranked.slice(0,5).map(p=>p.label+' ('+Math.round(p.probability*100)+'%)').join(', ');
+   foodStatus.textContent='The image model sees: '+alternatives+'. It could not confidently match these labels to a supported nutrition profile. Choose the correct food name or enter macros manually; no nutrition values were guessed.';
+   toast('Photo analyzed; choose or enter the food manually');
   }
  }catch(error){
   console.error('Food photo recognition failed',error);
-  foodStatus.textContent=(error?.message||'Photo recognition is unavailable')+'. Check your connection and try again, or type the food name to estimate it.';
-  toast('Could not recognize the photo');
+  const message=error?.message||'Photo recognition is unavailable';
+  foodStatus.textContent=message+' If this keeps happening, check internet access and allow cdn.jsdelivr.net, then retry. You can still use Estimate by name.';
+  toast('Food recognition unavailable');
  }finally{foodRecognitionBusy=false;recognizeButton.disabled=false;recognizeButton.textContent='✨ Recognize food'}
 };
 window.addEventListener('beforeunload',()=>{if(foodPhotoUrl)URL.revokeObjectURL(foodPhotoUrl)});
