@@ -132,10 +132,10 @@ class MainActivity : Activity() {
             }
 
             if (savedInstanceState == null) {
-                loadUrl("$appOrigin/assets/fit/index.html")
+                loadUrl("file:///android_asset/fit/index.html")
             } else {
                 restoreState(savedInstanceState)
-                if (url.isNullOrBlank()) loadUrl("$appOrigin/assets/fit/index.html")
+                if (url.isNullOrBlank()) loadUrl("file:///android_asset/fit/index.html")
             }
         }
         setContentView(webView)
@@ -222,7 +222,7 @@ class MainActivity : Activity() {
     }
 
     private inner class BackupBridge {
-        
+        @JavascriptInterface
         fun getInstalledAppVersion(): String {
             if (!isTrustedAppPage()) return JSONObject().put("error", "Untrusted app page").toString()
             return try {
@@ -234,7 +234,7 @@ class MainActivity : Activity() {
             }
         }
 
-        
+        @JavascriptInterface
         fun getUpdateMetadata(): String {
             if (!isTrustedAppPage()) return JSONObject().put("error", "Untrusted app page").toString()
             var connection: HttpURLConnection? = null
@@ -273,7 +273,7 @@ class MainActivity : Activity() {
             }
         }
 
-        
+        @JavascriptInterface
         fun getUpdateStatus(): String {
             if (!isTrustedAppPage()) return JSONObject().put("status", "blocked").put("ready", false).toString()
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
@@ -311,7 +311,7 @@ class MainActivity : Activity() {
             return JSONObject(mapOf("status" to "missing", "ready" to false, "version" to version)).toString()
         }
 
-        
+        @JavascriptInterface
         fun downloadUpdate(url: String, version: String): Boolean {
             if (!isTrustedAppPage()) return false
             val uri = Uri.parse(url)
@@ -339,7 +339,7 @@ class MainActivity : Activity() {
             } catch (_: Exception) { false }
         }
 
-        
+        @JavascriptInterface
         fun installUpdate(): Boolean {
             if (!isTrustedAppPage()) return false
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
@@ -375,7 +375,7 @@ class MainActivity : Activity() {
             return true
         }
 
-        
+        @JavascriptInterface
         fun exportBackup(fileName: String, content: String) {
             if (!isTrustedAppPage()) return
             runOnUiThread {
