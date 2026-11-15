@@ -278,8 +278,8 @@ renderActivity();
 
 /* NEXORA FIT update center */
 (()=>{
- const CURRENT_VERSION_CODE=41;
- const CURRENT_VERSION_NAME='1.3.8';
+ let CURRENT_VERSION_CODE=41;
+ let CURRENT_VERSION_NAME='1.3.8';
  const VERSION_URL='https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/main/android-studio-project/version.json';
  const APK_URL='';
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
@@ -314,6 +314,20 @@ renderActivity();
  async function check(showErrors=true){
    status.textContent='Checking for updates…';button.disabled=true;button.textContent='Checking…';
    try{
+     // Read the installed Android package version from PackageManager. The
+     // bundled HTML version is only a fallback for browser/website visitors.
+     if(window.NexoraNative?.getInstalledAppVersion){
+       try{
+         const installed=JSON.parse(window.NexoraNative.getInstalledAppVersion());
+         const installedCode=Number(installed.versionCode);
+         const installedName=String(installed.versionName||'');
+         if(Number.isSafeInteger(installedCode)&&installedCode>0&&installedName){
+           CURRENT_VERSION_CODE=installedCode;
+           CURRENT_VERSION_NAME=installedName;
+           label.textContent='Installed v'+CURRENT_VERSION_NAME+' · build '+CURRENT_VERSION_CODE;
+         }
+       }catch(e){console.warn('Could not read installed NEXORA FIT version',e)}
+     }
      let info;
      if(window.NexoraNative?.getUpdateMetadata){
        const raw=window.NexoraNative.getUpdateMetadata();
