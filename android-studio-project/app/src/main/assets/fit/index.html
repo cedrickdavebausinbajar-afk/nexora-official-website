@@ -7,7 +7,7 @@ const call=(action,args={})=>new Promise((resolve,reject)=>{const id=String(++se
 window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),getUpdateMetadata:()=>call('getUpdateMetadata'),getUpdateStatus:()=>call('getUpdateStatus'),downloadUpdate:(url,version)=>call('downloadUpdate',{url,version}),installUpdate:()=>call('installUpdate'),exportBackup:(fileName,content)=>call('exportBackup',{fileName,content})};
 })();
 </script>
-<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://esm.sh https://unpkg.com; connect-src 'self' https:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'none'; object-src 'none'; base-uri 'self'"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; script-src 'self' https://www.googletagmanager.com 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://esm.sh https://unpkg.com; connect-src 'self' https:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'none'; object-src 'none'; base-uri 'self'"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090d14"><link rel="icon" type="image/svg+xml" sizes="any" href="logo.svg"><meta name="description" content="NEXORA FIT — your personal gym workout tracker. Log lifts, build routines and track strength progress.">
 <title>NEXORA FIT — Gym Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -62,6 +62,24 @@ window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),g
 @media(max-width:700px){.activity-strip{grid-template-columns:1fr}.nutrition-grid{grid-template-columns:repeat(2,1fr)}.meal-form{grid-template-columns:1fr 1fr}.meal-form input:first-child{grid-column:1/-1}.meal-form button{grid-column:1/-1}.activity-rings{justify-content:center}}
 
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VYQZ6HT0RD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){window.dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VYQZ6HT0RD', {app_name:'NEXORA FIT', app_platform:'android'});
+  gtag('event', 'app_open', {app_name:'NEXORA FIT', app_platform:'android'});
+  try {
+    if (!localStorage.getItem('nexora_fit_first_launch_v1')) {
+      gtag('event', 'app_first_launch', {app_name:'NEXORA FIT', app_platform:'android'});
+      localStorage.setItem('nexora_fit_first_launch_v1', '1');
+    }
+  } catch (_) {}
+  document.addEventListener('click', function(event) {
+    const tab = event.target.closest('.tab');
+    if (tab) gtag('event', 'app_tab_view', {app_name:'NEXORA FIT', app_platform:'android', tab_name:(tab.textContent||'').trim().slice(0,60)});
+  });
+</script>
 </head>
 <body><div class="wrap">
 <header class="top"><a class="brand" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/"><img src="logo.svg" alt="NEXORA logo">NEXORA <b>FIT</b></a><div class="topright"><span class="pill">YOUR TRAINING SPACE</span><a class="back" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/">← NEXORA HOME</a><button class="btn secondary small" id="menuToggle" type="button" aria-expanded="false" aria-controls="appMenu">☰ Menu</button><nav class="app-menu hidden" id="appMenu" aria-label="NEXORA FIT menu"><div class="menu-label">NEXORA FIT</div><button type="button" id="menuCheckUpdates">↻ Check for updates</button><button type="button" id="ownerMenu">♛ Owner</button><button type="button" id="aboutMenu">ⓘ About</button><div class="menu-label">Connect with us</div><a href="https://t.me/nexorastudioteam" target="_self" rel="noopener">✈ Telegram</a><a href="https://www.facebook.com/profile.php?id=61596591209056" target="_self" rel="noopener">f Facebook</a><div class="menu-label">Official website</div><a href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/" target="_self" rel="noopener">↗ NEXORA Website</a></nav></div></header>
