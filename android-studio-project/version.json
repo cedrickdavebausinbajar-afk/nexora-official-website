@@ -1,6 +1,6 @@
 {
-  "version": "1.3.2",
-  "versionCode": 32,
-  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-32/NEXORA-FIT.apk",
-  "releaseNotes": "NEXORA FIT 1.3.2: signed update with protected in-app update delivery."
+  "version": "1.3.3",
+  "versionCode": 33,
+  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-33/NEXORA-FIT.apk",
+  "releaseNotes": "NEXORA FIT 1.3.3: improved Android-native update checks, download status and protected in-app installation."
 }
