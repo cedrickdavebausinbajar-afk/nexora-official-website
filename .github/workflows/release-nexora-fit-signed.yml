@@ -94,7 +94,7 @@ jobs:
           name=os.environ['VERSION_NAME']; code=int(os.environ['VERSION_CODE'])
           html=Path("android-studio-project/app/src/main/assets/fit/index.html")
           s=html.read_text()
-          s,n1=re.subn(r'const CURRENT_VERSION_CODE=\\d+;', f'const CURRENT_VERSION_CODE={code};', s, count=1)
+          s,n1=re.subn(r'const CURRENT_VERSION_CODE=\d+;', f'const CURRENT_VERSION_CODE={code};', s, count=1)
           s,n2=re.subn(r"const CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", s, count=1)
           if n1 != 1 or n2 != 1: raise SystemExit("Could not update in-app version constants.")
           html.write_text(s)
@@ -104,7 +104,7 @@ jobs:
             "apkUrl":f"https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-{code}/NEXORA-FIT.apk",
             "releaseNotes":"NEXORA FIT "+name+": improved Android-native update checks, download status and protected in-app installation."
           }
-          Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\\n")
+          Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\n")
           PY
 
       - name: Build signed release APK
