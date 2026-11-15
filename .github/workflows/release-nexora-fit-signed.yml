@@ -1,6 +1,10 @@
 name: Release NEXORA FIT (signed update)
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/release-triggers/nexora-fit-1.3.5-build-38"
   workflow_dispatch:
     inputs:
       version_name:
@@ -96,7 +100,7 @@ jobs:
             "version":name,
             "versionCode":code,
             "apkUrl":f"https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-{code}/NEXORA-FIT.apk",
-            "releaseNotes":"NEXORA FIT "+name+": Fitness Hub adds weekly goals, weight and body-measurement tracking, workout calendar, training streaks and recovery check-ins."
+            "releaseNotes":"NEXORA FIT "+name+": Improves modal action button reliability and fixes in-app version detection so the update popup reflects the installed build correctly."
           }
           Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\n")
           Path("version.json").write_text(json.dumps(meta,indent=2)+"\n")
@@ -116,7 +120,7 @@ jobs:
           set -euo pipefail
           APK="android-studio-project/app/build/outputs/apk/release/app-release.apk"
           OLD="$RUNNER_TEMP/current-official.apk"
-          curl --fail --location --silent --show-error "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-30/NEXORA.FIT-1.apk" -o "$OLD"
+          curl --fail --location --silent --show-error "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-37/NEXORA.FIT.apk" -o "$OLD"
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           "$AAPT" dump badging "$OLD" | grep -q "package: name='com.nexora.fit'"
