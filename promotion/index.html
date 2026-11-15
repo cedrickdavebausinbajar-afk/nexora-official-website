@@ -20,7 +20,7 @@
 <main>
 <section class="hero">
 <div><p class="eyebrow">YOUR TRAINING. YOUR PROGRESS.</p><h1>Train smarter.<br><span>Get stronger.</span></h1><p class="intro">Make every workout count with NEXORA FIT — a gym workout tracker for logging sets, building routines, recording personal bests and following your strength progress.</p>
-<div class="actions"><a class="btn primary" href="https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-34/NEXORA-FIT.apk" data-nexora-fit-download>DOWNLOAD ANDROID APK ↓</a><a class="btn secondary" href="../fit/">OPEN FITNESS TRACKER ↗</a></div>
+<div class="actions"><a class="btn primary" data-nexora-fit-download aria-disabled="true">DOWNLOAD ANDROID APK ↓</a><a class="btn secondary" href="../fit/">OPEN FITNESS TRACKER ↗</a></div>
 <p class="smallnote">Android APK · Direct download · Your workout records are stored locally on your device. Android may ask you to approve installation.</p>
 </div>
 <div class="visual" role="img" aria-label="Gym training environment"><span class="tag">NEXORA FITNESS EXPERIENCE</span></div>
@@ -40,6 +40,24 @@
 
 <script>
 (async()=>{try{const r=await fetch('../version.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=await r.json();document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>a.href=v.apkUrl);}catch(e){}})();
+</script>
+
+<script>
+(async()=>{
+ const links=document.querySelectorAll('[data-nexora-fit-download]');
+ try{
+  const response=await fetch('../version.json?'+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('Release metadata unavailable');
+  const version=await response.json();
+  const parts=new URL(String(version.apkUrl||'')).pathname.split('/');
+  const validUrl=parts.length===7&&parts[1]==='cedrickdavebausinbajar-afk'&&parts[2]==='nexora-official-website'&&parts[3]==='releases'&&parts[4]==='download'&&parts[5].startsWith('nexora-fit-build-')&&/^[0-9]+$/.test(parts[5].slice('nexora-fit-build-'.length))&&parts[6]==='NEXORA-FIT.apk';
+  if(!validUrl||!/^\\d+\\.\\d+\\.\\d+$/.test(String(version.version))||!Number.isSafeInteger(Number(version.versionCode)))throw new Error('Invalid release metadata');
+  links.forEach(link=>{link.href=version.apkUrl;link.removeAttribute('aria-disabled')});
+ }catch(error){
+  links.forEach(link=>{link.removeAttribute('href');link.setAttribute('aria-disabled','true')});
+  console.error('NEXORA FIT release metadata:',error);
+ }
+})();
 </script>
 </body>
 </html>
