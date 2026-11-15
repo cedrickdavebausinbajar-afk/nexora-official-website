@@ -83,6 +83,30 @@ jobs:
           p.write_text(s)
           PY
 
+      - name: Set updater version constants before packaging
+        env:
+          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ inputs.version_code }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          name=os.environ['VERSION_NAME']; code=int(os.environ['VERSION_CODE'])
+          html=Path("android-studio-project/app/src/main/assets/fit/index.html")
+          s=html.read_text()
+          s,n1=re.subn(r'const CURRENT_VERSION_CODE=\\d+;', f'const CURRENT_VERSION_CODE={code};', s, count=1)
+          s,n2=re.subn(r"const CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", s, count=1)
+          if n1 != 1 or n2 != 1: raise SystemExit("Could not update in-app version constants.")
+          html.write_text(s)
+          meta={
+            "version":name,
+            "versionCode":code,
+            "apkUrl":f"https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-{code}/NEXORA-FIT.apk",
+            "releaseNotes":"NEXORA FIT "+name+": improved Android-native update checks, download status and protected in-app installation."
+          }
+          Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\\n")
+          PY
+
       - name: Build signed release APK
         run: gradle --no-daemon -p android-studio-project assembleRelease
 
@@ -118,30 +142,8 @@ jobs:
             Official signed NEXORA FIT update.
             The release workflow verified that its package ID and signing certificate match the previous official APK.
 
-      - name: Update in-app updater metadata
-        env:
-          VERSION_NAME: ${{ inputs.version_name }}
-          VERSION_CODE: ${{ inputs.version_code }}
-          GH_TOKEN: ${{ github.token }}
+      - name: Commit updater metadata after successful publish
         run: |
-          python3 - <<'PY'
-          import json, os, re
-          from pathlib import Path
-          name=os.environ['VERSION_NAME']; code=int(os.environ['VERSION_CODE'])
-          html=Path("android-studio-project/app/src/main/assets/fit/index.html")
-          s=html.read_text()
-          s,n1=re.subn(r'const CURRENT_VERSION_CODE=\d+;', f'const CURRENT_VERSION_CODE={code};', s, count=1)
-          s,n2=re.subn(r"const CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", s, count=1)
-          if n1 != 1 or n2 != 1: raise SystemExit("Could not update in-app version constants.")
-          html.write_text(s)
-          meta={
-            "version":name,
-            "versionCode":code,
-            "apkUrl":f"https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-{code}/NEXORA-FIT.apk",
-            "releaseNotes":"NEXORA FIT "+name+": improved Android-native update checks, download status and protected in-app installation."
-          }
-          Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\n")
-          PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add android-studio-project/app/build.gradle.kts android-studio-project/app/src/main/assets/fit/index.html android-studio-project/version.json
