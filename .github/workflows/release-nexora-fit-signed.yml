@@ -1,6 +1,12 @@
 name: Release NEXORA FIT (signed update)
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'android-studio-project/app/src/main/assets/fit/index.html'
+      - '.github/workflows/release-nexora-fit-signed.yml'
   workflow_dispatch:
     inputs:
       version_name:
@@ -26,8 +32,8 @@ jobs:
 
       - name: Validate release version and configure signing
         env:
-          VERSION_NAME: ${{ inputs.version_name }}
-          VERSION_CODE: ${{ inputs.version_code }}
+          VERSION_NAME: ${{ inputs.version_name || '1.3.4' }}
+          VERSION_CODE: ${{ inputs.version_code || '34' }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -85,8 +91,8 @@ jobs:
 
       - name: Set updater version constants before packaging
         env:
-          VERSION_NAME: ${{ inputs.version_name }}
-          VERSION_CODE: ${{ inputs.version_code }}
+          VERSION_NAME: ${{ inputs.version_name || '1.3.4' }}
+          VERSION_CODE: ${{ inputs.version_code || '34' }}
         run: |
           python3 - <<'PY'
           import json, os, re
@@ -134,8 +140,8 @@ jobs:
       - name: Publish signed release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nexora-fit-build-${{ inputs.version_code }}
-          name: NEXORA FIT ${{ inputs.version_name }} (build ${{ inputs.version_code }})
+          tag_name: nexora-fit-build-${{ inputs.version_code || '34' }}
+          name: NEXORA FIT ${{ inputs.version_name || '1.3.4' }} (build ${{ inputs.version_code || '34' }})
           make_latest: true
           files: NEXORA-FIT.apk
           body: |
@@ -150,6 +156,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Updater metadata already matches this release; no commit is needed."
           else
-            git commit -m "Publish NEXORA FIT version ${{ inputs.version_name }}"
+            git commit -m "Publish NEXORA FIT version ${{ inputs.version_name || '1.3.4' }}"
             git push
           fi
