@@ -318,8 +318,7 @@ class MainActivity : Activity() {
             val validVersion = version.matches(Regex("""[0-9]+\.[0-9]+\.[0-9]+"""))
             val validReleaseAsset = uri.scheme == "https" &&
                 uri.host == "github.com" &&
-                uri.path.orEmpty().startsWith("/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/") &&
-                uri.path.orEmpty().endsWith(".apk", ignoreCase = true)
+                uri.path.orEmpty().matches(Regex("""^/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-[0-9]+/NEXORA-FIT\.apk$"""))
             if (!validReleaseAsset || !validVersion) return false
             return try {
                 val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
