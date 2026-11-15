@@ -4,7 +4,7 @@ This isolated Android project packages the NEXORA FIT web app inside the APK. Th
 
 ## App identity
 - Application ID: `com.nexora.fit`
-- Version: `1.3.0` (versionCode 30)
+- Version: `1.3.9` (versionCode 42)
 - Minimum Android: 6.0 (API 23)
 - App content: bundled from `app/src/main/assets/fit/index.html`; it does not need to load the app shell from the hosted website.
 - The NEXORA SVG logo is bundled locally for the in-app header and favicon.
@@ -15,7 +15,7 @@ This isolated Android project packages the NEXORA FIT web app inside the APK. Th
 - WebView JavaScript and DOM storage enabled for the existing app.
 - Native file picker wired to HTML file inputs (JSON backup restore and food-image selection).
 - Back navigation, WebView pause/resume, and saved navigation state.
-- External HTTP(S) links are handed to the device browser, except the official NEXORA GitHub Pages domain.
+- Top-level external HTTP(S) links are handed to the device browser; the canonical NEXORA GitHub Pages domain stays inside the app. Subframe navigation is not redirected to external apps.
 - The APK is built as debug and signed release artifacts by GitHub Actions.
 
 ## Build
