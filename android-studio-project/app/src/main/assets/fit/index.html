@@ -344,7 +344,7 @@ renderActivity();
      if(updateInfo.status==='available'){
        status.textContent='A new version is available: '+updateInfo.latest;
        notes.textContent=updateInfo.notes||'Install the latest version to get improvements.';
-       download.href=updateInfo.url;download.classList.remove('hidden');if(nativeUpdater){download.onclick=updateAction;startNativeDownload()}else{download.textContent='DOWNLOAD UPDATE ↓'}showPopup();
+       download.href=updateInfo.url;download.classList.remove('hidden');if(nativeUpdater){download.onclick=updateAction;download.textContent='UPDATE NOW ↓'}else{download.textContent='DOWNLOAD UPDATE ↓'}showPopup();
      }else{
        status.textContent='Your app is up to date!';download.textContent='UPDATE NOW ↓';download.onclick=null;
        notes.textContent='You have the latest NEXORA FIT version installed. We’ll check again later.';
