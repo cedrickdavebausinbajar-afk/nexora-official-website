@@ -213,9 +213,18 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun isTrustedAppPage(): Boolean {
+        if (!::webView.isInitialized) return false
+        val current = Uri.parse(webView.url ?: return false)
+        return current.scheme == "file" &&
+            current.host == "android_asset" &&
+            current.path == "/fit/index.html"
+    }
+
     private inner class BackupBridge {
         @JavascriptInterface
         fun getInstalledAppVersion(): String {
+            if (!isTrustedAppPage()) return JSONObject().put("error", "Untrusted app page").toString()
             return try {
                 val info = packageManager.getPackageInfo(packageName, 0)
                 val code = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else @Suppress("DEPRECATION") info.versionCode.toLong()
@@ -227,6 +236,7 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun getUpdateMetadata(): String {
+            if (!isTrustedAppPage()) return JSONObject().put("error", "Untrusted app page").toString()
             var connection: HttpURLConnection? = null
             return try {
                 val endpoint = URL("https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/main/android-studio-project/version.json")
@@ -265,6 +275,7 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun getUpdateStatus(): String {
+            if (!isTrustedAppPage()) return JSONObject().put("status", "blocked", "ready", false).toString()
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
             val id = prefs.getLong("download_id", -1L)
             val version = prefs.getString("download_version", "") ?: ""
@@ -302,6 +313,7 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun downloadUpdate(url: String, version: String): Boolean {
+            if (!isTrustedAppPage()) return false
             val uri = Uri.parse(url)
             val validVersion = version.matches(Regex("""[0-9]+\.[0-9]+\.[0-9]+"""))
             val validReleaseAsset = uri.scheme == "https" &&
@@ -330,6 +342,7 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun installUpdate(): Boolean {
+            if (!isTrustedAppPage()) return false
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
             val id = prefs.getLong("download_id", -1L)
             if (id < 0) return false
@@ -365,6 +378,7 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun exportBackup(fileName: String, content: String) {
+            if (!isTrustedAppPage()) return
             runOnUiThread {
                 if (!::webView.isInitialized || webView.url?.startsWith("file:///android_asset/fit/") != true) {
                     Toast.makeText(this@MainActivity, "Backup export is available inside NEXORA FIT", Toast.LENGTH_SHORT).show()
