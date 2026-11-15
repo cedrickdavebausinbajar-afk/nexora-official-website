@@ -102,7 +102,7 @@ jobs:
             "version":name,
             "versionCode":code,
             "apkUrl":f"https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-{code}/NEXORA-FIT.apk",
-            "releaseNotes":"NEXORA FIT "+name+": improved Android-native update checks, download status and protected in-app installation."
+            "releaseNotes":"NEXORA FIT "+name+": Fitness Hub adds weekly goals, weight and body-measurement tracking, workout calendar, training streaks and recovery check-ins."
           }
           Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\n")
           PY
