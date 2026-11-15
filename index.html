@@ -116,6 +116,28 @@
     }catch(_){label.textContent='Latest release on GitHub';}
   })();
   </script>
-</body>
+<script>
+  // Track official APK download intent without collecting personal information.
+  document.addEventListener('click', function(event) {
+    const link = event.target.closest('a.apk-download');
+    if (!link || typeof window.gtag !== 'function') return;
+    const appName = link.href.includes('nexora-ai-drama') ? 'NEXORA AI DRAMA' : 'NEXORA FIT';
+    window.gtag('event', 'apk_download_click', {
+      app_name: appName,
+      app_platform: 'website',
+      link_url: link.href,
+      link_text: (link.textContent || '').trim()
+    });
+  });
+  document.addEventListener('click', function(event) {
+    const link = event.target.closest('a[href^="https://t.me/"], a[href*="facebook.com"]');
+    if (!link || typeof window.gtag !== 'function') return;
+    window.gtag('event', 'social_link_click', {
+      app_name: 'NEXORA Official Website',
+      link_url: link.href
+    });
+  });
+  </script>
+  </body>
 </html>
 <!-- NEXORA Pages redeployment trigger: 2026-11-15 -->
