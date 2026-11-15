@@ -86,7 +86,7 @@
  </div>
 </section>
 <section class="stats"><div class="stat"><small>Total workouts</small><strong id="statWorkouts">0</strong><em>Sessions logged</em></div><div class="stat"><small>Total volume</small><strong id="statVolume">0</strong><em>kg lifted</em></div><div class="stat"><small>Personal records</small><strong id="statPR">0</strong><em>Best lifts</em></div><div class="stat"><small>This week</small><strong id="statWeek">0</strong><em>Training sessions</em></div></section>
-<nav class="tabs" aria-label="Fitness sections"><button class="tab active" data-view="dashboard">Overview</button><button class="tab" data-view="workout">Workout</button><button class="tab" data-view="exercises">Exercises</button><button class="tab" data-view="routines">Routines</button><button class="tab" data-view="progress">Progress</button><button class="tab" data-view="nutrition">Nutrition</button><button class="tab" data-view="history">History</button></nav>
+<nav class="tabs" aria-label="Fitness sections"><button class="tab active" data-view="dashboard">Overview</button><button class="tab" data-view="workout">Workout</button><button class="tab" data-view="exercises">Exercises</button><button class="tab" data-view="routines">Routines</button><button class="tab" data-view="progress">Progress</button><button class="tab" data-view="nutrition">Nutrition</button><button class="tab" data-view="history">History</button><button class="tab" data-view="fitnesshub">Fitness Hub</button></nav>
 <main>
 <section id="view-dashboard" class="view"><div class="layout"><div class="panel"><div class="sectionhead"><div><h2>Exercise library</h2><span class="muted">Choose a movement to add to your session</span></div><button class="btn secondary small" id="allExercises">View all</button></div><input id="dashSearch" class="search" placeholder="Search exercises, muscle or equipment…"><div id="dashExercises" class="exercise-list"></div></div><aside class="panel"><h2>Quick start</h2><p class="muted">Pick a training style and get moving.</p><div class="quick" id="quickRoutines"></div><div style="height:20px"></div><h2>Equipment</h2><p class="muted">Track workouts with the gear you have.</p><div class="equipment"><span><img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=180&q=80" alt="">Barbell</span><span><img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=180&q=80" alt="">Dumbbells</span><span><img src="https://images.unsplash.com/photo-1593079831268-3381b0db4a77?auto=format&fit=crop&w=180&q=80" alt="">Cable station</span><span><img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=180&q=80" alt="">Gym machines</span><span><img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?auto=format&fit=crop&w=180&q=80" alt="">Smith machine</span><span><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=180&q=80" alt="">Bodyweight</span><span><img src="https://images.unsplash.com/photo-1534368270820-9de3d8053204?auto=format&fit=crop&w=180&q=80" alt="">Workout bench</span><span><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=180&q=80" alt="">Resistance bands</span></div></aside></div></section>
 <section id="view-workout" class="view hidden"><div class="panel"><div class="workout-head"><div><p class="eyebrow">ACTIVE SESSION</p><h2 id="workoutTitle">Your workout</h2><span class="muted" id="workoutSub">Add exercises to begin</span></div><div style="text-align:right"><div class="timer" id="timer">00:00</div><small class="muted">SESSION TIME</small></div></div><div class="actions"><button class="btn secondary small" id="addExerciseBtn">＋ Add exercise</button><button class="btn secondary small" id="restBtn">Start rest timer</button><button class="btn secondary small" id="renameWorkout">Rename</button><button class="btn small" id="finishBtn">Finish workout ✓</button></div>
@@ -124,6 +124,35 @@
  <div class="water-row"><button id="water250">＋ 250 ml</button><button id="water500">＋ 500 ml</button><button id="waterReset">Reset today</button></div>
  <p class="notice">Nutrition values are estimates based on what you enter. This is a tracking aid, not medical or dietary advice.</p>
 </div></section>
+
+<section id="view-fitnesshub" class="view hidden">
+ <div class="panel">
+  <div class="sectionhead"><div><p class="eyebrow">YOUR PERSONAL FITNESS PLAN</p><h2>Fitness Hub</h2><span class="muted">Goals, body metrics, training calendar and recovery — saved on this device.</span></div><span class="pill">NEW TO NEXORA FIT</span></div>
+  <div class="nutrition-grid">
+   <div class="nutrition-stat"><small>Workouts this week</small><b id="hubWeekCount">0 / 3</b><div class="macro-track"><i id="hubWeekBar" style="width:0%"></i></div></div>
+   <div class="nutrition-stat"><small>Current weight</small><b id="hubCurrentWeight">—</b><span class="muted" id="hubWeightChange">Add your first entry</span></div>
+   <div class="nutrition-stat"><small>Goal weight</small><b id="hubGoalWeight">Not set</b><span class="muted">Your personal target</span></div>
+   <div class="nutrition-stat"><small>Training streak</small><b id="hubStreak">0 days</b><span class="muted">Based on logged workouts</span></div>
+  </div>
+ </div>
+ <div class="layout" style="margin-top:15px">
+  <div class="panel">
+   <h2>Set your goals</h2><p class="muted">Choose targets that make sense for your own routine.</p>
+   <div class="meal-form"><label>Weekly workout target<input id="hubWorkoutGoal" type="number" min="1" max="14" value="3"></label><label>Goal weight (kg)<input id="hubTargetWeight" type="number" min="1" max="500" step=".1" placeholder="e.g. 65"></label><label>Goal notes<input id="hubGoalNotes" maxlength="160" placeholder="e.g. Build strength consistently"></label><button class="btn small" id="hubSaveGoals">Save goals</button></div>
+   <div style="height:18px"></div><h2>Weight tracker</h2><p class="muted">Record your weight over time. Your entries stay private on this device.</p>
+   <div class="meal-form"><input id="hubWeightInput" type="number" min="1" max="500" step=".1" placeholder="Weight in kg"><input id="hubWeightDate" type="date"><button class="btn small" id="hubAddWeight">＋ Log weight</button></div><div id="hubWeightList"></div>
+  </div>
+  <div class="panel">
+   <h2>Body measurements</h2><p class="muted">Optional measurements in centimetres. Track changes, not perfection.</p>
+   <div class="meal-form"><input id="hubMeasureDate" type="date"><input id="hubWaist" type="number" min="1" max="300" step=".1" placeholder="Waist cm"><input id="hubChest" type="number" min="1" max="300" step=".1" placeholder="Chest cm"><input id="hubHips" type="number" min="1" max="300" step=".1" placeholder="Hips cm"><input id="hubArm" type="number" min="1" max="150" step=".1" placeholder="Arm cm"><button class="btn small" id="hubAddMeasure">＋ Save measurements</button></div><div id="hubMeasureList"></div>
+  </div>
+ </div>
+ <div class="layout" style="margin-top:15px">
+  <div class="panel"><h2>Training calendar</h2><p class="muted">Days with completed workout sessions are highlighted.</p><div id="hubCalendar" class="week-bars"></div><div class="muted" id="hubCalendarNote" style="margin-top:10px"></div></div>
+  <div class="panel"><h2>Recovery check-in</h2><p class="muted">A simple personal log — not a medical assessment.</p><div class="meal-form"><label>Sleep last night (hours)<input id="hubSleep" type="number" min="0" max="24" step=".5" placeholder="e.g. 8"></label><label>Energy today<select id="hubEnergy"><option value="3">Okay</option><option value="1">Low</option><option value="2">Below average</option><option value="4">Good</option><option value="5">Great</option></select></label><label>Recovery notes<input id="hubRecoveryNote" maxlength="140" placeholder="How are you feeling?"></label><button class="btn small" id="hubSaveRecovery">Save check-in</button></div><div id="hubRecoveryList"></div></div>
+ </div>
+ <p class="notice">Your fitness hub entries are stored locally with your NEXORA FIT data and included in app backups. No account or cloud sync is used.</p>
+</section>
 </main><section class="panel" id="appUpdatePanel" style="margin:18px 0">
 <div class="sectionhead"><div><p class="eyebrow">NEXORA FIT APP</p><h2>App updates</h2><span class="muted" id="appUpdateStatus">Checking for updates…</span></div><span class="pill" id="appVersionLabel">Installed v1.0.0</span></div>
 <div class="actions"><button class="btn secondary small" id="checkAppUpdate">Check for updates</button><a class="btn small hidden" id="downloadAppUpdate" href="https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA.FIT.apk" target="_self" rel="noopener">UPDATE NOW ↓</a></div>
@@ -331,4 +360,45 @@ renderActivity();
  if(menuCheck)menuCheck.addEventListener('click',()=>{document.getElementById('appMenu')?.classList.add('hidden');document.getElementById('menuToggle')?.setAttribute('aria-expanded','false');document.getElementById('appUpdatePanel')?.scrollIntoView({behavior:'smooth',block:'center'});check(true)});
  check(false);
  setInterval(()=>check(false),6*60*60*1000);
-})();</script></body></html>
+})();</script>
+<script>
+/* NEXORA FIT Fitness Hub — additive local-only feature set; preserves existing records. */
+(()=>{
+ const $=id=>document.getElementById(id),day=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+ const safe=n=>Number.isFinite(Number(n))&&Number(n)>0?Number(n):0;
+ db.fitnessHub=db.fitnessHub&&typeof db.fitnessHub==='object'?db.fitnessHub:{goals:{weekly:3,targetWeight:null,notes:''},weights:[],measurements:[],recovery:[]};
+ const hub=db.fitnessHub;hub.goals=hub.goals||{weekly:3,targetWeight:null,notes:''};hub.weights=Array.isArray(hub.weights)?hub.weights:[];hub.measurements=Array.isArray(hub.measurements)?hub.measurements:[];hub.recovery=Array.isArray(hub.recovery)?hub.recovery:[];
+ const escHub=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const list=(id,html)=>{$(id).innerHTML=html||'<p class="muted">No entries yet.</p>'};
+ function workoutsOn(d){return (db.history||[]).filter(w=>String(w.date||'').slice(0,10)===d).length}
+ function streak(){let n=0,d=new Date();if(!workoutsOn(day()))d.setDate(d.getDate()-1);for(let i=0;i<366;i++){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(!workoutsOn(k))break;n++;d.setDate(d.getDate()-1)}return n}
+ function render(){
+  const now=day(),weekStart=new Date();weekStart.setHours(0,0,0,0);weekStart.setDate(weekStart.getDate()-((weekStart.getDay()+6)%7));
+  const week=(db.history||[]).filter(w=>new Date(w.date)>=weekStart).length,goal=Math.max(1,Math.min(14,Number(hub.goals.weekly)||3));
+  $('hubWeekCount').textContent=week+' / '+goal;$('hubWeekBar').style.width=Math.min(100,week/goal*100)+'%';
+  const weights=[...hub.weights].sort((a,b)=>a.date.localeCompare(b.date)),latest=weights[weights.length-1],first=weights[0];
+  $('hubCurrentWeight').textContent=latest?latest.kg.toFixed(1)+' kg':'—';$('hubGoalWeight').textContent=safe(hub.goals.targetWeight)?Number(hub.goals.targetWeight).toFixed(1)+' kg':'Not set';
+  $('hubWeightChange').textContent=weights.length>1?((latest.kg-first.kg>0?'+':'')+(latest.kg-first.kg).toFixed(1)+' kg since first log'):'Add entries to see change';
+  $('hubStreak').textContent=streak()+' days';
+  $('hubWorkoutGoal').value=goal;$('hubTargetWeight').value=hub.goals.targetWeight||'';$('hubGoalNotes').value=hub.goals.notes||'';
+  list('hubWeightList',weights.slice().reverse().slice(0,8).map((w,i)=>'<div class="meal-row"><span><b>'+w.kg.toFixed(1)+' kg</b><small class="muted"> · '+escHub(w.date)+'</small></span><button class="btn secondary small" data-hub-weight="'+escHub(w.id)+'">Delete</button></div>').join(''));
+  list('hubMeasureList',hub.measurements.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5).map(m=>'<div class="meal-row"><span><b>'+escHub(m.date)+'</b><small class="muted"> · Waist '+(m.waist||'—')+' · Chest '+(m.chest||'—')+' · Hips '+(m.hips||'—')+' · Arm '+(m.arm||'—')+' cm</small></span><button class="btn secondary small" data-hub-measure="'+escHub(m.id)+'">Delete</button></div>').join(''));
+  const days=[];for(let i=27;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');days.push({k,n:workoutsOn(k)})}
+  $('hubCalendar').innerHTML=days.map(x=>'<div class="week-day" title="'+x.k+': '+x.n+' workout(s)"><i style="height:'+(x.n?100:8)+'%;opacity:'+(x.n?1:.25)+'"></i><small>'+x.k.slice(8)+'</small></div>').join('');
+  $('hubCalendarNote').textContent=days.reduce((a,x)=>a+x.n,0)+' workouts in the last 28 days · Today: '+now;
+  list('hubRecoveryList',hub.recovery.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5).map(r=>'<div class="meal-row"><span><b>'+escHub(r.date)+' · '+r.sleep+'h sleep · Energy '+r.energy+'/5</b><small class="muted"> '+escHub(r.note||'No note')+'</small></span><button class="btn secondary small" data-hub-recovery="'+escHub(r.id)+'">Delete</button></div>').join(''));
+  document.querySelectorAll('[data-hub-weight]').forEach(b=>b.onclick=()=>{hub.weights=hub.weights.filter(x=>x.id!==b.dataset.hubWeight);save();render()});
+  document.querySelectorAll('[data-hub-measure]').forEach(b=>b.onclick=()=>{hub.measurements=hub.measurements.filter(x=>x.id!==b.dataset.hubMeasure);save();render()});
+  document.querySelectorAll('[data-hub-recovery]').forEach(b=>b.onclick=()=>{hub.recovery=hub.recovery.filter(x=>x.id!==b.dataset.hubRecovery);save();render()});
+ }
+ $('hubSaveGoals').onclick=()=>{hub.goals={weekly:Math.max(1,Math.min(14,Number($('hubWorkoutGoal').value)||3)),targetWeight:safe($('hubTargetWeight').value)||null,notes:$('hubGoalNotes').value.trim().slice(0,160)};save();render();toast('Fitness goals saved')};
+ $('hubAddWeight').onclick=()=>{const kg=safe($('hubWeightInput').value),date=$('hubWeightDate').value||day();if(!kg||kg>500){toast('Enter a valid weight in kg');return}hub.weights.push({id:'w'+Date.now(),kg,date});$('hubWeightInput').value='';save();render();toast('Weight entry saved')};
+ $('hubAddMeasure').onclick=()=>{const fields=['Waist','Chest','Hips','Arm'],values={};fields.forEach(k=>values[k.toLowerCase()]=safe($('hub'+k).value)||null);if(!fields.some(k=>values[k.toLowerCase()])){toast('Enter at least one measurement');return}hub.measurements.push({id:'m'+Date.now(),date:$('hubMeasureDate').value||day(),...values});fields.forEach(k=>$('hub'+k).value='');save();render();toast('Measurements saved')};
+ $('hubSaveRecovery').onclick=()=>{const sleep=Number($('hubSleep').value);if(!Number.isFinite(sleep)||sleep<0||sleep>24){toast('Enter sleep from 0 to 24 hours');return}hub.recovery.push({id:'r'+Date.now(),date:day(),sleep,energy:Number($('hubEnergy').value)||3,note:$('hubRecoveryNote').value.trim().slice(0,140)});$('hubRecoveryNote').value='';save();render();toast('Recovery check-in saved')};
+ const tab=document.querySelector('.tab[data-view="fitnesshub"]');if(tab)tab.addEventListener('click',render);
+ const originalView=window.view;
+ document.querySelectorAll('.tab[data-view="fitnesshub"]').forEach(b=>b.addEventListener('click',()=>{if(typeof window.view==='function')window.view('fitnesshub');else{document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));$('view-fitnesshub').classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===b))}}));
+ render();
+})();
+</script>
+</body></html>
