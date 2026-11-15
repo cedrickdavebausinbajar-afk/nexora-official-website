@@ -58,12 +58,16 @@ class MainActivity : Activity() {
             addJavascriptInterface(BackupBridge(), "NexoraNative")
 
             webViewClient = object : WebViewClient() {
-                private fun handleNavigation(uri: Uri): Boolean {
+                private fun handleNavigation(uri: Uri, isMainFrame: Boolean = true): Boolean {
+                    // Leave iframe/resource navigation inside WebView; only route top-level links externally.
+                    if (!isMainFrame) return false
                     val scheme = uri.scheme?.lowercase()
                     if (scheme == "file") {
                         return !uri.path.orEmpty().startsWith("/android_asset/fit/")
                     }
                     if (scheme == "about" && uri.toString() == "about:blank") return false
+                    // Keep the canonical NEXORA GitHub Pages site inside the app.
+                    if (scheme == "https" && uri.host.equals("cedrickdavebausinbajar-afk.github.io", ignoreCase = true)) return false
                     if (scheme == "https" || scheme == "http") {
                         return try {
                             startActivity(Intent(Intent.ACTION_VIEW, uri))
@@ -84,7 +88,7 @@ class MainActivity : Activity() {
                 override fun shouldOverrideUrlLoading(
                     view: WebView,
                     request: WebResourceRequest
-                ): Boolean = handleNavigation(request.url)
+                ): Boolean = handleNavigation(request.url, request.isForMainFrame)
             }
 
             webChromeClient = object : WebChromeClient() {
