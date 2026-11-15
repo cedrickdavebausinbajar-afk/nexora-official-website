@@ -12,6 +12,8 @@ import android.content.pm.PackageInfo
 import android.os.Build
 import org.json.JSONObject
 import java.security.MessageDigest
+import java.net.HttpURLConnection
+import java.net.URL
 import java.io.File
 import android.database.Cursor
 import android.webkit.ValueCallback
@@ -189,6 +191,44 @@ class MainActivity : Activity() {
     }
 
     private inner class BackupBridge {
+        @JavascriptInterface
+        fun getUpdateMetadata(): String {
+            var connection: HttpURLConnection? = null
+            return try {
+                val endpoint = URL("https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/main/android-studio-project/version.json")
+                connection = (endpoint.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                    connectTimeout = 10000
+                    readTimeout = 10000
+                    instanceFollowRedirects = false
+                    setRequestProperty("Accept", "application/json")
+                    setRequestProperty("Cache-Control", "no-cache")
+                    setRequestProperty("User-Agent", "NEXORA-FIT-Android-Updater")
+                }
+                if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+                    throw IllegalStateException("Update service returned HTTP ${connection.responseCode}")
+                }
+                val bytes = connection.inputStream.use { input ->
+                    val output = java.io.ByteArrayOutputStream()
+                    val buffer = ByteArray(4096)
+                    var total = 0
+                    while (true) {
+                        val count = input.read(buffer)
+                        if (count < 0) break
+                        total += count
+                        if (total > 65536) throw IllegalStateException("Update metadata is too large")
+                        output.write(buffer, 0, count)
+                    }
+                    output.toByteArray()
+                }
+                String(bytes, Charsets.UTF_8)
+            } catch (_: Exception) {
+                JSONObject().put("error", "Update metadata could not be reached").toString()
+            } finally {
+                connection?.disconnect()
+            }
+        }
+
         @JavascriptInterface
         fun getUpdateStatus(): String {
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
