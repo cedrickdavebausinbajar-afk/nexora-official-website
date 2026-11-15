@@ -342,7 +342,7 @@ renderActivity();
      // bundled HTML version is only a fallback for browser/website visitors.
      if(window.NexoraNative?.getInstalledAppVersion){
        try{
-         const installed=JSON.parse(window.NexoraNative.getInstalledAppVersion());
+         const installed=JSON.parse(await window.NexoraNative.getInstalledAppVersion());
          const installedCode=Number(installed.versionCode);
          const installedName=String(installed.versionName||'');
          if(Number.isSafeInteger(installedCode)&&installedCode>0&&installedName){
