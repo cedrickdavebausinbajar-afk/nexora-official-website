@@ -247,60 +247,41 @@ function addWater(ml){ensureNutritionDay();db.nutrition.waterMl=Math.min(10000,(
 $('water250').onclick=()=>addWater(250);$('water500').onclick=()=>addWater(500);$('waterReset').onclick=()=>{if(confirm('Reset today’s water total?')){db.nutrition.waterMl=0;save();renderNutrition()}};
 renderActivity();
 
-/* NEXORA FIT update center — adapted from the NEXORA AI DRAMA update experience */
+/* NEXORA FIT website release information. Browser visitors see the latest APK;
+   only a native app updater may show an install/update prompt. */
 (()=>{
- const CURRENT_VERSION_CODE=13;
- const CURRENT_VERSION_NAME='1.2.7';
- const VERSION_URL='https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/version.json';
- const APK_URL='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-34/NEXORA-FIT.apk';
+ const VERSION_URL='../version.json';
+ const APK_FALLBACK='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-34/NEXORA-FIT.apk';
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
- let updateInfo={status:'checking',latest:'',url:APK_URL,notes:''},popupShown=false;
  const nativeUpdater=window.Capacitor?.Plugins?.FitUpdater;
- let nativePoll=null;
- async function nativeStatus(){if(!nativeUpdater)return null;try{return await nativeUpdater.getDownloadStatus()}catch(e){return null}}
- async function syncNativeDownload(){if(!nativeUpdater||updateInfo.status!=='available')return;const st=await nativeStatus();if(!st)return;if(st.version&&st.version!==updateInfo.latest)return;if(st.ready){status.textContent='Update '+updateInfo.latest+' downloaded. Tap INSTALL UPDATE to continue.';download.textContent='INSTALL UPDATE ↓';download.classList.remove('hidden');download.onclick=async ev=>{ev.preventDefault();try{await nativeUpdater.installUpdate()}catch(e){status.textContent='Android could not open the installer. Please retry.'}};return}if(['running','pending','paused'].includes(st.status)){status.textContent='Downloading update '+updateInfo.latest+' automatically…';download.textContent='DOWNLOADING…';download.classList.remove('hidden');download.onclick=ev=>ev.preventDefault();return}if(st.status==='failed'||st.status==='missing'||st.status==='none'){try{await nativeUpdater.downloadUpdate({url:updateInfo.url,version:updateInfo.latest});status.textContent='Downloading update '+updateInfo.latest+' automatically…';download.textContent='DOWNLOADING…';download.classList.remove('hidden');download.onclick=ev=>ev.preventDefault()}catch(e){status.textContent='Automatic download could not start. Tap to retry.';download.textContent='RETRY DOWNLOAD ↓';download.onclick=ev=>{ev.preventDefault();startNativeDownload()};download.classList.remove('hidden')}}}
- async function startNativeDownload(){if(!nativeUpdater){window.open(updateInfo.url,'_blank');return}try{await nativeUpdater.downloadUpdate({url:updateInfo.url,version:updateInfo.latest});await syncNativeDownload()}catch(e){status.textContent='Automatic download failed. Check your connection and retry.'}}
- async function updateAction(ev){if(nativeUpdater){ev?.preventDefault();const st=await nativeStatus();if(st?.ready){try{await nativeUpdater.installUpdate()}catch(e){status.textContent='Could not open Android installer. Please retry.'}}else await startNativeDownload();}else{closePopup(false)}}
- if(nativeUpdater)nativePoll=setInterval(syncNativeDownload,4000);
  if(!status||!button)return;
- label.textContent='Installed v'+CURRENT_VERSION_NAME+' · build '+CURRENT_VERSION_CODE;
- function closePopup(saveChoice){
-   const popup=document.getElementById('fitUpdatePopup');
-   if(saveChoice&&updateInfo.latest)try{localStorage.setItem('nexora-fit-update-dismissed',updateInfo.latest)}catch{}
-   if(popup)popup.remove();
- }
- function showPopup(){
-   if(updateInfo.status!=='available'||popupShown)return;
-   try{if(localStorage.getItem('nexora-fit-update-dismissed')===updateInfo.latest)return}catch{}
-   popupShown=true;
-   const popup=document.createElement('div');
-   popup.id='fitUpdatePopup';popup.className='update-popup-backdrop';
-   popup.innerHTML='<section class="update-popup-card" role="dialog" aria-modal="true" aria-labelledby="fitUpdateTitle"><div class="update-popup-icon">↻</div><p class="eyebrow">NEXORA FIT UPDATE</p><h2 id="fitUpdateTitle">A new version is ready</h2><p>Update NEXORA FIT to '+escapeHtml(updateInfo.latest)+' for the latest improvements.</p><div class="update-popup-version">Installed: '+CURRENT_VERSION_NAME+' <span>→</span> Latest: '+escapeHtml(updateInfo.latest)+'</div><a class="btn" id="fitPopupUpdate" href="'+escapeHtml(updateInfo.url)+'" target="_blank" rel="noopener">UPDATE NOW ↓</a><button class="update-popup-later" id="fitPopupLater" type="button">Maybe later</button><small>Android may ask you to confirm installation. Your workout history is stored on this device; keep a backup before updating.</small></section>';
-   document.body.appendChild(popup);
-   popup.querySelector('#fitPopupLater').onclick=()=>closePopup(true);
-   popup.querySelector('#fitPopupUpdate').onclick=updateAction;
- }
- function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+ let latestInfo=null;
+ function safeText(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
  async function check(showErrors=true){
-   status.textContent='Checking for updates…';button.disabled=true;button.textContent='Checking…';
-   try{
-     const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
-     if(!response.ok)throw new Error('Update service unavailable');
-     const info=await response.json();
-     updateInfo={status:Number(info.versionCode)>CURRENT_VERSION_CODE?'available':'current',latest:info.version||'Latest',url:info.apkUrl||APK_URL,notes:info.releaseNotes||''};
-     if(updateInfo.status==='available'){
-       status.textContent='A new version is available: '+updateInfo.latest;
-       notes.textContent=updateInfo.notes||'Install the latest version to get improvements.';
-       download.href=updateInfo.url;download.classList.remove('hidden');if(nativeUpdater){download.onclick=updateAction;startNativeDownload()}else{download.textContent='DOWNLOAD UPDATE ↓'}showPopup();
-     }else{
-       status.textContent='Your app is up to date!';download.textContent='UPDATE NOW ↓';download.onclick=null;
-       notes.textContent='You have the latest NEXORA FIT version installed. We’ll check again later.';
-       download.classList.add('hidden');closePopup(false);
-     }
-   }catch(e){
-     updateInfo.status='error';status.textContent='Could not check for updates. Please try again later.';
-     if(showErrors)notes.textContent='The update service could not be reached. Check your internet connection and retry.';
-   }finally{button.disabled=false;button.textContent='Check for updates';}
+  status.textContent='Checking latest release…';button.disabled=true;button.textContent='Checking…';
+  try{
+   const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
+   if(!response.ok)throw new Error('Release information unavailable');
+   const info=await response.json();
+   if(!info.version||!info.apkUrl)throw new Error('Release information incomplete');
+   latestInfo=info;
+   document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>a.href=info.apkUrl);
+   label.textContent='Latest v'+info.version+' · build '+info.versionCode;
+   notes.textContent=info.releaseNotes||'Download the latest NEXORA FIT APK.';
+   status.textContent='Latest NEXORA FIT release: v'+info.version+' (build '+info.versionCode+').';
+   download.href=info.apkUrl;download.textContent='DOWNLOAD LATEST APK ↓';download.classList.remove('hidden');
+   download.onclick=null;
+   // Do not show an update popup on the public website. It is not an installed app.
+   if(nativeUpdater){
+    const currentCode=Number(nativeUpdater.versionCode||0);
+    if(currentCode&&Number(info.versionCode)>currentCode){
+     status.textContent='App update available: v'+info.version+'.';
+    }else if(currentCode){status.textContent='Your installed app is up to date.';download.classList.add('hidden');}
+   }
+  }catch(e){
+   status.textContent='Could not load the latest release information.';
+   if(showErrors)notes.textContent='Please refresh the page or try again later.';
+  }finally{button.disabled=false;button.textContent='Refresh latest version';}
  }
  button.addEventListener('click',()=>check(true));
  const menuCheck=document.getElementById('menuCheckUpdates');
