@@ -62,24 +62,7 @@ window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),g
 @media(max-width:700px){.activity-strip{grid-template-columns:1fr}.nutrition-grid{grid-template-columns:repeat(2,1fr)}.meal-form{grid-template-columns:1fr 1fr}.meal-form input:first-child{grid-column:1/-1}.meal-form button{grid-column:1/-1}.activity-rings{justify-content:center}}
 
 </style>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-VYQZ6HT0RD"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){window.dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-VYQZ6HT0RD', {app_name:'NEXORA FIT', app_platform:'android'});
-  gtag('event', 'app_open', {app_name:'NEXORA FIT', app_platform:'android'});
-  try {
-    if (!localStorage.getItem('nexora_fit_first_launch_v1')) {
-      gtag('event', 'app_first_launch', {app_name:'NEXORA FIT', app_platform:'android'});
-      localStorage.setItem('nexora_fit_first_launch_v1', '1');
-    }
-  } catch (_) {}
-  document.addEventListener('click', function(event) {
-    const tab = event.target.closest('.tab');
-    if (tab) gtag('event', 'app_tab_view', {app_name:'NEXORA FIT', app_platform:'android', tab_name:(tab.textContent||'').trim().slice(0,60)});
-  });
-</script>
+<script src="analytics.js"></script>
 </head>
 <body><div class="wrap">
 <header class="top"><a class="brand" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/"><img src="logo.svg" alt="NEXORA logo">NEXORA <b>FIT</b></a><div class="topright"><span class="pill">YOUR TRAINING SPACE</span><a class="back" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/">← NEXORA HOME</a><button class="btn secondary small" id="menuToggle" type="button" aria-expanded="false" aria-controls="appMenu">☰ Menu</button><nav class="app-menu hidden" id="appMenu" aria-label="NEXORA FIT menu"><div class="menu-label">NEXORA FIT</div><button type="button" id="menuCheckUpdates">↻ Check for updates</button><button type="button" id="ownerMenu">♛ Owner</button><button type="button" id="aboutMenu">ⓘ About</button><div class="menu-label">Connect with us</div><a href="https://t.me/nexorastudioteam" target="_self" rel="noopener">✈ Telegram</a><a href="https://www.facebook.com/profile.php?id=61596591209056" target="_self" rel="noopener">f Facebook</a><div class="menu-label">Official website</div><a href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/" target="_self" rel="noopener">↗ NEXORA Website</a></nav></div></header>
