@@ -1,6 +1,6 @@
 {
-  "version": "1.3.10",
-  "versionCode": 43,
-  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-43/NEXORA-FIT.apk",
-  "releaseNotes": "NEXORA FIT 1.3.10: Fixes workout-save and backup-restore reliability, tightens WebView security, improves Android 15 layout handling, and removes stale APK download fallbacks."
+  "version": "1.3.11",
+  "versionCode": 44,
+  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-44/NEXORA-FIT.apk",
+  "releaseNotes": "NEXORA FIT 1.3.11: Fixes backup-import routine image injection, hardens the WebView native bridge, and displays the installed app version accurately."
 }
