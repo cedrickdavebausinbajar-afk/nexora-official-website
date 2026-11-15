@@ -6,7 +6,8 @@ plugins {
 
 dependencies {
     implementation("androidx.webkit:webkit:1.12.1")
-    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
+    // BoM 34.11.0 maps Analytics to 23.2.0, retaining minSdk 23 support.
+    implementation(platform("com.google.firebase:firebase-bom:34.11.0"))
     implementation("com.google.firebase:firebase-analytics")
 }
 
