@@ -217,8 +217,8 @@ class MainActivity : Activity() {
         if (!::webView.isInitialized) return false
         val current = Uri.parse(webView.url ?: return false)
         return current.scheme == "file" &&
-            current.host == "android_asset" &&
-            current.path == "/fit/index.html"
+            current.host.isNullOrEmpty() &&
+            current.path == "/android_asset/fit/index.html"
     }
 
     private inner class BackupBridge {
