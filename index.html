@@ -121,10 +121,11 @@
     const release = await response.json();
     const prefix = "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/";
     const tail = typeof release.apkUrl === "string" ? release.apkUrl.slice(prefix.length) : "";
-    const validUrl = typeof release.apkUrl === "string" && release.apkUrl.startsWith(prefix) && /^nexora-fit-build-[0-9]+\/NEXORA-FIT\.apk$/.test(tail);
+    const assetMatch = tail.match(/^nexora-fit-build-(\d+)\/NEXORA-FIT\.apk$/);
+    const validUrl = release.apkUrl?.startsWith(prefix) && !!assetMatch && Number(assetMatch[1]) === Number(release.versionCode);
     const validVersion = /^[0-9]+\.[0-9]+\.[0-9]+$/.test(String(release.version));
-    const validBuild = Number.isSafeInteger(Number(release.versionCode));
-    if (!validUrl || !validVersion || !validBuild) throw new Error("Invalid release metadata");
+    const validBuild = Number.isSafeInteger(Number(release.versionCode)) && Number(release.versionCode) > 0;
+    if (!validUrl || !validVersion || !validBuild) throw new Error("Invalid or mismatched release metadata");
     links.forEach(link => {
       link.href = release.apkUrl;
       link.setAttribute("aria-label", "Download NEXORA FIT Android APK, version " + release.version + ", build " + release.versionCode);
