@@ -284,9 +284,20 @@ renderActivity();
  async function check(showErrors=true){
    status.textContent='Checking for updates…';button.disabled=true;button.textContent='Checking…';
    try{
-     const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
-     if(!response.ok)throw new Error('Update service unavailable');
-     const info=await response.json();
+     let info;
+     if(window.NexoraNative?.getUpdateMetadata){
+       const raw=window.NexoraNative.getUpdateMetadata();
+       info=JSON.parse(raw);
+       if(info?.error)throw new Error(info.error);
+     }else{
+       const controller=typeof AbortController!=='undefined'?new AbortController():null;
+       const timeout=controller?setTimeout(()=>controller.abort(),12000):null;
+       try{
+         const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store',signal:controller?.signal});
+         if(!response.ok)throw new Error('Update service unavailable');
+         info=await response.json();
+       }finally{if(timeout)clearTimeout(timeout)}
+     }
      const nextCode=Number(info.versionCode);
      const nextVersion=String(info.version||'');
      const nextUrl=String(info.apkUrl||'');
