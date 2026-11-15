@@ -4,18 +4,18 @@ on:
   push:
     branches: [main]
     paths:
-      - ".github/release-triggers/nexora-fit-1.3.18-build-51"
+      - ".github/release-triggers/nexora-fit-1.3.19-build-52"
   workflow_dispatch:
     inputs:
       version_name:
         description: "Release version (x.y.z)"
         required: true
-        default: "1.3.18"
+        default: "1.3.19"
         type: string
       version_code:
         description: "Android versionCode (must exceed the current installed build)"
         required: true
-        default: "51"
+        default: "52"
         type: string
 
 permissions:
@@ -30,7 +30,7 @@ jobs:
 
       - name: Validate release version and configure signing
         env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.18' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.3.19' }}
           VERSION_CODE: ${{ inputs.version_code || '51' }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -94,7 +94,7 @@ jobs:
 
       - name: Set updater version constants before packaging
         env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.18' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.3.19' }}
           VERSION_CODE: ${{ inputs.version_code || '51' }}
         run: |
           python3 - <<'PY'
@@ -127,7 +127,7 @@ jobs:
 
       - name: Verify APK version, identity and signing certificate against current official release
         env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.18' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.3.19' }}
           VERSION_CODE: ${{ inputs.version_code || '51' }}
         run: |
           set -euo pipefail
@@ -155,7 +155,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: nexora-fit-build-${{ inputs.version_code || '51' }}
-          name: NEXORA FIT ${{ inputs.version_name || '1.3.18' }} (build ${{ inputs.version_code || '51' }})
+          name: NEXORA FIT ${{ inputs.version_name || '1.3.19' }} (build ${{ inputs.version_code || '51' }})
           make_latest: true
           files: NEXORA-FIT.apk
           body: |
@@ -164,7 +164,7 @@ jobs:
 
       - name: Commit updater metadata after successful publish
         env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.18' }}
+          VERSION_NAME: ${{ inputs.version_name || '1.3.19' }}
           VERSION_CODE: ${{ inputs.version_code || '51' }}
         run: |
           set -euo pipefail
@@ -205,6 +205,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Updater metadata already matches this release; no commit is needed."
           else
-            git commit -m "Publish NEXORA FIT version ${{ inputs.version_name || '1.3.18' }}"
+            git commit -m "Publish NEXORA FIT version ${{ inputs.version_name || '1.3.19' }}"
             git push origin HEAD:main
           fi
