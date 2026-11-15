@@ -107,7 +107,7 @@ jobs:
           asset=Path("android-studio-project/app/src/main/assets/fit/index.html")
           page=asset.read_text()
           page,n1=__import__('re').subn(r'const CURRENT_VERSION_CODE=\d+;', f'const CURRENT_VERSION_CODE={code};', page, count=1)
-          page,n2=__import__('re').subn(r"const CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", page, count=1)
+          page,n2=__import__('re').subn(r"(?:const|let) CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", page, count=1)
           if n1 != 1 or n2 != 1: raise SystemExit("Could not update the in-app updater version constants.")
           asset.write_text(page)
           PY
@@ -177,7 +177,7 @@ jobs:
           asset=Path("android-studio-project/app/src/main/assets/fit/index.html")
           page=asset.read_text()
           page,n1=re.subn(r"const CURRENT_VERSION_CODE=\d+;", f"const CURRENT_VERSION_CODE={code};", page, count=1)
-          page,n2=re.subn(r"const CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", page, count=1)
+          page,n2=re.subn(r"(?:const|let) CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", page, count=1)
           if n1 != 1 or n2 != 1: raise SystemExit("Could not update embedded updater version.")
           asset.write_text(page)
           serialized=json.dumps(meta, indent=2)+"\n"
