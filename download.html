@@ -16,6 +16,23 @@
 <style>
 :root{color-scheme:dark;--bg:#080d14;--panel:#111b28;--line:#ffffff18;--muted:#9aaabe;--cyan:#55e2d3;--blue:#80a8ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0,#1a555533,transparent 42%),var(--bg);color:#f5f8fc;font:15px Manrope, sans-serif}.wrap{max-width:1080px;margin:auto;padding:0 22px}.nav{height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}.brand{display:flex;gap:11px;align-items:center;color:#fff;text-decoration:none;font:800 15px Sora;letter-spacing:.12em}.brand img{width:38px;height:38px}.brand b{color:var(--cyan)}.nav a:last-child{color:#d7e3f1;text-decoration:none;font-size:12px}.hero{margin:28px 0 20px;min-height:490px;border:1px solid var(--line);border-radius:25px;overflow:hidden;display:grid;grid-template-columns:1.1fr .9fr;background:linear-gradient(90deg,#090f19 0%,#0a111beF 48%,#0a111b65 100%),url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1800&q=90') center/cover}.copy{padding:clamp(28px,6vw,65px);align-self:center}.eyebrow{color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:.2em}.h1{font:800 clamp(40px,6vw,66px)/1.02 Sora;letter-spacing:-.06em;margin:18px 0}.h1 span{color:var(--cyan)}.desc{max-width:520px;color:#b5c3d3;line-height:1.8}.cta{display:inline-flex;margin-top:20px;padding:16px 22px;border-radius:12px;background:linear-gradient(110deg,var(--cyan),var(--blue));color:#06131a;text-decoration:none;font-weight:900;letter-spacing:.04em;box-shadow:0 12px 35px #45e0d033}.note{font-size:11px;color:#9eafc2;line-height:1.7;margin-top:13px}.visual{display:flex;align-items:center;justify-content:center;padding:30px}.phone{width:min(260px,100%);padding:10px;border-radius:32px;background:linear-gradient(145deg,#344253,#080d14 50%,#263749);border:1px solid #ffffff50;box-shadow:0 30px 70px #0009;transform:rotate(4deg)}.screen{min-height:390px;border-radius:24px;padding:22px 15px;background:linear-gradient(160deg,#15283a,#080e17);border:1px solid #ffffff18}.screen small{color:var(--cyan);font-weight:800;letter-spacing:.16em}.screen h2{font:800 25px Sora;line-height:1.1}.metric{margin-top:18px;padding:15px;border-radius:13px;background:#ffffff0b;border:1px solid var(--line)}.metric strong{display:block;font:800 28px Sora;color:var(--cyan)}.bars{display:flex;align-items:end;gap:8px;height:85px;margin-top:14px}.bars i{display:block;flex:1;border-radius:5px 5px 0 0;background:linear-gradient(var(--cyan),#427caa);height:var(--h)}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 45px}.feature{padding:20px;border:1px solid var(--line);border-radius:16px;background:#ffffff06}.feature b{display:block;font:700 15px Sora;margin-bottom:8px}.feature p{color:var(--muted);font-size:12px;line-height:1.7;margin:0}.foot{text-align:center;color:#718196;font-size:11px;padding:25px 0 38px;border-top:1px solid var(--line)}@media(max-width:720px){.hero{grid-template-columns:1fr}.copy{padding:34px 25px 10px}.visual{padding:18px 25px 40px}.phone{width:220px}.screen{min-height:330px}.features{grid-template-columns:1fr}.nav{height:68px}}
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VYQZ6HT0RD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){window.dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VYQZ6HT0RD', {site_section:'NEXORA Official Website'});
+  document.addEventListener('click', function(event) {
+    const link = event.target.closest('a[href*="github.com/"][href*="/releases/"]');
+    if (!link) return;
+    const appName = link.href.includes('nexora-ai-drama') ? 'NEXORA AI DRAMA' : 'NEXORA FIT';
+    gtag('event', 'apk_download_click', {
+      app_name: appName,
+      app_platform: 'website',
+      link_url: link.href
+    });
+  });
+</script>
 </head>
 <body><div class="wrap">
 <header class="nav"><a class="brand" href="./"><img src="./logo.svg" alt="">NEXORA <b>FIT</b></a><div style="display:flex;gap:18px;align-items:center"><a href="./" style="color:#d7e3f1;text-decoration:none;font-size:12px">NEXORA HOME ↗</a><a href="https://www.facebook.com/profile.php?id=61596591209056" target="_blank" rel="noopener noreferrer" style="color:#55e2d3;text-decoration:none;font-size:12px">FACEBOOK ↗</a><a href="https://t.me/nexorastudioteam" target="_blank" rel="noopener noreferrer" style="color:#55e2d3;text-decoration:none;font-size:12px">TELEGRAM ↗</a></div></header>
