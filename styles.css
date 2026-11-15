@@ -184,3 +184,9 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 .card-copy .apk-download{margin-left:0}
 @media(max-width:650px){.site-header{gap:10px}.site-header nav{gap:8px}nav .nav-cta{min-height:44px;padding:9px 11px}.hero-actions .button{min-height:46px}.card-copy .apk-download{width:100%;justify-content:center}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.skip-link{transition:none}.hero-visual .visual-orbit{animation:none}}
+
+/* Keep primary site navigation available on narrow screens */
+@media(max-width:650px){
+  .site-header nav>a:not(.nav-cta){display:inline-flex}
+  .site-header nav>.nav-cta{display:none}
+}
