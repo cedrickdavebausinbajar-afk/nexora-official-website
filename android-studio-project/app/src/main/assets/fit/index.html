@@ -444,12 +444,12 @@ renderActivity();
 
 /* NEXORA FIT update center */
 (()=>{
- let CURRENT_VERSION_CODE=53;
- let CURRENT_VERSION_NAME='1.3.20';
+ let CURRENT_VERSION_CODE=54;
+ let CURRENT_VERSION_NAME='1.3.21';
  const VERSION_URL='https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/main/android-studio-project/version.json';
  const APK_URL='';
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
- let updateInfo={status:'checking',latest:'',url:APK_URL,notes:''},popupShown=false;
+ let updateInfo={status:'checking',latest:'',latestCode:0,installedCode:0,url:APK_URL,notes:''},popupShown=false;
  const nativeUpdater=(window.NexoraNative?.downloadUpdate&&window.NexoraNative?.getUpdateStatus)?{getDownloadStatus:async()=>{try{return JSON.parse(await window.NexoraNative.getUpdateStatus())}catch(e){return null}},downloadUpdate:async args=>window.NexoraNative.downloadUpdate(args.url,args.version),installUpdate:async()=>window.NexoraNative.installUpdate()}:window.Capacitor?.Plugins?.FitUpdater;
  async function installNativeUpdate(){const result=await nativeUpdater.installUpdate();if(result===false)throw new Error('Android could not start the installer. Check installation permission and try again.');}
  let nativePoll=null;
@@ -466,7 +466,9 @@ renderActivity();
    if(popup)popup.remove();
  }
  function showPopup(){
-   if(updateInfo.status!=='available'||popupShown)return;
+   // Final numeric guard: never show a prompt unless the server build is strictly newer than the installed APK.
+   if(updateInfo.status!=='available'||!Number.isSafeInteger(updateInfo.latestCode)||!Number.isSafeInteger(updateInfo.installedCode)||updateInfo.latestCode<=updateInfo.installedCode){closePopup(false);return;}
+   if(popupShown)return;
    try{if(localStorage.getItem('nexora-fit-update-dismissed')===updateInfo.latest)return}catch{}
    popupShown=true;
    const popup=document.createElement('div');
@@ -527,7 +529,7 @@ renderActivity();
      const validAsset=!!assetMatch&&Number(assetMatch[1])===nextCode;
      if(!validVersion)throw new Error('Invalid update version metadata');
      if(nextCode>CURRENT_VERSION_CODE&&!validAsset)throw new Error('Invalid or mismatched update download location');
-     updateInfo={status:nextCode>CURRENT_VERSION_CODE?'available':'current',latest:nextVersion,url:nextUrl,notes:String(info.releaseNotes||'').slice(0,2000)};
+     updateInfo={status:nextCode>CURRENT_VERSION_CODE?'available':'current',latest:nextVersion,latestCode:nextCode,installedCode:CURRENT_VERSION_CODE,url:nextUrl,notes:String(info.releaseNotes||'').slice(0,2000)};
      if(updateInfo.status==='available'&&!updateInfo.url){
        status.textContent='A newer version is listed, but its installer is not published yet.';
        notes.textContent='The update is not downloadable yet. Please check again later; your installed app has not been changed.';
