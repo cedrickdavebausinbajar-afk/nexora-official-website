@@ -340,6 +340,7 @@ renderActivity();
    try{
      // Read the installed Android package version from PackageManager. The
      // bundled HTML version is only a fallback for browser/website visitors.
+     let installedVersionConfirmed=!window.NexoraNative?.getInstalledAppVersion;
      if(window.NexoraNative?.getInstalledAppVersion){
        try{
          const installed=JSON.parse(await window.NexoraNative.getInstalledAppVersion());
@@ -348,9 +349,19 @@ renderActivity();
          if(Number.isSafeInteger(installedCode)&&installedCode>0&&installedName){
            CURRENT_VERSION_CODE=installedCode;
            CURRENT_VERSION_NAME=installedName;
+           installedVersionConfirmed=true;
            label.textContent='Installed v'+CURRENT_VERSION_NAME+' · build '+CURRENT_VERSION_CODE;
-         }
-       }catch(e){console.warn('Could not read installed NEXORA FIT version',e)}
+         }else throw new Error('Invalid installed app version response');
+       }catch(e){console.warn('Could not verify installed NEXORA FIT version',e)}
+     }
+     // Never show an update popup in the Android app using the bundled fallback
+     // version when PackageManager could not confirm the actually installed APK.
+     if(window.NexoraNative?.getInstalledAppVersion&&!installedVersionConfirmed){
+       updateInfo.status='error';
+       closePopup(false);
+       download.classList.add('hidden');
+       status.textContent='Could not verify the installed app version. Please reopen NEXORA FIT and check again.';
+       return;
      }
      let info;
      if(window.NexoraNative?.getUpdateMetadata){
