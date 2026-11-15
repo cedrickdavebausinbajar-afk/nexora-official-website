@@ -126,7 +126,7 @@
 </div></section>
 </main><section class="panel" id="appUpdatePanel" style="margin:18px 0">
 <div class="sectionhead"><div><p class="eyebrow">NEXORA FIT APP</p><h2>App updates</h2><span class="muted" id="appUpdateStatus">Checking for updates…</span></div><span class="pill" id="appVersionLabel">Installed v1.0.0</span></div>
-<div class="actions"><button class="btn secondary small" id="checkAppUpdate">Check for updates</button><a class="btn small hidden" id="downloadAppUpdate" href="https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-34/NEXORA-FIT.apk" data-nexora-fit-download target="_blank" rel="noopener">UPDATE NOW ↓</a></div>
+<div class="actions"><button class="btn secondary small" id="checkAppUpdate">Check for updates</button><a class="btn small hidden" id="downloadAppUpdate" data-nexora-fit-download aria-disabled="true" target="_blank" rel="noopener">UPDATE NOW ↓</a></div>
 <p class="notice" id="appUpdateNotes">Your workout data is stored on this device. Back it up before major updates.</p>
 </section>
 <footer class="foot">NEXORA FIT · Independent workout tracker · Your data is stored locally on this device</footer></div>
@@ -251,7 +251,6 @@ renderActivity();
    only a native app updater may show an install/update prompt. */
 (()=>{
  const VERSION_URL='../version.json';
- const APK_FALLBACK='https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-34/NEXORA-FIT.apk';
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
  const nativeUpdater=window.Capacitor?.Plugins?.FitUpdater;
  if(!status||!button)return;
@@ -263,9 +262,9 @@ renderActivity();
    const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
    if(!response.ok)throw new Error('Release information unavailable');
    const info=await response.json();
-   if(!info.version||!info.apkUrl)throw new Error('Release information incomplete');
+   if(!/^\\d+\\.\\d+\\.\\d+$/.test(String(info.version))||!Number.isSafeInteger(Number(info.versionCode))||!/^https:\\/\\/github\\.com\\/cedrickdavebausinbajar-afk\\/nexora-official-website\\/releases\\/download\\/nexora-fit-build-\\d+\\/NEXORA-FIT\\.apk$/i.test(String(info.apkUrl||'')))throw new Error('Release information is invalid or incomplete');
    latestInfo=info;
-   document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>a.href=info.apkUrl);
+   document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>{a.href=info.apkUrl;a.removeAttribute('aria-disabled')});
    label.textContent='Latest v'+info.version+' · build '+info.versionCode;
    notes.textContent=info.releaseNotes||'Download the latest NEXORA FIT APK.';
    status.textContent='Latest NEXORA FIT release: v'+info.version+' (build '+info.versionCode+').';
@@ -290,6 +289,6 @@ renderActivity();
  setInterval(()=>check(false),6*60*60*1000);
 })();</script>
 <script>
-(async()=>{try{const r=await fetch('../version.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=await r.json();document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>a.href=v.apkUrl);}catch(e){}})();
+(async()=>{try{const r=await fetch('../version.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=await r.json();if(!/^\\d+\\.\\d+\\.\\d+$/.test(String(v.version))||!Number.isSafeInteger(Number(v.versionCode))||!/^https:\\/\\/github\\.com\\/cedrickdavebausinbajar-afk\\/nexora-official-website\\/releases\\/download\\/nexora-fit-build-\\d+\\/NEXORA-FIT\\.apk$/i.test(String(v.apkUrl||'')))return;document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>{a.href=v.apkUrl;a.removeAttribute('aria-disabled')});}catch(e){console.error('NEXORA FIT release metadata:',e)}})();
 </script>
 </body></html>
