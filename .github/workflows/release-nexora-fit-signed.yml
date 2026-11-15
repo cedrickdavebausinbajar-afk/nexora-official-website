@@ -147,7 +147,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add android-studio-project/app/build.gradle.kts android-studio-project/app/src/main/assets/fit/index.html android-studio-project/version.json
+          git add android-studio-project/app/build.gradle.kts android-studio-project/app/src/main/assets/fit/index.html android-studio-project/version.json version.json
           if git diff --cached --quiet; then
             echo "Updater metadata already matches this release; no commit is needed."
           else
