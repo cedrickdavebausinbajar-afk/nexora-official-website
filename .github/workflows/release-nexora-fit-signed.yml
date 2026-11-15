@@ -1,0 +1,149 @@
+name: Release NEXORA FIT (signed update)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Release version (x.y.z)"
+        required: true
+        default: "1.3.2"
+        type: string
+      version_code:
+        description: "Android versionCode (must exceed the current installed build)"
+        required: true
+        default: "32"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  signed-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Validate release version and configure signing
+        env:
+          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          [[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ "$VERSION_CODE" =~ ^[0-9]+$ ]]
+          test "$VERSION_CODE" -gt 31
+          test -n "$ANDROID_KEYSTORE_BASE64"
+          test -n "$ANDROID_KEYSTORE_PASSWORD"
+          test -n "$ANDROID_KEY_ALIAS"
+          test -n "$ANDROID_KEY_PASSWORD"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/nexora-release.jks"
+          test -s "$RUNNER_TEMP/nexora-release.jks"
+          keytool -list -keystore "$RUNNER_TEMP/nexora-release.jks" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/nexora-release.jks" >> "$GITHUB_ENV"
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
+          echo "ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD" >> "$GITHUB_ENV"
+
+      - name: Set up Java 17 and Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
+
+      - name: Install Android 35 SDK
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Set requested app version
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          p=Path("android-studio-project/app/build.gradle.kts")
+          s=p.read_text()
+          s,n1=re.subn(r'versionCode = [0-9]+', 'versionCode = '+os.environ['VERSION_CODE'], s, count=1)
+          s,n2=re.subn(r'versionName = "[^"]+"', 'versionName = "'+os.environ['VERSION_NAME']+'"', s, count=1)
+          if n1 != 1 or n2 != 1: raise SystemExit("Could not set Android version.")
+          p.write_text(s)
+          PY
+
+      - name: Build signed release APK
+        run: gradle --no-daemon -p android-studio-project assembleRelease
+
+      - name: Verify APK identity and signing certificate against current official release
+        run: |
+          set -euo pipefail
+          APK="android-studio-project/app/build/outputs/apk/release/app-release.apk"
+          OLD="$RUNNER_TEMP/current-official.apk"
+          curl --fail --location --silent --show-error "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-30/NEXORA.FIT-1.apk" -o "$OLD"
+          AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
+          APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
+          "$AAPT" dump badging "$OLD" | grep -q "package: name='com.nexora.fit'"
+          "$AAPT" dump badging "$APK" | grep -q "package: name='com.nexora.fit'"
+          OLD_CERT=$("$APKSIGNER" verify --print-certs "$OLD" | sed -n 's/.*certificate SHA-256 digest: //p' | head -n1)
+          NEW_CERT=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -n1)
+          test -n "$OLD_CERT"
+          test -n "$NEW_CERT"
+          if [ "$OLD_CERT" != "$NEW_CERT" ]; then
+            echo "::error::Signing certificate does not match the currently published NEXORA FIT APK. Release blocked to protect existing installations."
+            exit 1
+          fi
+          cp "$APK" NEXORA-FIT.apk
+          echo "Verified: package ID and signing certificate match the official Build 30 APK."
+
+      - name: Publish signed release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: nexora-fit-build-${{ inputs.version_code }}
+          name: NEXORA FIT ${{ inputs.version_name }} (build ${{ inputs.version_code }})
+          make_latest: true
+          files: NEXORA-FIT.apk
+          body: |
+            Official signed NEXORA FIT update.
+            The release workflow verified that its package ID and signing certificate match the previous official APK.
+
+      - name: Update in-app updater metadata
+        env:
+          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, re
+          from pathlib import Path
+          name=os.environ['VERSION_NAME']; code=int(os.environ['VERSION_CODE'])
+          html=Path("android-studio-project/app/src/main/assets/fit/index.html")
+          s=html.read_text()
+          s,n1=re.subn(r'const CURRENT_VERSION_CODE=\d+;', f'const CURRENT_VERSION_CODE={code};', s, count=1)
+          s,n2=re.subn(r"const CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", s, count=1)
+          if n1 != 1 or n2 != 1: raise SystemExit("Could not update in-app version constants.")
+          html.write_text(s)
+          meta={
+            "version":name,
+            "versionCode":code,
+            "apkUrl":f"https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-{code}/NEXORA-FIT.apk",
+            "releaseNotes":"NEXORA FIT "+name+": signed update with protected in-app update delivery."
+          }
+          Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\n")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add android-studio-project/app/build.gradle.kts android-studio-project/app/src/main/assets/fit/index.html android-studio-project/version.json
+          git commit -m "Publish NEXORA FIT version ${{ inputs.version_name }}"
+          git push
