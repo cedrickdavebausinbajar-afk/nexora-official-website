@@ -15,7 +15,7 @@ on:
       version_code:
         description: "Android versionCode (must exceed the current installed build)"
         required: true
-        default: "45"
+        default: "46"
         type: string
 
 permissions:
