@@ -275,7 +275,7 @@ class MainActivity : Activity() {
 
         @JavascriptInterface
         fun getUpdateStatus(): String {
-            if (!isTrustedAppPage()) return JSONObject().put("status", "blocked", "ready", false).toString()
+            if (!isTrustedAppPage()) return JSONObject().put("status", "blocked").put("ready", false).toString()
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
             val id = prefs.getLong("download_id", -1L)
             val version = prefs.getString("download_version", "") ?: ""
