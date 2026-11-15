@@ -15,7 +15,7 @@ This isolated Android project packages the NEXORA FIT web app inside the APK. Th
 - WebView JavaScript and DOM storage enabled for the existing app.
 - Native file picker wired to HTML file inputs (JSON backup restore and food-image selection).
 - Back navigation, WebView pause/resume, and saved navigation state.
-- Top-level external HTTP(S) links are handed to the device browser; the canonical NEXORA GitHub Pages domain stays inside the app. Subframe navigation is not redirected to external apps.
+- External HTTP(S) links are handed to the device browser; the canonical NEXORA GitHub Pages domain stays inside the app.
 - The APK is built as debug and signed release artifacts by GitHub Actions.
 
 ## Build
