@@ -356,11 +356,19 @@ const foodEstimates=[
  {keys:['pinakbet'],name:'Pinakbet (1 cup)',kcal:160,protein:7,carbs:18,fat:7}
 ];
 function findFoodEstimate(query){
- const words=String(query||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean);
- return foodEstimates.find(item=>item.keys.some(key=>{
-  const parts=key.toLowerCase().split(/\s+/);
-  return parts.length>0&&words.some((_,i)=>parts.every((part,j)=>words[i+j]===part));
+ const normalized=String(query||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+ if(!normalized)return null;
+ const words=normalized.split(/\s+/).filter(Boolean);
+ const matches=[];
+ foodEstimates.forEach((item,index)=>item.keys.forEach(key=>{
+  const phrase=key.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  if(!phrase)return;
+  const parts=phrase.split(/\s+/);
+  const found=words.some((_,i)=>parts.every((part,j)=>words[i+j]===part));
+  if(found)matches.push({item,index,length:parts.length,chars:phrase.length});
  }));
+ matches.sort((a,b)=>b.length-a.length||b.chars-a.chars||a.index-b.index);
+ return matches[0]?.item||null;
 }
 function fillFoodEstimate(match){$('mealName').value=match.name;$('mealKcal').value=match.kcal;$('mealProtein').value=match.protein;$('mealCarbs').value=match.carbs;$('mealFat').value=match.fat}
 $('estimateFood').onclick=()=>{
@@ -404,22 +412,37 @@ recognizeButton.onclick=async()=>{
  try{
   if(typeof photo.decode==='function')await photo.decode();
   if(!photo.naturalWidth||!photo.naturalHeight)throw new Error('The selected photo is not ready. Choose it again and retry.');
+  // Downscale large camera images before inference to reduce memory pressure on Android phones.
+  let inferencePhoto=photo;
+  const maxSide=1024;
+  if(photo.naturalWidth>maxSide||photo.naturalHeight>maxSide){
+   const scale=Math.min(maxSide/photo.naturalWidth,maxSide/photo.naturalHeight);
+   const canvas=document.createElement('canvas');
+   canvas.width=Math.max(1,Math.round(photo.naturalWidth*scale));
+   canvas.height=Math.max(1,Math.round(photo.naturalHeight*scale));
+   const context=canvas.getContext('2d',{alpha:false});
+   if(!context)throw new Error('Could not prepare this photo. Please choose another image.');
+   context.drawImage(photo,0,0,canvas.width,canvas.height);
+   inferencePhoto=canvas;
+  }
   let predictions=[],modelName='Food-101';
   try{
    const classifier=await loadDedicatedFoodClassifier();
-   predictions=await classifier(photo);
+   predictions=await classifier(inferencePhoto);
    if(!Array.isArray(predictions)||!predictions.length)throw new Error('The food model returned no predictions.');
   }catch(foodModelError){
    console.warn('Dedicated Food-101 model unavailable; using general image fallback',foodModelError);
    modelName='general image fallback';
    foodStatus.textContent='The dedicated food model could not load. Trying the backup image recognizer…';
-   predictions=await runMobileNetFallback(photo);
+   predictions=await runMobileNetFallback(inferencePhoto);
   }
   if(!Array.isArray(predictions)||!predictions.length)throw new Error('No predictions were returned. Try a brighter, closer photo with one food item.');
   const ranked=predictions.map(p=>({label:String(p.label||p.className||'').split(',')[0].replace(/_/g,' ').trim(),probability:Number(p.score??p.probability)||0})).filter(p=>p.label).sort((x,y)=>y.probability-x.probability);
   if(!ranked.length)throw new Error('No recognizable food label was returned. Try a clear photo with the food centered.');
-  const candidate=ranked.map(p=>({...p,match:findFoodEstimate(p.label)})).find(p=>p.match&&p.probability>=0.12);
   const best=ranked[0];
+  // Only prefill nutrition when a food label has meaningful model confidence.
+  // A low-confidence guess must never silently become a meal's calorie estimate.
+  const candidate=ranked.map(p=>({...p,match:findFoodEstimate(p.label)})).find(p=>p.match&&p.probability>=0.35);
   $('mealName').value=candidate?candidate.match.name:best.label.replace(/\b\w/g,c=>c.toUpperCase());
   if(candidate){
    fillFoodEstimate(candidate.match);
@@ -427,7 +450,7 @@ recognizeButton.onclick=async()=>{
    toast('Food identified — review the nutrition estimate');
   }else{
    const alternatives=ranked.slice(0,5).map(p=>p.label+' ('+Math.round(p.probability*100)+'%)').join(', ');
-   foodStatus.textContent='Possible food labels ('+modelName+'): '+alternatives+'. The food was recognized, but no matching nutrition profile is available yet. Review the name and enter or estimate the macros manually.';
+   foodStatus.textContent='Possible food labels ('+modelName+'): '+alternatives+'. No reliable food-to-nutrition match reached 35% confidence, so macros were not auto-filled. Review the label and enter or estimate the serving manually.';
    toast('Food label found — nutrition needs review');
   }
  }catch(error){
