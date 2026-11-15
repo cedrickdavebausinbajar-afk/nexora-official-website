@@ -1,0 +1,1 @@
+Release NEXORA FIT 1.3.10 (versionCode 43) from the latest main branch after the source fixes. The signed release workflow must verify the APK package and signing certificate against official build 42 before publishing.
