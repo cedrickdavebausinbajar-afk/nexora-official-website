@@ -3,6 +3,10 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+dependencies {
+    implementation("androidx.webkit:webkit:1.12.1")
+}
+
 android {
     namespace = "com.nexora.fit"
     compileSdk = 35
