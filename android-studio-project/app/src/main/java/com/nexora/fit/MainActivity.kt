@@ -23,7 +23,9 @@ import android.webkit.WebViewClient
 import android.webkit.WebResourceRequest
 import android.view.ViewGroup
 import android.webkit.CookieManager
-import android.webkit.JavascriptInterface
+import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewCompat
+import java.util.concurrent.Executors
 import android.widget.Toast
 
 class MainActivity : Activity() {
@@ -32,10 +34,14 @@ class MainActivity : Activity() {
     private val filePickerRequest = 4107
     private val backupSaveRequest = 4108
     private var pendingBackupContent: String? = null
+    private lateinit var assetLoader: WebViewAssetLoader
+    private val bridgeExecutor = Executors.newSingleThreadExecutor()
+    private val appOrigin = "https://appassets.androidplatform.net"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         CookieManager.getInstance().setAcceptCookie(true)
+        assetLoader = WebViewAssetLoader.Builder().addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this)).build()
 
         webView = WebView(this).apply {
             layoutParams = ViewGroup.LayoutParams(
@@ -44,10 +50,8 @@ class MainActivity : Activity() {
             )
             settings.javaScriptEnabled = true
             settings.domStorageEnabled = true
-            settings.allowFileAccess = true
+            settings.allowFileAccess = false
             settings.allowContentAccess = true
-            settings.allowFileAccessFromFileURLs = false
-            settings.allowUniversalAccessFromFileURLs = false
             settings.javaScriptCanOpenWindowsAutomatically = false
             settings.setSupportMultipleWindows(false)
             settings.loadsImagesAutomatically = true
@@ -55,16 +59,17 @@ class MainActivity : Activity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 settings.safeBrowsingEnabled = true
             }
-            addJavascriptInterface(BackupBridge(), "NexoraNative")
+            
 
             webViewClient = object : WebViewClient() {
+                override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): android.webkit.WebResourceResponse? = assetLoader.shouldInterceptRequest(request.url)
+
                 private fun handleNavigation(uri: Uri, isMainFrame: Boolean = true): Boolean {
                     // Leave iframe/resource navigation inside WebView; only route top-level links externally.
                     if (!isMainFrame) return false
                     val scheme = uri.scheme?.lowercase()
-                    if (scheme == "file") {
-                        return !uri.path.orEmpty().startsWith("/android_asset/fit/")
-                    }
+                    if (scheme == "https" && uri.host.equals("appassets.androidplatform.net", ignoreCase = true)) return false
+                    if (scheme == "file" || scheme == "content") return true
                     if (scheme == "about" && uri.toString() == "about:blank") return false
                     // Keep the canonical NEXORA GitHub Pages site inside the app.
                     if (scheme == "https" && uri.host.equals("cedrickdavebausinbajar-afk.github.io", ignoreCase = true)) return false
@@ -130,15 +135,37 @@ class MainActivity : Activity() {
                     }
                 }
             }
+        }
 
-            if (savedInstanceState == null) {
-                loadUrl("file:///android_asset/fit/index.html")
-            } else {
-                restoreState(savedInstanceState)
-                if (url.isNullOrBlank()) loadUrl("file:///android_asset/fit/index.html")
+        setContentView(webView)
+        WebViewCompat.addWebMessageListener(webView, "nexoraBridge", setOf(appOrigin)) { _, message, sourceOrigin, isMainFrame, replyProxy ->
+            if (!isMainFrame || sourceOrigin.toString() != appOrigin || !isTrustedAppPage()) return@addWebMessageListener
+            val request = try { JSONObject(message.data ?: return@addWebMessageListener) } catch (_: Exception) { return@addWebMessageListener }
+            val requestId = request.optString("id")
+            val action = request.optString("action")
+            val args = request.optJSONObject("args") ?: JSONObject()
+            bridgeExecutor.execute {
+                val result: Any? = try {
+                    val bridge = BackupBridge()
+                    when (action) {
+                        "getInstalledAppVersion" -> bridge.getInstalledAppVersion()
+                        "getUpdateMetadata" -> bridge.getUpdateMetadata()
+                        "getUpdateStatus" -> bridge.getUpdateStatus()
+                        "downloadUpdate" -> bridge.downloadUpdate(args.optString("url"), args.optString("version"))
+                        "installUpdate" -> bridge.installUpdate()
+                        "exportBackup" -> { bridge.exportBackup(args.optString("fileName"), args.optString("content")); true }
+                        else -> JSONObject().put("error", "Unsupported native action").toString()
+                    }
+                } catch (_: Exception) { JSONObject().put("error", "Native request failed").toString() }
+                val response = JSONObject().put("id", requestId).put("result", result)
+                runOnUiThread { if (!isFinishing && ::webView.isInitialized && isTrustedAppPage()) replyProxy.postMessage(response.toString()) }
             }
         }
-        setContentView(webView)
+        if (savedInstanceState == null) webView.loadUrl("$appOrigin/assets/fit/index.html")
+        else {
+            webView.restoreState(savedInstanceState)
+            if (webView.url.isNullOrBlank() || !webView.url!!.startsWith("$appOrigin/")) webView.loadUrl("$appOrigin/assets/fit/index.html")
+        }
         if (Build.VERSION.SDK_INT >= 35) {
             webView.setOnApplyWindowInsetsListener { view, insets ->
                 val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
@@ -216,15 +243,12 @@ class MainActivity : Activity() {
     private fun isTrustedAppPage(): Boolean {
         if (!::webView.isInitialized) return false
         val current = Uri.parse(webView.url ?: return false)
-        return current.scheme == "file" &&
-            current.host.isNullOrEmpty() &&
-            current.path == "/android_asset/fit/index.html"
+        return current.scheme == "https" && current.host == "appassets.androidplatform.net" && current.path == "/assets/fit/index.html"
     }
 
     private inner class BackupBridge {
-        @JavascriptInterface
+        
         fun getInstalledAppVersion(): String {
-            if (!isTrustedAppPage()) return JSONObject().put("error", "Untrusted app page").toString()
             return try {
                 val info = packageManager.getPackageInfo(packageName, 0)
                 val code = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else @Suppress("DEPRECATION") info.versionCode.toLong()
@@ -234,9 +258,8 @@ class MainActivity : Activity() {
             }
         }
 
-        @JavascriptInterface
+        
         fun getUpdateMetadata(): String {
-            if (!isTrustedAppPage()) return JSONObject().put("error", "Untrusted app page").toString()
             var connection: HttpURLConnection? = null
             return try {
                 val endpoint = URL("https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/main/android-studio-project/version.json")
@@ -273,9 +296,8 @@ class MainActivity : Activity() {
             }
         }
 
-        @JavascriptInterface
+        
         fun getUpdateStatus(): String {
-            if (!isTrustedAppPage()) return JSONObject().put("status", "blocked").put("ready", false).toString()
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
             val id = prefs.getLong("download_id", -1L)
             val version = prefs.getString("download_version", "") ?: ""
@@ -311,9 +333,8 @@ class MainActivity : Activity() {
             return JSONObject(mapOf("status" to "missing", "ready" to false, "version" to version)).toString()
         }
 
-        @JavascriptInterface
+        
         fun downloadUpdate(url: String, version: String): Boolean {
-            if (!isTrustedAppPage()) return false
             val uri = Uri.parse(url)
             val validVersion = version.matches(Regex("""[0-9]+\.[0-9]+\.[0-9]+"""))
             val validReleaseAsset = uri.scheme == "https" &&
@@ -339,9 +360,8 @@ class MainActivity : Activity() {
             } catch (_: Exception) { false }
         }
 
-        @JavascriptInterface
+        
         fun installUpdate(): Boolean {
-            if (!isTrustedAppPage()) return false
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
             val id = prefs.getLong("download_id", -1L)
             if (id < 0) return false
@@ -375,11 +395,10 @@ class MainActivity : Activity() {
             return true
         }
 
-        @JavascriptInterface
+        
         fun exportBackup(fileName: String, content: String) {
-            if (!isTrustedAppPage()) return
             runOnUiThread {
-                if (!::webView.isInitialized || webView.url?.startsWith("file:///android_asset/fit/") != true) {
+                if (!::webView.isInitialized || !isTrustedAppPage()) {
                     Toast.makeText(this@MainActivity, "Backup export is available inside NEXORA FIT", Toast.LENGTH_SHORT).show()
                     return@runOnUiThread
                 }
@@ -424,12 +443,12 @@ class MainActivity : Activity() {
         filePathCallback?.onReceiveValue(null)
         filePathCallback = null
         if (::webView.isInitialized) {
-            webView.removeJavascriptInterface("NexoraNative")
             webView.stopLoading()
             webView.loadUrl("about:blank")
             webView.removeAllViews()
             webView.destroy()
         }
+        bridgeExecutor.shutdownNow()
         super.onDestroy()
     }
 }
