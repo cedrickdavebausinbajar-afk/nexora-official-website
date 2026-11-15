@@ -211,6 +211,17 @@ class MainActivity : Activity() {
 
     private inner class BackupBridge {
         @JavascriptInterface
+        fun getInstalledAppVersion(): String {
+            return try {
+                val info = packageManager.getPackageInfo(packageName, 0)
+                val code = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) info.longVersionCode else @Suppress("DEPRECATION") info.versionCode.toLong()
+                JSONObject().put("versionName", info.versionName ?: "unknown").put("versionCode", code).toString()
+            } catch (_: Exception) {
+                JSONObject().put("error", "Installed app version could not be read").toString()
+            }
+        }
+
+        @JavascriptInterface
         fun getUpdateMetadata(): String {
             var connection: HttpURLConnection? = null
             return try {
