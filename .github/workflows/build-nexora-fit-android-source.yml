@@ -4,10 +4,16 @@ on:
   push:
     paths:
       - "android-studio-project/**"
+      - "scripts/prepare-android.js"
+      - "package.json"
+      - "capacitor.config.json"
       - ".github/workflows/build-nexora-fit-android-source.yml"
   pull_request:
     paths:
       - "android-studio-project/**"
+      - "scripts/prepare-android.js"
+      - "package.json"
+      - "capacitor.config.json"
       - ".github/workflows/build-nexora-fit-android-source.yml"
   workflow_dispatch:
 
@@ -20,6 +26,18 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Prepare and verify Capacitor web assets
+        run: |
+          npm run prepare:android
+          test -s www/index.html
+          test -s www/logo.svg
+          test -s www/version.json
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
