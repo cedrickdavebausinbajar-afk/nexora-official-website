@@ -1,6 +1,6 @@
 {
   "version": "1.3.21",
-  "versionCode": 54,
-  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-54/NEXORA-FIT.apk",
+  "versionCode": 55,
+  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-55/NEXORA-FIT.apk",
   "releaseNotes": "NEXORA FIT 1.3.21: Improves food photo recognition confidence handling and reduces false nutrition matches, alongside workout, backup and updater reliability improvements."
 }

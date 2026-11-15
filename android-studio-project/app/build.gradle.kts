@@ -15,7 +15,7 @@ android {
         applicationId = "com.nexora.fit"
         minSdk = 23
         targetSdk = 35
-        versionCode = 54
+        versionCode = 55
         versionName = "1.3.21"
     }
 
