@@ -89,15 +89,9 @@ jobs:
           VERSION_CODE: ${{ inputs.version_code || '35' }}
         run: |
           python3 - <<'PY'
-          import json, os, re
+          import json, os
           from pathlib import Path
           name=os.environ['VERSION_NAME']; code=int(os.environ['VERSION_CODE'])
-          html=Path("android-studio-project/app/src/main/assets/fit/index.html")
-          s=html.read_text()
-          s,n1=re.subn(r'const CURRENT_VERSION_CODE=\d+;', f'const CURRENT_VERSION_CODE={code};', s, count=1)
-          s,n2=re.subn(r"const CURRENT_VERSION_NAME='[^']+';", f"const CURRENT_VERSION_NAME='{name}';", s, count=1)
-          if n1 != 1 or n2 != 1: raise SystemExit("Could not update in-app version constants.")
-          html.write_text(s)
           meta={
             "version":name,
             "versionCode":code,
