@@ -132,8 +132,22 @@
     });
     if (label) label.textContent = "v" + release.version + " · Build " + release.versionCode;
   } catch (_) {
-    links.forEach(link => { link.removeAttribute("href"); link.setAttribute("aria-disabled", "true"); link.textContent = "DOWNLOAD TEMPORARILY UNAVAILABLE"; });
-    if (label) label.textContent = "Version unavailable · download disabled";
+    // Keep the verified static release URL usable when version.json is unavailable.
+    // Only disable a link if the page has no valid official fallback URL at all.
+    links.forEach(link => {
+      const fallbackUrl = link.getAttribute("href") || "";
+      const hasOfficialFallback = fallbackUrl.startsWith("https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-") &&
+        /\/nexora-fit-build-\d+\/NEXORA-FIT\.apk$/.test(fallbackUrl);
+      if (hasOfficialFallback) {
+        link.removeAttribute("aria-disabled");
+        link.textContent = "DOWNLOAD ANDROID APK ↓";
+      } else {
+        link.removeAttribute("href");
+        link.setAttribute("aria-disabled", "true");
+        link.textContent = "DOWNLOAD TEMPORARILY UNAVAILABLE";
+      }
+    });
+    if (label) label.textContent = "Latest version unavailable · using published download";
   }
 })();
 </script>
