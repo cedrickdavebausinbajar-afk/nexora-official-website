@@ -8,6 +8,11 @@ import android.os.Bundle
 import android.os.Environment
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.pm.PackageInfo
+import android.os.Build
+import org.json.JSONObject
+import java.security.MessageDigest
+import java.io.File
 import android.database.Cursor
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -145,13 +150,51 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun signingDigests(info: PackageInfo): Set<String> {
+        val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            info.signingInfo?.apkContentsSigners
+        } else {
+            @Suppress("DEPRECATION")
+            info.signatures
+        } ?: return emptySet()
+        return signatures.map { signature ->
+            MessageDigest.getInstance("SHA-256").digest(signature.toByteArray())
+                .joinToString("") { "%02x".format(it) }
+        }.toSet()
+    }
+
+    private fun downloadedApkMatchesInstalledSigner(apkUri: Uri): Boolean {
+        val tempApk = File.createTempFile("nexora-fit-check-", ".apk", cacheDir)
+        return try {
+            contentResolver.openInputStream(apkUri)?.use { input ->
+                tempApk.outputStream().use { output -> input.copyTo(output) }
+            } ?: return false
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                PackageManager.GET_SIGNING_CERTIFICATES
+            } else {
+                @Suppress("DEPRECATION")
+                PackageManager.GET_SIGNATURES
+            }
+            val installed = packageManager.getPackageInfo(packageName, flags)
+            val candidate = packageManager.getPackageArchiveInfo(tempApk.absolutePath, flags)
+                ?: return false
+            candidate.packageName == packageName &&
+                signingDigests(installed).isNotEmpty() &&
+                signingDigests(installed) == signingDigests(candidate)
+        } catch (_: Exception) {
+            false
+        } finally {
+            tempApk.delete()
+        }
+    }
+
     private inner class BackupBridge {
         @JavascriptInterface
         fun getUpdateStatus(): String {
             val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
             val id = prefs.getLong("download_id", -1L)
             val version = prefs.getString("download_version", "") ?: ""
-            if (id < 0) return """{"status":"none","ready":false,"version":"$version"}"""
+            if (id < 0) return JSONObject(mapOf("status" to "none", "ready" to false, "version" to version)).toString()
             val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val query = DownloadManager.Query().setFilterById(id)
             try {
@@ -168,18 +211,30 @@ class MainActivity : Activity() {
                             DownloadManager.STATUS_FAILED -> "failed"
                             else -> "unknown"
                         }
-                        val ready = state == DownloadManager.STATUS_SUCCESSFUL
-                        return """{"status":"$status","ready":$ready,"version":"$version","downloaded":$downloaded,"total":$total}"""
+                        val result = JSONObject().apply {
+                            put("status", status)
+                            put("ready", state == DownloadManager.STATUS_SUCCESSFUL)
+                            put("version", version)
+                            put("downloaded", downloaded)
+                            put("total", total)
+                            put("percent", if (total > 0) (downloaded * 100 / total).coerceIn(0, 100) else 0)
+                        }
+                        return result.toString()
                     }
                 }
             } catch (_: Exception) { }
-            return """{"status":"missing","ready":false,"version":"$version"}"""
+            return JSONObject(mapOf("status" to "missing", "ready" to false, "version" to version)).toString()
         }
 
         @JavascriptInterface
         fun downloadUpdate(url: String, version: String): Boolean {
             val uri = Uri.parse(url)
-            if (uri.scheme != "https" || uri.host != "github.com" || version.isBlank()) return false
+            val validVersion = version.matches(Regex("""[0-9]+\.[0-9]+\.[0-9]+"""))
+            val validReleaseAsset = uri.scheme == "https" &&
+                uri.host == "github.com" &&
+                uri.path.orEmpty().startsWith("/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/") &&
+                uri.path.orEmpty().endsWith(".apk", ignoreCase = true)
+            if (!validReleaseAsset || !validVersion) return false
             return try {
                 val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                 val prefs = getSharedPreferences("nexora_fit_updater", Context.MODE_PRIVATE)
@@ -206,6 +261,12 @@ class MainActivity : Activity() {
             if (id < 0) return false
             val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val apk = try { manager.getUriForDownloadedFile(id) } catch (_: Exception) { null } ?: return false
+            if (!downloadedApkMatchesInstalledSigner(apk)) {
+                runOnUiThread {
+                    Toast.makeText(this@MainActivity, "This APK does not match the installed NEXORA FIT signing certificate. Installation blocked to protect your app and data.", Toast.LENGTH_LONG).show()
+                }
+                return false
+            }
             runOnUiThread {
                 try {
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O &&
