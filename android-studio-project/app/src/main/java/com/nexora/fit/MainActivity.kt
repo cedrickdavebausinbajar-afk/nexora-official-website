@@ -31,7 +31,6 @@ class MainActivity : Activity() {
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private val filePickerRequest = 4107
     private val backupSaveRequest = 4108
-    private val installPermissionRequest = 4109
     private var pendingBackupContent: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,33 +46,45 @@ class MainActivity : Activity() {
             settings.domStorageEnabled = true
             settings.allowFileAccess = true
             settings.allowContentAccess = true
+            settings.allowFileAccessFromFileURLs = false
+            settings.allowUniversalAccessFromFileURLs = false
             settings.javaScriptCanOpenWindowsAutomatically = false
             settings.setSupportMultipleWindows(false)
             settings.loadsImagesAutomatically = true
-            settings.databaseEnabled = true
+            settings.databaseEnabled = false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                settings.safeBrowsingEnabled = true
+            }
             addJavascriptInterface(BackupBridge(), "NexoraNative")
 
             webViewClient = object : WebViewClient() {
-                override fun shouldOverrideUrlLoading(
-                    view: WebView,
-                    request: WebResourceRequest
-                ): Boolean {
-                    val uri = request.url
+                private fun handleNavigation(uri: Uri): Boolean {
                     val scheme = uri.scheme?.lowercase()
-                    if (scheme == "file" || scheme == "about") return false
-                    if (scheme == "https" && uri.host == "cedrickdavebausinbajar-afk.github.io") {
-                        return false
+                    if (scheme == "file") {
+                        return !uri.path.orEmpty().startsWith("/android_asset/fit/")
                     }
+                    if (scheme == "about" && uri.toString() == "about:blank") return false
                     if (scheme == "https" || scheme == "http") {
                         return try {
                             startActivity(Intent(Intent.ACTION_VIEW, uri))
                             true
                         } catch (_: Exception) {
-                            false
+                            true
                         }
                     }
                     return true
                 }
+
+                @Suppress("DEPRECATION")
+                override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                    val uri = url?.let { Uri.parse(it) } ?: return true
+                    return handleNavigation(uri)
+                }
+
+                override fun shouldOverrideUrlLoading(
+                    view: WebView,
+                    request: WebResourceRequest
+                ): Boolean = handleNavigation(request.url)
             }
 
             webChromeClient = object : WebChromeClient() {
@@ -124,6 +135,14 @@ class MainActivity : Activity() {
             }
         }
         setContentView(webView)
+        if (Build.VERSION.SDK_INT >= 35) {
+            webView.setOnApplyWindowInsetsListener { view, insets ->
+                val bars = insets.getInsets(android.view.WindowInsets.Type.systemBars())
+                view.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+                insets
+            }
+            webView.requestApplyInsets()
+        }
     }
 
     @Deprecated("Deprecated in Android API")
