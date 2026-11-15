@@ -1,6 +1,10 @@
 name: Build NEXORA FIT Android source
 
 on:
+  push:
+    paths:
+      - "android-studio-project/**"
+      - ".github/workflows/build-nexora-fit-android-source.yml"
   pull_request:
     paths:
       - "android-studio-project/**"
