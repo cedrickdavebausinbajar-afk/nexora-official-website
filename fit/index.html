@@ -262,7 +262,7 @@ renderActivity();
    const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
    if(!response.ok)throw new Error('Release information unavailable');
    const info=await response.json();
-   if(!/^\\d+\\.\\d+\\.\\d+$/.test(String(info.version))||!Number.isSafeInteger(Number(info.versionCode))||!/^https:\\/\\/github\\.com\\/cedrickdavebausinbajar-afk\\/nexora-official-website\\/releases\\/download\\/nexora-fit-build-\\d+\\/NEXORA-FIT\\.apk$/i.test(String(info.apkUrl||'')))throw new Error('Release information is invalid or incomplete');
+   const versionParts=String(info.version||'').split('.');const validVersion=versionParts.length===3&&versionParts.every(part=>/^[0-9]+$/.test(part));const validUrl=(()=>{try{const u=new URL(String(info.apkUrl||''));const parts=u.pathname.split('/');return u.protocol==='https:'&&u.hostname==='github.com'&&parts.length===7&&parts[1]==='cedrickdavebausinbajar-afk'&&parts[2]==='nexora-official-website'&&parts[3]==='releases'&&parts[4]==='download'&&parts[5].startsWith('nexora-fit-build-')&&/^[0-9]+$/.test(parts[5].slice('nexora-fit-build-'.length))&&parts[6]==='NEXORA-FIT.apk'}catch{return false}})();if(!validVersion||!Number.isSafeInteger(Number(info.versionCode))||!validUrl)throw new Error('Release information is invalid or incomplete');
    latestInfo=info;
    document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>{a.href=info.apkUrl;a.removeAttribute('aria-disabled')});
    label.textContent='Latest v'+info.version+' · build '+info.versionCode;
@@ -288,7 +288,4 @@ renderActivity();
  check(false);
  setInterval(()=>check(false),6*60*60*1000);
 })();</script>
-<script>
-(async()=>{try{const r=await fetch('../version.json?'+Date.now(),{cache:'no-store'});if(!r.ok)return;const v=await r.json();if(!/^\\d+\\.\\d+\\.\\d+$/.test(String(v.version))||!Number.isSafeInteger(Number(v.versionCode))||!/^https:\\/\\/github\\.com\\/cedrickdavebausinbajar-afk\\/nexora-official-website\\/releases\\/download\\/nexora-fit-build-\\d+\\/NEXORA-FIT\\.apk$/i.test(String(v.apkUrl||'')))return;document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>{a.href=v.apkUrl;a.removeAttribute('aria-disabled')});}catch(e){console.error('NEXORA FIT release metadata:',e)}})();
-</script>
 </body></html>
