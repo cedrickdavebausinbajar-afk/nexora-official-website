@@ -7,7 +7,7 @@ const call=(action,args={})=>new Promise((resolve,reject)=>{const id=String(++se
 window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),getUpdateMetadata:()=>call('getUpdateMetadata'),getUpdateStatus:()=>call('getUpdateStatus'),downloadUpdate:(url,version)=>call('downloadUpdate',{url,version}),installUpdate:()=>call('installUpdate'),exportBackup:(fileName,content)=>call('exportBackup',{fileName,content})};
 })();
 </script>
-<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; connect-src 'self' https:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'none'; object-src 'none'; base-uri 'self'"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://esm.sh https://unpkg.com; connect-src 'self' https:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: data: blob:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'none'; object-src 'none'; base-uri 'self'"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090d14"><link rel="icon" type="image/svg+xml" sizes="any" href="logo.svg"><meta name="description" content="NEXORA FIT — your personal gym workout tracker. Log lifts, build routines and track strength progress.">
 <title>NEXORA FIT — Gym Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -372,15 +372,23 @@ $('estimateFood').onclick=()=>{
 async function loadDedicatedFoodClassifier(){
  if(foodClassifier)return foodClassifier;
  foodStatus.textContent='Loading the dedicated Food-101 recognition model. First use downloads about 90 MB; keep the app open.';
- const {pipeline,env}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
+ let transformers;
+ try{
+  transformers=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2');
+ }catch(primaryError){
+  console.warn('Primary food model library CDN failed; retrying alternate CDN',primaryError);
+  transformers=await import('https://esm.sh/@huggingface/transformers@3.7.2?bundle');
+ }
+ const {pipeline,env}=transformers;
  env.allowLocalModels=false;env.useBrowserCache=true;
  foodClassifier=await pipeline('image-classification','onnx-community/swin-finetuned-food101-ONNX',{dtype:'q8'});
  return foodClassifier;
 }
 async function runMobileNetFallback(photo){
  if(!window.tf||!window.mobilenet){
-  await loadFoodScript('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js');
-  await loadFoodScript('https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js');
+  const loadFromAny=async urls=>{let lastError;for(const url of urls){try{await loadFoodScript(url);return}catch(error){lastError=error;console.warn('Food recognition dependency CDN failed:',url,error)}}throw lastError||new Error('No food recognition CDN is reachable.')};
+  if(!window.tf)await loadFromAny(['https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js','https://unpkg.com/@tensorflow/tfjs@4.22.0/dist/tf.min.js']);
+  if(!window.mobilenet)await loadFromAny(['https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js','https://unpkg.com/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js']);
  }
  if(!window.tf||!window.mobilenet)throw new Error('The backup image model could not initialize.');
  await window.tf.ready();
