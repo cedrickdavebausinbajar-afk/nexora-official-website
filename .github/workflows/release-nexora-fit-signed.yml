@@ -144,6 +144,15 @@ jobs:
           NEW_CERT=$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -n1)
           test -n "$OLD_CERT"
           test -n "$NEW_CERT"
+          EXPECTED_CERT="56d72615391efbb0ec842260cbb209b3af841a765637b19656f20c6f0342eb91"
+          if [ "$OLD_CERT" != "$EXPECTED_CERT" ]; then
+            echo "::error::The currently published APK is not signed with the recovered original NEXORA FIT certificate."
+            exit 1
+          fi
+          if [ "$NEW_CERT" != "$EXPECTED_CERT" ]; then
+            echo "::error::The new APK is not signed with the recovered original NEXORA FIT certificate. Update the GitHub Actions signing secrets before releasing."
+            exit 1
+          fi
           if [ "$OLD_CERT" != "$NEW_CERT" ]; then
             echo "::error::Signing certificate does not match the currently published NEXORA FIT APK. Release blocked to protect existing installations."
             exit 1
