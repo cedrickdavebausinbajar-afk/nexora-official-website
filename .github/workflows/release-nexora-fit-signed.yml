@@ -1,10 +1,6 @@
 name: Release NEXORA FIT (signed update)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - ".github/release-triggers/nexora-fit-1.3.11-build-44"
   workflow_dispatch:
     inputs:
       version_name:
@@ -40,7 +36,12 @@ jobs:
           set -euo pipefail
           [[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           [[ "$VERSION_CODE" =~ ^[0-9]+$ ]]
-          test "$VERSION_CODE" -gt 42
+          CURRENT_VERSION_CODE=$(python3 -c 'import json; print(int(json.load(open("version.json"))["versionCode"]))')
+          test "$VERSION_CODE" -gt "$CURRENT_VERSION_CODE"
+          if git ls-remote --exit-code --tags origin "refs/tags/nexora-fit-build-$VERSION_CODE" >/dev/null 2>&1; then
+            echo "::error::That NEXORA FIT build tag already exists."
+            exit 1
+          fi
           test -n "$ANDROID_KEYSTORE_BASE64"
           test -n "$ANDROID_KEYSTORE_PASSWORD"
           test -n "$ANDROID_KEY_ALIAS"
@@ -120,7 +121,7 @@ jobs:
           set -euo pipefail
           APK="android-studio-project/app/build/outputs/apk/release/app-release.apk"
           OLD="$RUNNER_TEMP/current-official.apk"
-          curl --fail --location --silent --show-error "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-42/NEXORA-FIT.apk" -o "$OLD"
+          curl --fail --location --silent --show-error "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/latest/download/NEXORA-FIT.apk" -o "$OLD"
           AAPT="$ANDROID_HOME/build-tools/35.0.0/aapt"
           APKSIGNER="$ANDROID_HOME/build-tools/35.0.0/apksigner"
           "$AAPT" dump badging "$OLD" | grep -q "package: name='com.nexora.fit'"
@@ -134,7 +135,7 @@ jobs:
             exit 1
           fi
           cp "$APK" NEXORA-FIT.apk
-          echo "Verified: package ID and signing certificate match the official Build 42 APK."
+          echo "Verified: package ID and signing certificate match the latest official NEXORA FIT APK."
 
       - name: Publish signed release
         uses: softprops/action-gh-release@v2
