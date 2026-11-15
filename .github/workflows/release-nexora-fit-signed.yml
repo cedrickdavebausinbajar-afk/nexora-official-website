@@ -171,7 +171,7 @@ jobs:
             "version": name,
             "versionCode": code,
             "apkUrl": f"https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-{code}/NEXORA-FIT.apk",
-            "releaseNotes": "NEXORA FIT "+name+": Fixes workout-save and backup-restore reliability, tightens WebView security, improves Android 15 layout handling, and removes stale APK download fallbacks."
+            "releaseNotes": "NEXORA FIT "+name+": Adds food photo recognition with approximate nutrition suggestions, alongside workout, backup, updater and Android reliability improvements."
           }
           gradle=Path("android-studio-project/app/build.gradle.kts")
           source=gradle.read_text()
