@@ -169,3 +169,18 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:18px;pa
 /* Keyboard focus and unavailable download states */
 :focus-visible{outline:3px solid var(--cyan);outline-offset:4px;border-radius:4px}
 [data-nexora-fit-download][aria-disabled="true"]{opacity:.55;cursor:not-allowed;pointer-events:none}
+
+/* Accessibility, responsive polish and resilient interaction improvements */
+.skip-link{position:fixed;left:16px;top:12px;z-index:1000;padding:12px 18px;border-radius:10px;background:#f4fbff;color:#071522;font-weight:800;transform:translateY(-160%);transition:transform .18s ease}
+.skip-link:focus{transform:translateY(0)}
+html{scroll-padding-top:100px}
+main section[id]{scroll-margin-top:100px}
+a,button{touch-action:manipulation}
+a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid #8ff7ef;outline-offset:4px;box-shadow:0 0 0 2px #071522}
+.site-header nav a{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.button,.apk-download,.nav-cta,.text-link{min-height:44px}
+.apk-download[aria-disabled="true"]{opacity:.65;cursor:not-allowed}
+.apk-download-count{line-height:1.8}
+.card-copy .apk-download{margin-left:0}
+@media(max-width:650px){.site-header{gap:10px}.site-header nav{gap:8px}nav .nav-cta{min-height:44px;padding:9px 11px}.hero-actions .button{min-height:46px}.card-copy .apk-download{width:100%;justify-content:center}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.skip-link{transition:none}.hero-visual .visual-orbit{animation:none}}
