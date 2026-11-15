@@ -1,12 +1,6 @@
 name: Release NEXORA FIT (signed update)
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'android-studio-project/app/src/main/assets/fit/index.html'
-      - '.github/workflows/release-nexora-fit-signed.yml'
   workflow_dispatch:
     inputs:
       version_name:
@@ -111,6 +105,7 @@ jobs:
             "releaseNotes":"NEXORA FIT "+name+": Fitness Hub adds weekly goals, weight and body-measurement tracking, workout calendar, training streaks and recovery check-ins."
           }
           Path("android-studio-project/version.json").write_text(json.dumps(meta,indent=2)+"\n")
+          Path("version.json").write_text(json.dumps(meta,indent=2)+"\n")
           PY
 
       - name: Build signed release APK
