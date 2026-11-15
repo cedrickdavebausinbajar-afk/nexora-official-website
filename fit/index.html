@@ -253,6 +253,7 @@ renderActivity();
    only a native app updater may show an install/update prompt. */
 (()=>{
  const VERSION_URL='../version.json';
+ const MIN_RELEASE={version:'1.3.9',versionCode:42,apkUrl:'https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-42/NEXORA-FIT.apk',releaseNotes:'NEXORA FIT 1.3.9: Fixes workout-save and backup-restore reliability, tightens WebView security, improves Android 15 layout handling, and removes stale APK download fallbacks.'};
  const status=document.getElementById('appUpdateStatus'),button=document.getElementById('checkAppUpdate'),download=document.getElementById('downloadAppUpdate'),label=document.getElementById('appVersionLabel'),notes=document.getElementById('appUpdateNotes');
  const nativeUpdater=window.Capacitor?.Plugins?.FitUpdater;
  if(!status||!button)return;
@@ -263,7 +264,7 @@ renderActivity();
   try{
    const response=await fetch(VERSION_URL+'?t='+Date.now(),{cache:'no-store'});
    if(!response.ok)throw new Error('Release information unavailable');
-   const info=await response.json();
+   let info=await response.json();\n   if(!Number.isSafeInteger(Number(info.versionCode))||Number(info.versionCode)<MIN_RELEASE.versionCode)info=MIN_RELEASE;
    const versionParts=String(info.version||'').split('.');const validVersion=versionParts.length===3&&versionParts.every(part=>/^[0-9]+$/.test(part));const validUrl=(()=>{try{const u=new URL(String(info.apkUrl||''));const parts=u.pathname.split('/');return u.protocol==='https:'&&u.hostname==='github.com'&&parts.length===7&&parts[1]==='cedrickdavebausinbajar-afk'&&parts[2]==='nexora-official-website'&&parts[3]==='releases'&&parts[4]==='download'&&parts[5].startsWith('nexora-fit-build-')&&/^[0-9]+$/.test(parts[5].slice('nexora-fit-build-'.length))&&parts[6]==='NEXORA-FIT.apk'}catch{return false}})();if(!validVersion||!Number.isSafeInteger(Number(info.versionCode))||!validUrl)throw new Error('Release information is invalid or incomplete');
    latestInfo=info;
    document.querySelectorAll('[data-nexora-fit-download]').forEach(a=>{a.href=info.apkUrl;a.removeAttribute('aria-disabled')});
