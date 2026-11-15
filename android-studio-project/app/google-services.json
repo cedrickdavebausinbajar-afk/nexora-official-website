@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "392239947105",
+    "project_id": "nexora-fit-bb397",
+    "storage_bucket": "nexora-fit-bb397.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392239947105:android:88bd2692c042f919e03920",
+        "android_client_info": {
+          "package_name": "com.nexora.fit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTRObtXPyM1u_xaqWnvTCvvMOJATYoF04"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
