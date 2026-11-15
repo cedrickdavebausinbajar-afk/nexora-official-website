@@ -120,7 +120,7 @@ window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),g
  <div class="nutrition-camera">
    <div class="camera-actions"><label class="btn secondary small" for="foodPhoto">📷 Take photo / Choose image</label><input id="foodPhoto" type="file" accept="image/*" capture="environment" class="hidden"><button class="btn small" id="recognizeFood" type="button">✨ Recognize food</button><button class="btn secondary small" id="estimateFood" type="button">Estimate by name</button></div>
    <img id="foodPhotoPreview" class="food-photo-preview hidden" alt="Selected food photo preview">
-   <p class="notice" id="foodRecognitionStatus" role="status" aria-live="polite">Choose a food photo, then tap Recognize food. AI will suggest a likely food; nutrition values are approximate and should be checked against your serving size.</p>
+   <p class="notice" id="foodRecognitionStatus" role="status" aria-live="polite">Choose a food photo, then tap Recognize food. A general image model will suggest a possible label; it may misidentify food. Nutrition values are approximate.</p>
   </div>
   <h2 style="font-size:16px">Add a meal</h2>
  <div class="meal-form"><input id="mealName" placeholder="Food or meal name" aria-label="Food name"><input id="mealKcal" type="number" min="0" placeholder="kcal" aria-label="Calories"><input id="mealProtein" type="number" min="0" placeholder="Protein g" aria-label="Protein grams"><input id="mealCarbs" type="number" min="0" placeholder="Carbs g" aria-label="Carbohydrates grams"><input id="mealFat" type="number" min="0" placeholder="Fat g" aria-label="Fat grams"><button class="btn small" id="addMeal">＋ Add</button></div>
@@ -293,7 +293,7 @@ const foodEstimates=[
  {keys:['apple','granny smith'],name:'Apple (1 medium)',kcal:95,protein:0,carbs:25,fat:0},
  {keys:['egg'],name:'Egg (1 large)',kcal:78,protein:6,carbs:1,fat:5},
  {keys:['rice'],name:'Cooked white rice (1 cup)',kcal:205,protein:4,carbs:45,fat:0},
- {keys:['chicken','hen'],name:'Cooked chicken breast (100 g)',kcal:165,protein:31,carbs:0,fat:4},
+ {keys:['chicken']},name:'Cooked chicken breast (100 g)',kcal:165,protein:31,carbs:0,fat:4},
  {keys:['salmon'],name:'Cooked salmon (100 g)',kcal:206,protein:22,carbs:0,fat:12},
  {keys:['oat','oatmeal'],name:'Oatmeal (1 cup cooked)',kcal:154,protein:6,carbs:27,fat:3},
  {keys:['bread','toast'],name:'Bread (2 slices)',kcal:160,protein:6,carbs:28,fat:2},
@@ -301,7 +301,7 @@ const foodEstimates=[
  {keys:['potato'],name:'Potato (1 medium)',kcal:163,protein:4,carbs:37,fat:0},
  {keys:['pizza'],name:'Cheese pizza (1 slice)',kcal:285,protein:12,carbs:36,fat:10},
  {keys:['cheeseburger','hamburger','burger'],name:'Hamburger (1 regular)',kcal:295,protein:17,carbs:30,fat:12},
- {keys:['french fries','fry','fries'],name:'French fries (medium serving)',kcal:365,protein:4,carbs:48,fat:17},
+ {keys:['french fries','fries']},name:'French fries (medium serving)',kcal:365,protein:4,carbs:48,fat:17},
  {keys:['hotdog','hot dog'],name:'Hot dog (1)',kcal:290,protein:10,carbs:24,fat:18},
  {keys:['broccoli'],name:'Broccoli (1 cup)',kcal:55,protein:4,carbs:11,fat:1},
  {keys:['carrot'],name:'Carrot (1 medium)',kcal:25,protein:1,carbs:6,fat:0},
@@ -313,7 +313,13 @@ const foodEstimates=[
  {keys:['burrito'],name:'Burrito (1 medium)',kcal:350,protein:18,carbs:42,fat:12},
  {keys:['taco'],name:'Taco (1 medium)',kcal:170,protein:9,carbs:16,fat:8}
 ];
-function findFoodEstimate(query){const q=String(query||'').toLowerCase();return foodEstimates.find(x=>x.keys.some(k=>q.includes(k)))}
+function findFoodEstimate(query){
+ const words=String(query||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(/\s+/).filter(Boolean);
+ return foodEstimates.find(item=>item.keys.some(key=>{
+  const parts=key.toLowerCase().split(/\s+/);
+  return parts.length>0&&words.some((_,i)=>parts.every((part,j)=>words[i+j]===part));
+ }));
+}
 function fillFoodEstimate(match){$('mealName').value=match.name;$('mealKcal').value=match.kcal;$('mealProtein').value=match.protein;$('mealCarbs').value=match.carbs;$('mealFat').value=match.fat}
 $('estimateFood').onclick=()=>{
  const q=$('mealName').value.trim();if(!q){toast('Type a food name or recognize a photo first');$('mealName').focus();return}
@@ -336,16 +342,19 @@ recognizeButton.onclick=async()=>{
   const predictions=await foodClassifier.classify(photo,5);
   const best=predictions?.[0],label=String(best?.className||'').split(',')[0].trim();
   if(!label)throw new Error('The photo could not be recognized. Try a clearer, closer photo.');
-  const match=findFoodEstimate(predictions.map(x=>x.className).join(' '));
+  const match=findFoodEstimate(label);
   const confidence=Math.round((best.probability||0)*100);
-  if(match){
+  $('mealName').value=label;
+  if(match&&confidence>=30){
    fillFoodEstimate(match);
-   foodStatus.textContent='AI guess: '+label+' ('+confidence+'% model confidence). Filled '+match.name+' as a rough reference. Confirm the food and serving size; the model can be wrong.';
-   toast('Food guess found — review the estimate');
+   foodStatus.textContent='Possible match: '+label+' ('+confidence+'% image-model confidence). Filled '+match.name+' as a rough reference. Confirm the food and serving size; this general image model can misidentify meals.';
+   toast('Possible food match — review the estimate');
+  }else if(match){
+   foodStatus.textContent='Low-confidence guess: '+label+' ('+confidence+'%). Nutrition was not auto-filled to avoid a misleading estimate. Confirm the food name or enter macros manually.';
+   toast('Low-confidence guess; review manually');
   }else{
-   $('mealName').value=label;
-   foodStatus.textContent='AI guess: '+label+' ('+confidence+'% model confidence). No matching quick nutrition profile is available, so macros were not invented. Enter or adjust the nutrition values manually.';
-   toast('Food identified; add nutrition values manually');
+   foodStatus.textContent='Image-model guess: '+label+' ('+confidence+'%). No matching quick nutrition profile is available, so macros were not invented. Confirm the food name and enter nutrition values manually.';
+   toast('Food guess found; add nutrition values manually');
   }
  }catch(error){
   console.error('Food photo recognition failed',error);
