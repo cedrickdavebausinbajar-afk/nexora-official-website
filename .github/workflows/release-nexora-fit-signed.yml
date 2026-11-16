@@ -1,6 +1,11 @@
 name: Release NEXORA FIT (signed update)
 
 on:
+  push:
+    branches:
+      - nexora-fit-premium-splash-apk-only
+    paths:
+      - android-studio-project/release-request.json
   workflow_dispatch:
     inputs:
       version_name:
@@ -26,16 +31,25 @@ jobs:
 
       - name: Validate release version and configure signing
         env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.26' }}
-          VERSION_CODE: ${{ inputs.version_code || '60' }}
+          REQUESTED_VERSION_NAME: ${{ inputs.version_name }}
+          REQUESTED_VERSION_CODE: ${{ inputs.version_code }}
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            VERSION_NAME=$(python3 -c 'import json; print(json.load(open("android-studio-project/release-request.json"))["version_name"])')
+            VERSION_CODE=$(python3 -c 'import json; print(json.load(open("android-studio-project/release-request.json"))["version_code"])')
+          else
+            VERSION_NAME="${REQUESTED_VERSION_NAME:-1.3.26}"
+            VERSION_CODE="${REQUESTED_VERSION_CODE:-60}"
+          fi
           [[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
           [[ "$VERSION_CODE" =~ ^[0-9]+$ ]]
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$VERSION_CODE" >> "$GITHUB_ENV"
           CURRENT_VERSION_CODE=$(python3 -c 'import json; print(int(json.load(open("android-studio-project/version.json"))["versionCode"]))')
           test "$VERSION_CODE" -gt "$CURRENT_VERSION_CODE"
           if git ls-remote --exit-code --tags origin "refs/tags/nexora-fit-build-$VERSION_CODE" >/dev/null 2>&1; then
@@ -89,9 +103,6 @@ jobs:
           PY
 
       - name: Set updater version constants before packaging
-        env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.26' }}
-          VERSION_CODE: ${{ inputs.version_code || '60' }}
         run: |
           python3 - <<'PY'
           import json, os
@@ -116,9 +127,6 @@ jobs:
         run: gradle --no-daemon -p android-studio-project assembleRelease
 
       - name: Verify APK version, identity and signing certificate against current official release
-        env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.26' }}
-          VERSION_CODE: ${{ inputs.version_code || '60' }}
         run: |
           set -euo pipefail
           APK="android-studio-project/app/build/outputs/apk/release/app-release.apk"
@@ -153,8 +161,8 @@ jobs:
       - name: Publish signed release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: nexora-fit-build-${{ inputs.version_code || '60' }}
-          name: NEXORA FIT ${{ inputs.version_name || '1.3.26' }} (build ${{ inputs.version_code || '60' }})
+          tag_name: nexora-fit-build-${{ env.VERSION_CODE }}
+          name: NEXORA FIT ${{ env.VERSION_NAME }} (build ${{ env.VERSION_CODE }})
           make_latest: true
           files: NEXORA-FIT.apk
           body: |
@@ -162,9 +170,6 @@ jobs:
             The release workflow verified that its package ID and signing certificate match the previous official APK.
 
       - name: Commit updater metadata after successful publish
-        env:
-          VERSION_NAME: ${{ inputs.version_name || '1.3.26' }}
-          VERSION_CODE: ${{ inputs.version_code || '60' }}
         run: |
           set -euo pipefail
           # Keep release metadata on the isolated Android branch; never write to main or website files.
@@ -200,6 +205,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Updater metadata already matches this release; no commit is needed."
           else
-            git commit -m "Publish NEXORA FIT version ${{ inputs.version_name || '1.3.26' }}"
+            git commit -m "Publish NEXORA FIT version ${{ env.VERSION_NAME }}"
             git push origin HEAD:"$GITHUB_REF_NAME"
           fi
