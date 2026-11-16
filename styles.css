@@ -190,3 +190,5 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
   .site-header nav>a:not(.nav-cta){display:inline-flex}
   .site-header nav>.nav-cta{display:none}
 }
+
+.card-icon-img{width:54px;height:54px;display:block;object-fit:contain;filter:drop-shadow(0 5px 14px #8c42c788)}
