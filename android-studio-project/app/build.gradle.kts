@@ -19,8 +19,8 @@ android {
         applicationId = "com.nexora.fit"
         minSdk = 23
         targetSdk = 35
-        versionCode = 57
-        versionName = "1.3.23"
+        versionCode = 58
+        versionName = "1.3.24"
     }
 
     signingConfigs {
