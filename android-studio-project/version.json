@@ -1,6 +1,6 @@
 {
-  "version": "1.3.24",
-  "versionCode": 58,
-  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-58/NEXORA-FIT.apk",
-  "releaseNotes": "NEXORA FIT 1.3.24: Fixes updater bridge communication, GitHub metadata redirects, timeout handling and error diagnostics; retains existing app data and signed in-place upgrade support."
+  "version": "1.3.25",
+  "versionCode": 59,
+  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-59/NEXORA-FIT.apk",
+  "releaseNotes": "NEXORA FIT 1.3.25: Premium splash screen and verified signed in-place update support. Update checks now read the isolated NEXORA FIT release metadata, not the public website metadata."
 }
