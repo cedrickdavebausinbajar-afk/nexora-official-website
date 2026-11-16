@@ -61,10 +61,29 @@ window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),g
 .nutrition-camera{padding:13px;border:1px solid #45e0d033;border-radius:14px;background:#45e0d009;margin:10px 0 16px}.camera-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.food-photo-preview{display:block;width:min(100%,360px);max-height:240px;object-fit:cover;border-radius:12px;margin-top:12px;border:1px solid var(--line)}
 @media(max-width:700px){.activity-strip{grid-template-columns:1fr}.nutrition-grid{grid-template-columns:repeat(2,1fr)}.meal-form{grid-template-columns:1fr 1fr}.meal-form input:first-child{grid-column:1/-1}.meal-form button{grid-column:1/-1}.activity-rings{justify-content:center}}
 
+
+/* NEXORA FIT cinematic launch — isolated app asset */
+.nf-launch{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#3c2d1740 0%,#17130d22 32%,transparent 62%),#070707;color:#f7edcf;opacity:1;visibility:visible;transition:opacity .65s ease,visibility .65s ease}
+.nf-launch:before,.nf-launch:after{content:"";position:absolute;inset:-35%;pointer-events:none}
+.nf-launch:before{background:conic-gradient(from 20deg,transparent 0 35%,#d7b87512 42%,transparent 50% 85%,#f1ddaa10 92%,transparent);animation:nfOrbit 12s linear infinite}
+.nf-launch:after{background:radial-gradient(ellipse at center,transparent 0 24%,#d7b87508 25%,transparent 55%);transform:scale(1.4)}
+.nf-launch.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+.nf-launch-inner{position:relative;z-index:1;width:min(82vw,360px);display:flex;flex-direction:column;align-items:center;text-align:center}
+.nf-launch-mark{width:clamp(116px,34vw,156px);height:auto;filter:drop-shadow(0 0 14px #d7b87555);animation:nfFloat 2.8s ease-in-out infinite}
+.nf-launch-name{margin:22px 0 0;font:800 clamp(24px,7vw,32px)/1 'Sora',sans-serif;letter-spacing:.25em;text-indent:.25em;color:#f4e6c2}
+.nf-launch-name span{color:#d7b875}
+.nf-launch-tag{margin:11px 0 0;color:#a99a78;font:700 9px 'Manrope',sans-serif;letter-spacing:.28em;text-transform:uppercase}
+.nf-launch-track{width:min(210px,68vw);height:3px;margin:34px auto 12px;overflow:hidden;border-radius:9px;background:#ffffff18;box-shadow:0 0 18px #d7b87518}
+.nf-launch-progress{height:100%;width:0;background:linear-gradient(90deg,#92703b,#f1ddaa,#b38a4b);box-shadow:0 0 12px #d7b875aa;animation:nfProgress 2.15s cubic-bezier(.2,.7,.2,1) forwards}
+.nf-launch-status{color:#8e846d;font:700 9px 'Manrope',sans-serif;letter-spacing:.2em;text-transform:uppercase}
+@keyframes nfOrbit{to{transform:rotate(360deg)}}
+@keyframes nfFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7px) scale(1.025)}}
+@keyframes nfProgress{0%{width:0}28%{width:34%}72%{width:76%}100%{width:100%}}
+@media(prefers-reduced-motion:reduce){.nf-launch:before,.nf-launch-mark,.nf-launch-progress{animation:none}.nf-launch-progress{width:100%}.nf-launch{transition:none}}
 </style>
 <script src="analytics.js"></script>
 </head>
-<body><div class="wrap">
+<body><div class="nf-launch" id="nexoraFitLaunch" role="status" aria-label="Loading NEXORA FIT"><div class="nf-launch-inner"><svg class="nf-launch-mark" viewBox="0 0 240 180" role="img" aria-label="NEXORA FIT monogram"><defs><linearGradient id="nfGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff2c9"/><stop offset=".42" stop-color="#d7b875"/><stop offset="1" stop-color="#8f6a32"/></linearGradient><linearGradient id="nfGoldLine" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#9a763f"/><stop offset=".5" stop-color="#f1ddaa"/><stop offset="1" stop-color="#a98543"/></linearGradient></defs><path fill="url(#nfGold)" d="M30 132V42c0-11 13-16 21-8l61 62V42h20v90c0 11-13 16-21 8L50 78v54z"/><path fill="#f1ddaa" d="M126 42h84v20h-62v16h48v20h-48v42h-22z"/><path fill="none" stroke="url(#nfGoldLine)" stroke-width="4" stroke-linecap="round" d="M22 151c48 18 136 13 196-14"/></svg><div class="nf-launch-name">NEXORA <span>FIT</span></div><div class="nf-launch-tag">Train with purpose</div><div class="nf-launch-track"><div class="nf-launch-progress"></div></div><div class="nf-launch-status">Preparing your fitness space</div></div></div><div class="wrap">
 <header class="top"><a class="brand" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/"><img src="logo.svg" alt="NEXORA logo">NEXORA <b>FIT</b></a><div class="topright"><span class="pill">YOUR TRAINING SPACE</span><a class="back" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/">← NEXORA HOME</a><button class="btn secondary small" id="menuToggle" type="button" aria-expanded="false" aria-controls="appMenu">☰ Menu</button><nav class="app-menu hidden" id="appMenu" aria-label="NEXORA FIT menu"><div class="menu-label">NEXORA FIT</div><button type="button" id="menuCheckUpdates">↻ Check for updates</button><button type="button" id="ownerMenu">♛ Owner</button><button type="button" id="aboutMenu">ⓘ About</button><div class="menu-label">Connect with us</div><a href="https://t.me/nexorastudioteam" target="_self" rel="noopener">✈ Telegram</a><a href="https://www.facebook.com/profile.php?id=61596591209056" target="_self" rel="noopener">f Facebook</a><div class="menu-label">Official website</div><a href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/" target="_self" rel="noopener">↗ NEXORA Website</a></nav></div></header>
 <section class="hero"><div><p class="eyebrow">TRAIN SMARTER • GET STRONGER</p><h1>Your gym. Your data.<br><span>Your progress.</span></h1><p class="sub">A focused workout tracker for logging lifts, building routines and seeing your strength improve. Your workout data stays in this browser on this device.</p></div><button class="btn" id="startBtn">＋ Start workout</button></section>
 
@@ -619,5 +638,8 @@ renderActivity();
  document.querySelectorAll('.tab[data-view="fitnesshub"]').forEach(b=>b.addEventListener('click',()=>{if(typeof window.view==='function')window.view('fitnesshub');else{document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));$('view-fitnesshub').classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t===b))}}));
  render();
 })();
+</script>
+<script>
+(()=>{const reveal=()=>{const splash=document.getElementById('nexoraFitLaunch');if(!splash)return;const started=performance.now();const finish=()=>{const elapsed=performance.now()-started;setTimeout(()=>{splash.classList.add('is-hidden');setTimeout(()=>splash.remove(),750)},Math.max(350,2100-elapsed))};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',finish,{once:true});else finish()};reveal()})();
 </script>
 </body></html>
