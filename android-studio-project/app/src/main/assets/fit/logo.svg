@@ -1,12 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
-<title id="title">NEXORA logo</title><desc id="desc">A metallic blue and cyan letter N wrapped by an orbital ring.</desc>
-<defs>
- <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#b8eaff"/><stop offset=".68" stop-color="#1688ff"/><stop offset="1" stop-color="#00e0ef"/></linearGradient>
- <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00f0ff"/><stop offset="1" stop-color="#0873e8"/></linearGradient>
- <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-</defs>
-<path d="M38 181 75 48q5-17 20-17 10 0 17 10l48 72 20-74q4-15 19-15 17 0 13 18l-34 131q-5 18-21 18-10 0-17-10L91 107l-19 73q-4 16-19 16-19 0-15-15Z" fill="url(#metal)" stroke="#dffaff" stroke-width="2" filter="url(#glow)"/>
-<path d="M84 144 105 80l39 58-19 56Z" fill="#06152c" opacity=".88"/>
-<path d="M21 145C53 102 119 82 192 99c15 4 25 10 31 16-34-12-78-10-118 4-34 12-61 31-84 53 0-9 0-18 0-27Z" fill="url(#cyan)" stroke="#4ceaff" stroke-width="2" filter="url(#glow)"/>
-<path d="M31 167c43-28 104-44 177-28" fill="none" stroke="#d9fbff" stroke-width="3" stroke-linecap="round" opacity=".9"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-labelledby="title desc"><title id="title">NEXORA FIT premium monogram</title><desc id="desc">Champagne gold geometric N and F monogram with a refined gold sweep.</desc><defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff2c9"/><stop offset=".42" stop-color="#d7b875"/><stop offset="1" stop-color="#8f6a32"/></linearGradient><linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#9a763f"/><stop offset=".5" stop-color="#f1ddaa"/><stop offset="1" stop-color="#a98543"/></linearGradient></defs><path fill="url(#gold)" d="M30 132V42c0-11 13-16 21-8l61 62V42h20v90c0 11-13 16-21 8L50 78v54z"/><path fill="#f1ddaa" d="M126 42h84v20h-62v16h48v20h-48v42h-22z"/><path fill="none" stroke="url(#line)" stroke-width="4" stroke-linecap="round" d="M22 151c48 18 136 13 196-14"/></svg>
