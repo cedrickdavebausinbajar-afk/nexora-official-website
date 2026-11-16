@@ -158,7 +158,15 @@ class MainActivity : Activity() {
                     }
                 } catch (_: Exception) { JSONObject().put("error", "Native request failed").toString() }
                 val response = JSONObject().put("id", requestId).put("result", result)
-                runOnUiThread { if (!isFinishing && ::webView.isInitialized && isTrustedAppPage()) replyProxy.postMessage(response.toString()) }
+                runOnUiThread {
+                    // Return the correlated response while the originating app page is still active.
+                    if (!isFinishing && !isDestroyed && ::webView.isInitialized) {
+                        val current = Uri.parse(webView.url ?: "")
+                        if (current.scheme == "https" && current.host == "appassets.androidplatform.net" && current.path == "/assets/fit/index.html") {
+                            try { replyProxy.postMessage(response.toString()) } catch (_: Exception) { }
+                        }
+                    }
+                }
             }
         }
         if (savedInstanceState == null) webView.loadUrl("$appOrigin/assets/fit/index.html")
@@ -267,7 +275,8 @@ class MainActivity : Activity() {
                     requestMethod = "GET"
                     connectTimeout = 10000
                     readTimeout = 10000
-                    instanceFollowRedirects = false
+                    instanceFollowRedirects = true
+                    useCaches = false
                     setRequestProperty("Accept", "application/json")
                     setRequestProperty("Cache-Control", "no-cache")
                     setRequestProperty("User-Agent", "NEXORA-FIT-Android-Updater")
