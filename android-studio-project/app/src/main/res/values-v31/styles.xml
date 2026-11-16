@@ -3,12 +3,14 @@
     <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">#071522</item>
-        <item name="android:navigationBarColor">#071522</item>
+        <item name="android:statusBarColor">#090A0D</item>
+        <item name="android:navigationBarColor">#090A0D</item>
+        <item name="android:windowActionModeOverlay">true</item>
     </style>
     <style name="AppTheme.Splash" parent="AppTheme">
         <item name="android:windowSplashScreenBackground">@color/nexora_splash_bg</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@color/nexora_icon_bg</item>
+        <item name="android:windowSplashScreenAnimationDuration">650</item>
     </style>
 </resources>
