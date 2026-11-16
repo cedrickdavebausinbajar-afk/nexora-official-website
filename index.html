@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080d19">
-  <meta name="description" content="Visit NEXORA OFFICIAL WEB, the official NEXORA digital hub for apps, software, entertainment, Android downloads and updates. Explore NEXORA AI DRAMA.">
+  <meta name="description" content="Explore the official NEXORA digital hub, discover NEXORA AI DRAMA, download the Android app, and find verified updates and announcements.">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="author" content="Cedrick Dave B Bajar">
   <!-- Google tag (gtag.js) — NEXORA Official Website -->
@@ -21,9 +21,7 @@
   <meta property="og:title" content="NEXORA OFFICIAL WEB | Official NEXORA Website">
   <meta property="og:description" content="Discover NEXORA AI DRAMA, explore the NEXORA digital hub, and find official Android downloads and updates.">
   <meta property="og:url" content="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/">
-  <meta property="og:image" content="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&h=630&q=85">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&h=630&q=85">
+  <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="NEXORA OFFICIAL WEB | Official NEXORA Website">
   <meta name="twitter:description" content="Explore NEXORA apps, digital experiences, official Android downloads and the latest updates in one place.">
   <link rel="canonical" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/">
@@ -58,7 +56,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=fit-cover-3">
+  <link rel="stylesheet" href="./styles.css?v=drama-hub-4">
   <style>.apk-download-count{display:block;margin-top:12px;color:#b9c7d8;font:600 10px/1.4 "DM Sans",sans-serif;letter-spacing:.12em}.apk-download-count strong{color:#fff;font-variant-numeric:tabular-nums}</style>
 </head>
 <body>
@@ -94,7 +92,7 @@
       <div class="hub-grid">
 <article class="hub-card card-drama">
           <div class="card-top"><img class="card-icon-img" src="./drama/nexora-ai-drama-logo.svg" alt="NEXORA AI DRAMA premium logo"><span class="card-index">02 ENTERTAINMENT</span></div>
-          <div class="card-copy"><p class="card-kicker">NEXORA AI DRAMA</p><h3>Stories that pull you in.</h3><p>Explore the NEXORA AI DRAMA catalogue, discover featured stories and watch supported drama videos in one app.</p><a class="coming-label" href="./drama/" aria-label="Open NEXORA AI DRAMA download page"><i></i> VIEW APP DETAILS ↗</a><a class="apk-download" href="https://github.com/cedrickdavebausinbajar-afk/nexora-ai-drama/releases/latest/download/NEXORA-AI-DRAMA.apk" aria-label="Download NEXORA AI DRAMA Android APK">DOWNLOAD ANDROID APK ↓</a><span class="apk-download-count">LATEST VERSION: <strong>v1.0.83</strong></span></div><span class="card-watermark">DRAMA</span>
+          <div class="card-copy"><p class="card-kicker">NEXORA AI DRAMA</p><h3>Stories that pull you in.</h3><p>Explore the NEXORA AI DRAMA catalogue, discover featured stories and watch supported drama videos in one app.</p><a class="coming-label" href="./drama/" aria-label="Open NEXORA AI DRAMA download page"><i></i> VIEW APP DETAILS ↗</a><a class="apk-download" data-app-name="NEXORA AI DRAMA" href="https://github.com/cedrickdavebausinbajar-afk/nexora-ai-drama/releases/latest/download/NEXORA-AI-DRAMA.apk" aria-label="Download NEXORA AI DRAMA Android APK">DOWNLOAD ANDROID APK ↓</a><span class="apk-download-count">LATEST RELEASE: <strong>Always downloads the current version</strong></span></div><span class="card-watermark">DRAMA</span>
         </article>
         
       </div>
@@ -108,24 +106,11 @@
   </main>
   <footer><a class="footer-brand" href="#home"><img class="brand-logo" src="./logo.svg" alt="">NEXORA</a><span>Everything in one place.</span><span>Owned by Cedrick Dave B Bajar</span><span>© 2026 NEXORA. All rights reserved.</span></footer>
   <script>
-  (async()=>{
-    const label=document.getElementById('nexoraFitVersion');
-    if(!label)return;
-    try{
-      const response=await fetch('./version.json?refresh='+Date.now(),{cache:'no-store'});
-      if(!response.ok)throw new Error('Version metadata unavailable');
-      const info=await response.json();
-      if(!/^\d+\.\d+\.\d+$/.test(String(info.version||''))||!Number.isSafeInteger(Number(info.versionCode)))throw new Error('Invalid version metadata');
-      label.textContent='v'+info.version+' · BUILD '+info.versionCode;
-    }catch(_){label.textContent='Latest release on GitHub';}
-  })();
-  </script>
-<script>
   // Track official APK download intent without collecting personal information.
   document.addEventListener('click', function(event) {
     const link = event.target.closest('a.apk-download');
     if (!link || typeof window.gtag !== 'function') return;
-    const appName = link.href.includes('nexora-ai-drama') ? 'NEXORA AI DRAMA' : 'NEXORA FIT';
+    const appName = link.dataset.appName || 'NEXORA AI DRAMA';
     window.gtag('event', 'apk_download_click', {
       app_name: appName,
       app_platform: 'website',
