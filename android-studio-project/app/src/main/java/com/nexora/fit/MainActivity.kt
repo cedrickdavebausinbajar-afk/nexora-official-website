@@ -39,6 +39,8 @@ class MainActivity : Activity() {
     private val appOrigin = "https://appassets.androidplatform.net"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Keep the branded launch window only for startup; restore the normal app theme immediately.
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         CookieManager.getInstance().setAcceptCookie(true)
         assetLoader = WebViewAssetLoader.Builder().addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this)).build()
