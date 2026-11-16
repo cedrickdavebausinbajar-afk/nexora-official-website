@@ -1,0 +1,44 @@
+name: NEXORA FIT premium splash APK preview
+
+on:
+  push:
+    branches:
+      - nexora-fit-premium-splash-apk-only
+    paths:
+      - "android-studio-project/**"
+      - ".github/workflows/build-nexora-fit-splash-preview.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out isolated APK branch
+        uses: actions/checkout@v4
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: "platform-tools"
+      - name: Install Android SDK 35
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Build debug APK preview
+        run: gradle --no-daemon -p android-studio-project assembleDebug
+      - name: Upload preview APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEXORA-FIT-premium-splash-preview
+          path: android-studio-project/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
