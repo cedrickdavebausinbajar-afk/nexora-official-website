@@ -67,3 +67,14 @@ jobs:
           name: nexora-fit-debug-apk
           path: android-studio-project/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Package isolated Android Studio source
+        run: |
+          cd android-studio-project
+          zip -r ../NEXORA-FIT-Android-Studio-Source.zip . -x "**/.gradle/**" "**/build/**" "**/.idea/**"
+      - name: Upload Android Studio source ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEXORA-FIT-Android-Studio-Source
+          path: NEXORA-FIT-Android-Studio-Source.zip
+          if-no-files-found: error
