@@ -3,7 +3,7 @@
 <head><script>
 (()=>{if(!window.nexoraBridge)return;let seq=0;const pending=new Map();
 window.nexoraBridge.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(_){return}const resolve=pending.get(m.id);if(!resolve)return;pending.delete(m.id);resolve(m.result)};
-const call=(action,args={})=>new Promise((resolve,reject)=>{const id=String(++seq);pending.set(id,resolve);try{window.nexoraBridge.postMessage(JSON.stringify({id,action,args}))}catch(e){pending.delete(id);reject(e);return}setTimeout(()=>{if(pending.has(id)){pending.delete(id);reject(new Error('Native request timed out'))}},20000)});
+const call=(action,args={})=>new Promise((resolve,reject)=>{const id=String(++seq);pending.set(id,resolve);try{window.nexoraBridge.postMessage(JSON.stringify({id,action,args}))}catch(e){pending.delete(id);reject(e);return}setTimeout(()=>{if(pending.has(id)){pending.delete(id);reject(new Error('Native request timed out after 30 seconds'))}},30000)});
 window.NexoraNative={getInstalledAppVersion:()=>call('getInstalledAppVersion'),getUpdateMetadata:()=>call('getUpdateMetadata'),getUpdateStatus:()=>call('getUpdateStatus'),downloadUpdate:(url,version)=>call('downloadUpdate',{url,version}),installUpdate:()=>call('installUpdate'),exportBackup:(fileName,content)=>call('exportBackup',{fileName,content})};
 })();
 </script>
@@ -571,7 +571,7 @@ renderActivity();
      }
    }catch(e){
      updateInfo.status='error';status.textContent='Could not check for updates. Please try again later.';
-     if(showErrors)notes.textContent='The update service could not be reached. Check your internet connection and retry.';
+     if(showErrors)notes.textContent='Details: '+String(e?.message||'Unknown error')+'. Check your connection and retry.';
    }finally{button.disabled=false;button.textContent='Check for updates';}
  }
  button.addEventListener('click',()=>check(true));
