@@ -272,7 +272,7 @@ class MainActivity : Activity() {
         fun getUpdateMetadata(): String {
             var connection: HttpURLConnection? = null
             return try {
-                val endpoint = URL("https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/main/android-studio-project/version.json")
+                val endpoint = URL("https://raw.githubusercontent.com/cedrickdavebausinbajar-afk/nexora-official-website/nexora-fit-premium-splash-apk-only/android-studio-project/version.json")
                 connection = (endpoint.openConnection() as HttpURLConnection).apply {
                     requestMethod = "GET"
                     connectTimeout = 10000
