@@ -1,1 +1,0 @@
-Retry signed release after correcting every build 43 version default. Publish 1.3.10 build 43 from current main and verify signer against build 42.

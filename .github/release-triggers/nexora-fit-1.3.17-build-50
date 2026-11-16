@@ -1,1 +1,0 @@
-Release NEXORA FIT 1.3.17 build 50. Fixes JavaScript syntax that prevented app controls from initializing, and adds exact APK version verification before publication.

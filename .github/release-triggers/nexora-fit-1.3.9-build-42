@@ -1,7 +1,0 @@
-Trigger signed NEXORA FIT 1.3.9 build 42.
-
-Retry after fixing workflow regex.
-
-Retry after preserving mutable updater constants.
-
-Retry after fixing build version defaults and mutable updater constants.

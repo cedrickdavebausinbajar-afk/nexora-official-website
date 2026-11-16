@@ -1,6 +1,0 @@
-{
-  "version": "1.3.24",
-  "versionCode": 58,
-  "apkUrl": "https://github.com/cedrickdavebausinbajar-afk/nexora-official-website/releases/download/nexora-fit-build-58/NEXORA-FIT.apk",
-  "releaseNotes": "NEXORA FIT 1.3.24: Fixes updater bridge communication, GitHub metadata redirects, timeout handling and error diagnostics; retains existing app data and signed in-place upgrade support."
-}
