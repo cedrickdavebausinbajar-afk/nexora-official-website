@@ -26,26 +26,6 @@ jobs:
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           token_format: access_token
 
-      - name: Create dedicated NEXORA Official Hosting site if missing
-        env:
-          ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: |
-          set -euo pipefail
-          PROJECT_ID="nexora-admin-6313f"
-          SITE_ID="nexora-official-site-6313f"
-          API="https://firebasehosting.googleapis.com/v1beta1/projects/${PROJECT_ID}/sites/${SITE_ID}"
-          if curl --silent --show-error --fail -H "Authorization: Bearer ${ACCESS_TOKEN}" "${API}" >/dev/null; then
-            echo "Hosting site already exists: ${SITE_ID}"
-          else
-            curl --silent --show-error --fail \
-              -X POST \
-              -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-              -H "Content-Type: application/json" \
-              "https://firebasehosting.googleapis.com/v1beta1/projects/${PROJECT_ID}/sites?siteId=${SITE_ID}" \
-              -d '{"type":"DEFAULT_SITE"}'
-            echo "Created Hosting site: ${SITE_ID}"
-          fi
-
       - name: Bundle local Three.js engine
         run: |
           npm install --no-save --no-package-lock three@0.152.2
