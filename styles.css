@@ -189,34 +189,6 @@ a:focus-visible,button:focus-visible,[tabindex]:focus-visible{outline:3px solid 
 }
 
 
-/* NEXORA official website — immersive 3D and live polish */
-:root{--depth-shadow:0 28px 70px rgba(0,0,0,.42)}
-body{background:radial-gradient(ellipse at 78% 3%,rgba(31,126,190,.18),transparent 38%),radial-gradient(ellipse at 8% 58%,rgba(20,170,178,.09),transparent 35%),#060a13}
-.site-header{box-shadow:0 12px 38px rgba(0,0,0,.18);transform:translateZ(0)}
-.brand-logo{filter:drop-shadow(0 0 13px #1bbbe988);transition:transform .35s ease,filter .35s ease}
-.brand:hover .brand-logo{transform:rotateY(24deg) rotateX(-10deg) scale(1.08);filter:drop-shadow(0 0 22px #28d8f2)}
-.hero{perspective:1200px;isolation:isolate}
-.hero-visual{transform:translateY(-50%) rotateY(-9deg) rotateX(5deg);transform-style:preserve-3d;filter:drop-shadow(0 35px 55px rgba(0,0,0,.25))}
-.visual-ring{transform-style:preserve-3d;box-shadow:0 0 80px #4ab9c322,inset 0 0 55px #4ab9c322}
-.ring-one{transform:rotateX(62deg) rotateZ(-18deg)}
-.ring-two{transform:rotateY(62deg) rotateZ(35deg) scaleX(.72)}
-.nucleus{transform:rotateY(-18deg) rotateX(9deg) rotateZ(-7deg) translateZ(38px);box-shadow:0 35px 90px #1b9bce44,0 0 0 13px #7be7da09,inset 0 1px 0 #ffffff33}
-.float-chip{transform:translateZ(55px);box-shadow:0 20px 45px #0006,inset 0 1px 0 #ffffff18}
-.hub-section{perspective:1400px}
-.hub-card{transform-style:preserve-3d;box-shadow:0 18px 45px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.035);transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}
-.hub-card:hover{transform:translateY(-9px) rotateX(2deg) rotateY(-1deg) translateZ(10px);box-shadow:var(--depth-shadow),0 0 32px rgba(40,216,242,.08)}
-.hub-card .card-top,.hub-card .card-copy{transform:translateZ(16px)}
-.card-watermark{transform:translateZ(-8px)}
-.about-mark{transform:perspective(700px) rotateY(-14deg) rotateX(8deg) rotateZ(-7deg);box-shadow:0 30px 65px #0005,0 0 80px #4bc6c52a,inset 0 0 45px #4bc6c510}
-.button,.apk-download{transition:transform .22s ease,box-shadow .22s ease,filter .22s ease}
-.button:hover,.apk-download:hover{transform:translateY(-3px) translateZ(8px);filter:brightness(1.08)}
-.site-live{display:inline-flex;align-items:center;gap:8px;color:#9df4d0}
-.site-live .live-dot{background:#43d69a;box-shadow:0 0 13px #43d69a}
-.live-clock{font-variant-numeric:tabular-nums;color:#b8efff}
-@media(max-width:950px){.hero-visual{transform:translateY(-50%) rotateY(-5deg) rotateX(3deg)}}
-@media(max-width:650px){.hero-visual{transform:translateY(-50%) rotateY(-5deg) scale(.9);opacity:.2}.hub-card:hover{transform:translateY(-3px)}.hero-meta{row-gap:12px}}
-@media(prefers-reduced-motion:reduce){.hero-visual,.nucleus,.about-mark,.hub-card,.brand-logo{transform:none!important;transition:none!important}.visual-orbit{animation:none!important}}
-
 /* Deep performance pass: reduce render-blocking work and off-screen paint cost */
 .hub-section,.about-section{content-visibility:auto;contain-intrinsic-size:auto 760px}
 .hub-card,.about-mark,.nucleus,.float-chip{backface-visibility:hidden}
