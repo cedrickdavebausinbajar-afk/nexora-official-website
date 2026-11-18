@@ -1,37 +1,14 @@
-name: Deploy NEXORA to GitHub Pages
+name: Deploy NEXORA to GitHub Pages (disabled - Firebase is the single official host)
+
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
+
 permissions:
   contents: read
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+
 jobs:
-  deploy:
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  retired:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-      - name: Install and bundle local Three.js engine
-        run: |
-          npm install --no-save --no-package-lock three@0.152.2
-          mkdir -p games/nexora-runner/vendor
-          cp node_modules/three/build/three.min.js games/nexora-runner/vendor/three.min.js
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: .
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: GitHub Pages deployment retired
+        run: echo "NEXORA official website is hosted only on Firebase Hosting."
