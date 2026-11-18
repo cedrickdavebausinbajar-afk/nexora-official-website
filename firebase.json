@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "target": "nexora-official-web",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      ".git/**",
+      ".github/**",
+      "**/node_modules/**"
+    ]
+  }
+}
