@@ -30,5 +30,4 @@ jobs:
         with:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: nexora-admin-6313f
-          target: nexora-official-web
           channelId: live
