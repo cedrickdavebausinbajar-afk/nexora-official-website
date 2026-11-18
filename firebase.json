@@ -8,6 +8,6 @@
       ".github/**",
       "**/node_modules/**"
     ],
-    "site": "nexora-admin-6313f"
+    "target": "nexora-official-site"
   }
 }
