@@ -23,6 +23,39 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Configure Firebase website monitoring
+        env:
+          NEXORA_FIREBASE_API_KEY: ${{ secrets.NEXORA_FIREBASE_API_KEY }}
+          NEXORA_FIREBASE_APP_ID: ${{ secrets.NEXORA_FIREBASE_APP_ID }}
+          NEXORA_APPCHECK_RECAPTCHA_SITE_KEY: ${{ secrets.NEXORA_APPCHECK_RECAPTCHA_SITE_KEY }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          values = {
+              "apiKey": os.environ.get("NEXORA_FIREBASE_API_KEY", ""),
+              "authDomain": "nexora-admin-6313f.firebaseapp.com",
+              "projectId": "nexora-admin-6313f",
+              "appId": os.environ.get("NEXORA_FIREBASE_APP_ID", ""),
+              "appCheckSiteKey": os.environ.get("NEXORA_APPCHECK_RECAPTCHA_SITE_KEY", ""),
+              "version": "website"
+          }
+          configured = all(values[key] for key in ("apiKey", "appId", "appCheckSiteKey"))
+          target = Path("nexora-monitoring-config.js")
+          target.write_text(
+              "/* Generated during deployment; values are public Firebase web config. */\n"
+              "window.NEXORA_ERROR_MONITORING = "
+              + json.dumps(values, indent=2)
+              + ";\n",
+              encoding="utf-8"
+          )
+          if configured:
+              print("Firebase monitoring client configuration injected.")
+          else:
+              print("WARNING: Firebase monitoring remains disabled; add all three repository Actions secrets.")
+          PY
       - name: Install and bundle local Three.js engine
         run: |
           npm install --no-save --no-package-lock three@0.152.2
