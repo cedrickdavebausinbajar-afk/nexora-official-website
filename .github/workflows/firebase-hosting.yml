@@ -1,0 +1,34 @@
+name: Deploy NEXORA Official Web to Firebase Hosting
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firebase-hosting-live
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Bundle local Three.js engine
+        run: |
+          npm install --no-save --no-package-lock three@0.152.2
+          mkdir -p games/nexora-runner/vendor
+          cp node_modules/three/build/three.min.js games/nexora-runner/vendor/three.min.js
+
+      - name: Deploy to Firebase Hosting live channel
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_NEXORA_ADMIN_6313F }}"
+          projectId: nexora-admin-6313f
+          target: nexora-official-web
+          channelId: live
