@@ -7,14 +7,6 @@
   <meta name="description" content="Explore the official NEXORA digital hub, discover NEXORA AI DRAMA, download the Android app, and find verified updates and announcements.">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="author" content="Cedrick Dave B Bajar">
-  <!-- Google tag (gtag.js) — NEXORA Official Website -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VYQZ6HT0RD"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-VYQZ6HT0RD');
-  </script>
   <meta property="og:type" content="website">
   <meta property="og:locale" content="en_PH">
   <meta property="og:site_name" content="NEXORA OFFICIAL WEB">
@@ -53,10 +45,8 @@
   </script>
   <link rel="icon" type="image/svg+xml" sizes="any" href="https://cedrickdavebausinbajar-afk.github.io/nexora-official-website/logo.svg">
   <title>NEXORA OFFICIAL WEB | Official NEXORA Website</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=drama-button-fix-1">
+  <link rel="preload" href="./logo.svg" as="image" type="image/svg+xml" fetchpriority="high">
+  <link rel="stylesheet" href="./styles.css?v=deep-perf-20261118-1">
   <style>.apk-download-count{display:block;margin-top:12px;color:#b9c7d8;font:600 10px/1.4 "DM Sans",sans-serif;letter-spacing:.12em}.apk-download-count strong{color:#fff;font-variant-numeric:tabular-nums}</style>
 </head>
 <body>
@@ -135,6 +125,26 @@
       link_url: link.href
     });
   });
+  </script>
+  <script>
+  // Load analytics after the first render so it does not compete with page content.
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+  gtag('js', new Date());
+  gtag('config', 'G-VYQZ6HT0RD');
+  (function(){
+    let loaded=false;
+    function loadAnalytics(){
+      if(loaded)return;loaded=true;
+      const s=document.createElement('script');
+      s.src='https://www.googletagmanager.com/gtag/js?id=G-VYQZ6HT0RD';
+      s.async=true;document.head.appendChild(s);
+    }
+    window.addEventListener('load',function(){
+      if('requestIdleCallback' in window)requestIdleCallback(loadAnalytics,{timeout:3500});
+      else setTimeout(loadAnalytics,2200);
+    },{once:true});
+  })();
   </script>
   <script src="./nexora-monitoring-config.js"></script>
   <script type="module" src="./nexora-error-monitoring.js"></script>
