@@ -67,7 +67,7 @@
         <h1>NEXORA OFFICIAL WEB<br><span>Your digital world, all in one place.</span></h1>
         <p class="intro">NEXORA OFFICIAL WEB is the official online home of NEXORA. Explore our apps, digital products, Android downloads, entertainment, and the latest updates in one place.</p>
         <div class="hero-actions"><a class="button button-primary" href="#hub">Explore the hub <span>↗</span></a><a class="button button-quiet" href="#about">Discover NEXORA</a><a class="button button-quiet" href="https://t.me/nexorastudioteam" target="_blank" rel="noopener noreferrer">Join us on Telegram <span>↗</span></a><a class="button button-quiet" href="https://www.facebook.com/profile.php?id=61596591209056" target="_blank" rel="noopener noreferrer">Follow on Facebook <span>↗</span></a></div>
-        <div class="hero-meta"><span class="site-live"><i class="live-dot"></i> WEBSITE LIVE</span><i></i><span>ONE HOME</span><i></i><span>MANY POSSIBILITIES</span><i></i><span id="nexora-live-clock" class="live-clock">PH TIME --:--:--</span></div>
+        <div class="hero-meta"><span>ONE HOME</span><i></i><span>MANY POSSIBILITIES</span><i></i><span>BUILT FOR WHAT'S NEXT</span></div>
       </div>
       <div class="hero-visual" aria-hidden="true">
         <div class="visual-ring ring-one"></div><div class="visual-ring ring-two"></div>
@@ -95,37 +95,6 @@
     </section>
   </main>
   <footer><a class="footer-brand" href="#home"><img class="brand-logo" src="./logo.svg" alt="">NEXORA</a><span>Everything in one place.</span><span>Owned by Cedrick Dave B Bajar</span><span>© 2026 NEXORA. All rights reserved.</span></footer>
-  <script>
-  // Lightweight live clock; this is local browser time, not visitor analytics.
-  (function(){
-    const clock=document.getElementById('nexora-live-clock');
-    function tick(){
-      if(!clock)return;
-      clock.textContent='PH TIME '+new Intl.DateTimeFormat('en-PH',{timeZone:'Asia/Manila',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
-    }
-    tick();window.setInterval(tick,1000);
-  })();
-  // Track official APK download intent without collecting personal information.
-  document.addEventListener('click', function(event) {
-    const link = event.target.closest('a.apk-download');
-    if (!link || typeof window.gtag !== 'function') return;
-    const appName = link.dataset.appName || 'NEXORA AI DRAMA';
-    window.gtag('event', 'apk_download_click', {
-      app_name: appName,
-      app_platform: 'website',
-      link_url: link.href,
-      link_text: (link.textContent || '').trim()
-    });
-  });
-  document.addEventListener('click', function(event) {
-    const link = event.target.closest('a[href^="https://t.me/"], a[href*="facebook.com"]');
-    if (!link || typeof window.gtag !== 'function') return;
-    window.gtag('event', 'social_link_click', {
-      app_name: 'NEXORA Official Website',
-      link_url: link.href
-    });
-  });
-  </script>
   <script>
   // Load analytics after the first render so it does not compete with page content.
   window.dataLayer = window.dataLayer || [];
