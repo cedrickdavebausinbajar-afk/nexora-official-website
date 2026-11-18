@@ -1,0 +1,23 @@
+name: Validate NEXORA official website
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check monitoring JavaScript syntax
+        run: |
+          node --check nexora-error-monitoring.js
+          node --check nexora-monitoring-config.js
+      - name: Verify monitoring scripts are loaded
+        run: |
+          grep -q 'nexora-monitoring-config.js' index.html
+          grep -q 'nexora-error-monitoring.js' index.html
