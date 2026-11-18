@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "target": "nexora-official-web",
     "public": ".",
     "ignore": [
       "firebase.json",
@@ -8,6 +7,7 @@
       ".git/**",
       ".github/**",
       "**/node_modules/**"
-    ]
+    ],
+    "site": "nexora-admin-web-614"
   }
 }
