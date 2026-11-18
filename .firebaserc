@@ -5,8 +5,8 @@
   "targets": {
     "nexora-admin-6313f": {
       "hosting": {
-        "nexora-official-web": [
-          "nexora-admin-web-614"
+        "nexora-official-site": [
+          "nexora-official-site-6313f"
         ]
       }
     }
