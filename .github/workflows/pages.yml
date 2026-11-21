@@ -57,11 +57,6 @@ jobs:
           else:
               print("WARNING: Firebase monitoring remains disabled; add all three repository Actions secrets.")
           PY
-      - name: Install and bundle local Three.js engine
-        run: |
-          npm install --no-save --no-package-lock three@0.152.2
-          mkdir -p games/nexora-runner/vendor
-          cp node_modules/three/build/three.min.js games/nexora-runner/vendor/three.min.js
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
         with:
