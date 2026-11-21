@@ -66,6 +66,7 @@ jobs:
         run: |
           node --check nexora-error-monitoring.js
           node --check nexora-monitoring-config.js
+          python scripts/validate_site.py
           count=$(grep -RIl --exclude=validate-monitoring.yml 'uses: actions/deploy-pages@' .github/workflows | wc -l)
           test "$count" -eq 1
       - name: Upload site
