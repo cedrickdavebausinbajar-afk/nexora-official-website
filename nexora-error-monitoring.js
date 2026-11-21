@@ -36,7 +36,6 @@
     return {
       description: clean((title || value.name || 'Client error') + ': ' + (value.message || value), 150),
       error_name: clean(value.name || 'Error', 40),
-      stack: clean(value.stack || '', 500),
       page: clean(window.location.pathname, 100),
       version: clean(config.version || 'unknown', 40)
     };
