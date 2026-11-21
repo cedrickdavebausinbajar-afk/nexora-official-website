@@ -63,6 +63,19 @@
     pending.forEach(reportToGoogleAnalytics);
   }
 
+  function sendToFirebase(payload) {
+    // Firebase Analytics currently returns void, but Promise assimilation also
+    // protects this path if the SDK or a future wrapper becomes asynchronous.
+    return Promise.resolve()
+      .then(() => logException(payload))
+      .then(() => true)
+      .catch(error => {
+        console.warn('[NEXORA monitoring] Firebase Analytics event failed:', clean(error?.message || error, 180));
+        reportToGoogleAnalytics(payload);
+        return false;
+      });
+  }
+
   function report(error, title) {
     const payload = buildPayload(error, title);
     const now = Date.now();
@@ -73,12 +86,8 @@
       else reportToGoogleAnalytics(payload);
       return;
     }
-    try {
-      logException(payload);
-    } catch (sendError) {
-      console.warn('[NEXORA monitoring] Firebase Analytics event failed:', clean(sendError?.message || sendError, 180));
-      reportToGoogleAnalytics(payload);
-    }
+    // Never let an asynchronous SDK failure become another unhandled rejection.
+    void sendToFirebase(payload);
   }
 
   async function initializeMonitoring() {
@@ -121,14 +130,9 @@
       });
 
       const pending = queue.splice(0, MAX_QUEUE);
-      pending.forEach(payload => {
-        try {
-          logException(payload);
-        } catch (error) {
-          reportToGoogleAnalytics(payload);
-          console.warn('[NEXORA monitoring] Queued Firebase event failed:', clean(error?.message || error, 180));
-        }
-      });
+      // Await the initial queue so every event either reaches Firebase or falls
+      // back to GA4 before initialization is reported as complete.
+      await Promise.all(pending.map(sendToFirebase));
       firebaseInitializationFinished = true;
       console.info('[NEXORA monitoring] Firebase Analytics error reporting initialized.');
       return true;
