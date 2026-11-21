@@ -45,13 +45,13 @@
     };
   }
 
-  async function send(payload) {
+  async function send(payload, force = false) {
     if (!submitError) {
       if (queue.length < MAX_QUEUE) queue.push(payload);
       return false;
     }
     const now = Date.now();
-    if (now - lastSentAt < REPORT_INTERVAL_MS) return false;
+    if (!force && now - lastSentAt < REPORT_INTERVAL_MS) return false;
     lastSentAt = now;
     try {
       await bounded(submitError(payload), 12000, 'firebase_report');
@@ -102,9 +102,10 @@
         return callable(payload);
       };
 
-      while (queue.length) {
-        const next = queue.shift();
-        await send(next);
+      if (queue.length) {
+        const first = queue.shift();
+        queue.length = 0;
+        await send(first, true);
       }
       console.info('[NEXORA monitoring] Firebase error reporting initialized.');
       return true;
