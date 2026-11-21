@@ -22,6 +22,7 @@ class PageParser(HTMLParser):
         self.links = []
         self.images = []
         self.scripts = []
+        self.resources = []
         self.inline_script = None
         self.inline_type = ""
 
@@ -35,6 +36,7 @@ class PageParser(HTMLParser):
         if tag in ("a", "link") and attrs.get("href"):
             self.links.append((attrs["href"], attrs.get("target"), attrs.get("rel", "")))
         if tag in ("script", "img", "source") and attrs.get("src"):
+            self.resources.append(attrs["src"])
             if tag == "script":
                 self.scripts.append(attrs["src"])
         if tag == "img":
@@ -114,16 +116,16 @@ for path, parser in pages.items():
                 errors.append(f"{parser.path}: missing fragment #{fragment} in {target_file.relative_to(ROOT)}")
 
 for html_path, parser in pages.items():
-    for src in parser.scripts:
+    for src in parser.resources:
         if src.startswith(("https://", "http://", "//", "data:")):
             continue
         target = (html_path.parent / urlparse(src).path).resolve()
         if not target.is_file():
-            errors.append(f"{parser.path}: missing local script: {src}")
+            errors.append(f"{parser.path}: missing local resource: {src}")
 
 css = ROOT / "styles.css"
 if css.exists():
-    for value in re.findall(r"url\\(\\s*['\\\"]?([^'\\\")]+)", css.read_text(encoding="utf-8")):
+    for value in re.findall(r"url\(\s*['\"]?([^'\")]+)", css.read_text(encoding="utf-8")):
         value = value.strip()
         if value.startswith(("data:", "http://", "https://", "#")):
             continue
