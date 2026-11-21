@@ -84,7 +84,13 @@ def route_to_file(raw, current):
         target = ROOT / path.lstrip("/")
     if target.is_dir():
         target = target / "index.html"
-    return target.resolve(), parsed.fragment
+    resolved = target.resolve()
+    try:
+        resolved.relative_to(ROOT.resolve())
+    except ValueError:
+        errors.append(f"{current.relative_to(ROOT)}: local path escapes the website root: {raw}")
+        return None, None
+    return resolved, parsed.fragment
 
 html_files = sorted(ROOT.rglob("*.html"))
 for path in html_files:
@@ -120,6 +126,11 @@ for html_path, parser in pages.items():
         if src.startswith(("https://", "http://", "//", "data:")):
             continue
         target = (html_path.parent / urlparse(src).path).resolve()
+        try:
+            target.relative_to(ROOT.resolve())
+        except ValueError:
+            errors.append(f"{parser.path}: local resource escapes the website root: {src}")
+            continue
         if not target.is_file():
             errors.append(f"{parser.path}: missing local resource: {src}")
 
@@ -130,6 +141,11 @@ if css.exists():
         if value.startswith(("data:", "http://", "https://", "#")):
             continue
         target = (css.parent / value.split("?", 1)[0]).resolve()
+        try:
+            target.relative_to(ROOT.resolve())
+        except ValueError:
+            errors.append(f"styles.css: referenced asset escapes the website root: {value}")
+            continue
         if not target.is_file():
             errors.append(f"styles.css: missing referenced asset: {value}")
 
