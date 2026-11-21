@@ -1,4 +1,5 @@
 name: Deploy NEXORA to GitHub Pages
+run-name: Publish NEXORA official website
 on:
   push:
     branches: ["main"]
