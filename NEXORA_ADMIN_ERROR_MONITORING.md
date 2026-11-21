@@ -4,7 +4,7 @@ The app now contains automatic browser/WebView error capture. It sends uncaught 
 
 ## Firebase configuration required
 
-The monitoring Firebase project is `nexora-admin-6313f`. Register a **Web App** in that project and enable Firebase App Check for that Web App using reCAPTCHA v3. Add the website domain `cedrickdavebausinbajar-afk.github.io` to the reCAPTCHA allowed domains.
+The monitoring Firebase project is `nexora-admin-6313f`. Register a **Web App** in that project and enable Firebase App Check for that Web App using reCAPTCHA v3. Add the website domain `nexoraofficialph.github.io` to the reCAPTCHA allowed domains.
 
 For the NEXORA AI DRAMA Android Capacitor build, set the same public Firebase Web App settings in the GitHub Actions repository secrets:
 - `VITE_NEXORA_FIREBASE_API_KEY`
