@@ -8,9 +8,8 @@
   const queue = [];
   const MAX_QUEUE = 10;
   const REPORT_INTERVAL_MS = 15000;
-  let submitError = null;
+  let logException = null;
   let lastSentAt = 0;
-  let initializationPromise = null;
 
   function clean(value, maxLength) {
     return String(value ?? '')
@@ -20,97 +19,78 @@
       .slice(0, maxLength);
   }
 
-  function bounded(promise, timeoutMs, label) {
-    let timer;
-    return Promise.race([
-      promise,
-      new Promise((_, reject) => {
-        timer = window.setTimeout(() => reject(new Error(label + '_timeout')), timeoutMs);
-      })
-    ]).finally(() => window.clearTimeout(timer));
-  }
-
   function buildPayload(error, title) {
-    const value = error instanceof Error ? error : new Error(clean(error, 2000));
+    const value = error instanceof Error ? error : new Error(clean(error, 1000));
     return {
-      source: 'website',
-      severity: 'error',
-      title: clean(title || value.name || 'Website error', 120),
-      message: clean(value.message || value, 2000),
-      stack: clean(value.stack || '', 4000),
-      version: clean(config.version || 'unknown', 60),
-      location: clean(window.location.pathname, 200),
-      device: clean(navigator.userAgent, 120),
-      occurredAt: new Date().toISOString()
+      description: clean((title || value.name || 'Client error') + ': ' + (value.message || value), 150),
+      error_name: clean(value.name || 'Error', 40),
+      stack: clean(value.stack || '', 500),
+      page: clean(window.location.pathname, 100),
+      version: clean(config.version || 'unknown', 40)
     };
   }
 
-  async function send(payload, force = false) {
-    if (!submitError) {
+  function report(error, title) {
+    const payload = buildPayload(error, title);
+    if (!logException) {
       if (queue.length < MAX_QUEUE) queue.push(payload);
-      return false;
+      console.warn('[NEXORA monitoring] Captured client error; Firebase Analytics is not ready yet.');
+      return;
     }
     const now = Date.now();
-    if (!force && now - lastSentAt < REPORT_INTERVAL_MS) return false;
+    if (now - lastSentAt < REPORT_INTERVAL_MS) return;
     lastSentAt = now;
     try {
-      await bounded(submitError(payload), 12000, 'firebase_report');
-      return true;
-    } catch (error) {
-      console.warn('[NEXORA monitoring] Firebase report failed:', clean(error?.message || error, 240));
-      return false;
+      logException(payload);
+    } catch (sendError) {
+      console.warn('[NEXORA monitoring] Firebase Analytics event failed:', clean(sendError?.message || sendError, 180));
     }
-  }
-
-  function report(error, title) {
-    void send(buildPayload(error, title));
   }
 
   async function initializeMonitoring() {
-    const required = ['apiKey', 'authDomain', 'projectId', 'appId', 'appCheckSiteKey'];
+    const required = ['apiKey', 'authDomain', 'projectId', 'appId', 'measurementId'];
     if (!required.every(key => typeof config[key] === 'string' && config[key].trim())) {
-      console.warn('[NEXORA monitoring] Firebase reporting is disabled: required public web configuration is missing.');
+      console.warn('[NEXORA monitoring] Firebase Analytics error reporting is disabled: website Firebase configuration is missing.');
       return false;
     }
 
     try {
-      const modules = await bounded(Promise.all([
+      const [appSdk, analyticsSdk] = await Promise.all([
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
-        import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app-check.js'),
-        import('https://www.gstatic.com/firebasejs/11.10.0/firebase-functions.js')
-      ]), 12000, 'firebase_sdk_load');
+        import('https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js')
+      ]);
+      if (!await analyticsSdk.isSupported()) {
+        console.info('[NEXORA monitoring] Firebase Analytics is not supported in this browser.');
+        return false;
+      }
 
-      const [appSdk, appCheckSdk, functionsSdk] = modules;
-      const appName = 'nexora-official-site-monitor';
+      const appName = 'nexora-official-website-monitor';
       const existing = appSdk.getApps().find(item => item.name === appName);
       const app = existing || appSdk.initializeApp({
         apiKey: config.apiKey,
         authDomain: config.authDomain,
         projectId: config.projectId,
-        appId: config.appId
+        appId: config.appId,
+        measurementId: config.measurementId
       }, appName);
-
-      const appCheck = appCheckSdk.initializeAppCheck(app, {
-        provider: new appCheckSdk.ReCaptchaV3Provider(config.appCheckSiteKey),
-        isTokenAutoRefreshEnabled: true
+      const analytics = analyticsSdk.getAnalytics(app);
+      logException = payload => analyticsSdk.logEvent(analytics, 'exception', {
+        description: payload.description,
+        fatal: false,
+        error_name: payload.error_name,
+        page_path: payload.page,
+        app_version: payload.version
       });
-      const functions = functionsSdk.getFunctions(app, 'us-central1');
-      const callable = functionsSdk.httpsCallable(functions, 'reportClientError', {timeout: 10000});
-
-      submitError = async payload => {
-        await bounded(appCheckSdk.getToken(appCheck, false), 8000, 'app_check_token');
-        return callable(payload);
-      };
 
       if (queue.length) {
         const first = queue.shift();
         queue.length = 0;
-        await send(first, true);
+        logException(first);
       }
-      console.info('[NEXORA monitoring] Firebase error reporting initialized.');
+      console.info('[NEXORA monitoring] Firebase Analytics error reporting initialized.');
       return true;
     } catch (error) {
-      console.warn('[NEXORA monitoring] Initialization failed; browser diagnostics remain active:', clean(error?.message || error, 300));
+      console.warn('[NEXORA monitoring] Initialization failed; browser diagnostics remain active:', clean(error?.message || error, 240));
       return false;
     }
   }
@@ -122,6 +102,5 @@
     report(event.reason, 'Unhandled website promise rejection');
   });
 
-  initializationPromise = initializeMonitoring();
-  window.NEXORA_MONITORING_READY = initializationPromise;
+  window.NEXORA_MONITORING_READY = initializeMonitoring();
 })();
