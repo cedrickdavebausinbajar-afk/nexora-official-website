@@ -59,14 +59,14 @@ jobs:
               print("Firebase monitoring client configuration injected.")
               summary.write_text("## Website monitoring\\nFirebase Analytics web configuration was injected for the dedicated NEXORA website project.\\n", encoding="utf-8")
           else:
-              print("WARNING: Firebase monitoring remains disabled; add all three repository Actions secrets.")
+              print("WARNING: Firebase Analytics monitoring remains disabled; add all five dedicated website Firebase repository Actions secrets.")
               summary.write_text("## Website monitoring\\n**Disabled:** add NEXORA_FIREBASE_API_KEY, NEXORA_FIREBASE_AUTH_DOMAIN, NEXORA_FIREBASE_PROJECT_ID, NEXORA_FIREBASE_APP_ID and NEXORA_FIREBASE_MEASUREMENT_ID as repository Actions secrets from a dedicated NEXORA website Firebase project.\\n", encoding="utf-8")
           PY
       - name: Validate website JavaScript and Pages deployment controller
         run: |
           node --check nexora-error-monitoring.js
           node --check nexora-monitoring-config.js
-          count=$(grep -RIl 'uses: actions/deploy-pages@' .github/workflows | wc -l)
+          count=$(grep -RIl --exclude=validate-monitoring.yml 'uses: actions/deploy-pages@' .github/workflows | wc -l)
           test "$count" -eq 1
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
