@@ -20,6 +20,16 @@
       .slice(0, maxLength);
   }
 
+  function bounded(promise, timeoutMs, label) {
+    let timer;
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = window.setTimeout(() => reject(new Error(label + '_timeout')), timeoutMs);
+      })
+    ]).finally(() => window.clearTimeout(timer));
+  }
+
   function buildPayload(error, title) {
     const value = error instanceof Error ? error : new Error(clean(error, 1000));
     return {
@@ -81,11 +91,11 @@
     }
 
     try {
-      const [appSdk, analyticsSdk] = await Promise.all([
+      const [appSdk, analyticsSdk] = await bounded(Promise.all([
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js'),
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js')
-      ]);
-      if (!await analyticsSdk.isSupported()) {
+      ]), 10000, 'firebase_sdk_load');
+      if (!await bounded(analyticsSdk.isSupported(), 5000, 'analytics_support_check')) {
         firebaseInitializationFinished = true;
         flushFallbackQueue();
         console.info('[NEXORA monitoring] Firebase Analytics is unsupported in this browser; GA4 exception reporting remains active.');
