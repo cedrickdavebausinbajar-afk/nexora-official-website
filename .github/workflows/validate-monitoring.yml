@@ -21,3 +21,12 @@ jobs:
         run: |
           grep -q 'nexora-monitoring-config.js' index.html
           grep -q 'nexora-error-monitoring.js' index.html
+          grep -q 'window.addEventListener.*error' nexora-error-monitoring.js
+          grep -q 'unhandledrejection' nexora-error-monitoring.js
+      - name: Assert one Pages deployment workflow
+        run: |
+          count=$(grep -RIl 'actions/deploy-pages@' .github/workflows | wc -l)
+          test "$count" -eq 1
+          grep -q 'group: "pages"' .github/workflows/pages.yml
+          echo "Verified one repository workflow deploys GitHub Pages." >> "$GITHUB_STEP_SUMMARY"
+          echo "Repository setting must also use Settings > Pages > Source: GitHub Actions." >> "$GITHUB_STEP_SUMMARY"
