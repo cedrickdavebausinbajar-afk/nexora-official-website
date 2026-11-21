@@ -17,6 +17,7 @@ jobs:
         run: |
           node --check nexora-error-monitoring.js
           node --check nexora-monitoring-config.js
+          python scripts/validate_site.py
       - name: Verify monitoring scripts are loaded
         run: |
           grep -q 'nexora-monitoring-config.js' index.html
