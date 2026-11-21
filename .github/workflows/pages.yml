@@ -64,7 +64,7 @@ jobs:
         run: |
           node --check nexora-error-monitoring.js
           node --check nexora-monitoring-config.js
-          count=$(grep -RIl 'actions/deploy-pages@' .github/workflows | wc -l)
+          count=$(grep -RIl 'uses: actions/deploy-pages@' .github/workflows | wc -l)
           test "$count" -eq 1
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
