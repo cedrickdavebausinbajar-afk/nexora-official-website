@@ -49,19 +49,20 @@
   }
 
   function flushFallbackQueue() {
-    while (queue.length) reportToGoogleAnalytics(queue.shift());
+    if (queue.length) reportToGoogleAnalytics(queue.shift());
+    queue.length = 0;
   }
 
   function report(error, title) {
     const payload = buildPayload(error, title);
+    const now = Date.now();
+    if (now - lastSentAt < REPORT_INTERVAL_MS) return;
+    lastSentAt = now;
     if (!logException) {
       if (!firebaseInitializationFinished && queue.length < MAX_QUEUE) queue.push(payload);
       else reportToGoogleAnalytics(payload);
       return;
     }
-    const now = Date.now();
-    if (now - lastSentAt < REPORT_INTERVAL_MS) return;
-    lastSentAt = now;
     try {
       logException(payload);
     } catch (sendError) {
