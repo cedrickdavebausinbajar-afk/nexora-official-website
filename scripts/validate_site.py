@@ -125,7 +125,7 @@ for html_path, parser in pages.items():
 
 css = ROOT / "styles.css"
 if css.exists():
-    for raw_value in re.findall(r"url\(([^)]*)\)", css.read_text(encoding="utf-8")):
+    for raw_value in re.findall(r"url[(]([^)]*)[)]", css.read_text(encoding="utf-8")):
         value = raw_value.strip().strip("'\"")
         if value.startswith(("data:", "http://", "https://", "#")):
             continue
