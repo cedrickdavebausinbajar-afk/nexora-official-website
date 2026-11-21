@@ -52,10 +52,13 @@ jobs:
               + ";\n",
               encoding="utf-8"
           )
+          summary = Path(os.environ["GITHUB_STEP_SUMMARY"])
           if configured:
               print("Firebase monitoring client configuration injected.")
+              summary.write_text("## Website monitoring\\nFirebase public web configuration was injected. Runtime reporting still requires the registered App Check site key and reportClientError callable to be valid.\\n", encoding="utf-8")
           else:
               print("WARNING: Firebase monitoring remains disabled; add all three repository Actions secrets.")
+              summary.write_text("## Website monitoring\\n**Disabled:** add NEXORA_FIREBASE_API_KEY, NEXORA_FIREBASE_APP_ID and NEXORA_APPCHECK_RECAPTCHA_SITE_KEY as repository Actions secrets.\\n", encoding="utf-8")
           PY
       - name: Upload site
         uses: actions/upload-pages-artifact@v4
