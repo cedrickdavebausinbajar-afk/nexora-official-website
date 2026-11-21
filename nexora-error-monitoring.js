@@ -9,6 +9,7 @@
   const MAX_QUEUE = 10;
   const REPORT_INTERVAL_MS = 15000;
   let logException = null;
+  let firebaseInitializationFinished = false;
   let lastSentAt = 0;
 
   function clean(value, maxLength) {
@@ -30,11 +31,32 @@
     };
   }
 
+  function reportToGoogleAnalytics(payload) {
+    try {
+      if (typeof window.gtag !== 'function') return false;
+      window.gtag('event', 'exception', {
+        description: payload.description,
+        fatal: false,
+        error_name: payload.error_name,
+        page_path: payload.page,
+        app_version: payload.version
+      });
+      return true;
+    } catch (error) {
+      console.warn('[NEXORA monitoring] GA4 fallback event failed:', clean(error?.message || error, 180));
+      return false;
+    }
+  }
+
+  function flushFallbackQueue() {
+    while (queue.length) reportToGoogleAnalytics(queue.shift());
+  }
+
   function report(error, title) {
     const payload = buildPayload(error, title);
     if (!logException) {
-      if (queue.length < MAX_QUEUE) queue.push(payload);
-      console.warn('[NEXORA monitoring] Captured client error; Firebase Analytics is not ready yet.');
+      if (!firebaseInitializationFinished && queue.length < MAX_QUEUE) queue.push(payload);
+      else reportToGoogleAnalytics(payload);
       return;
     }
     const now = Date.now();
@@ -44,13 +66,16 @@
       logException(payload);
     } catch (sendError) {
       console.warn('[NEXORA monitoring] Firebase Analytics event failed:', clean(sendError?.message || sendError, 180));
+      reportToGoogleAnalytics(payload);
     }
   }
 
   async function initializeMonitoring() {
     const required = ['apiKey', 'authDomain', 'projectId', 'appId', 'measurementId'];
     if (!required.every(key => typeof config[key] === 'string' && config[key].trim())) {
-      console.warn('[NEXORA monitoring] Firebase Analytics error reporting is disabled: website Firebase configuration is missing.');
+      firebaseInitializationFinished = true;
+      flushFallbackQueue();
+      console.warn('[NEXORA monitoring] Firebase Analytics SDK is disabled until website Firebase settings are added; GA4 exception reporting remains active.');
       return false;
     }
 
@@ -60,7 +85,9 @@
         import('https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js')
       ]);
       if (!await analyticsSdk.isSupported()) {
-        console.info('[NEXORA monitoring] Firebase Analytics is not supported in this browser.');
+        firebaseInitializationFinished = true;
+        flushFallbackQueue();
+        console.info('[NEXORA monitoring] Firebase Analytics is unsupported in this browser; GA4 exception reporting remains active.');
         return false;
       }
 
@@ -87,10 +114,13 @@
         queue.length = 0;
         logException(first);
       }
+      firebaseInitializationFinished = true;
       console.info('[NEXORA monitoring] Firebase Analytics error reporting initialized.');
       return true;
     } catch (error) {
-      console.warn('[NEXORA monitoring] Initialization failed; browser diagnostics remain active:', clean(error?.message || error, 240));
+      firebaseInitializationFinished = true;
+      flushFallbackQueue();
+      console.warn('[NEXORA monitoring] Firebase initialization failed; GA4 exception reporting remains active:', clean(error?.message || error, 240));
       return false;
     }
   }
