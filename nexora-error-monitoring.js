@@ -14,9 +14,10 @@
 
   function clean(value, maxLength) {
     return String(value ?? '')
-      .replace(/Bearer\\s+[^\\s]+/gi, 'Bearer [REDACTED]')
-      .replace(/((?:api[_-]?key|access[_-]?token|refresh[_-]?token|password|secret)=)[^&\\s]+/gi, '$1[REDACTED]')
-      .replace(/[\\r\\n\\t]/g, ' ')
+      .replace(/Bearer\s+[^\s]+/gi, 'Bearer [REDACTED]')
+      .replace(/((?:api[_-]?key|access[_-]?token|refresh[_-]?token|id[_-]?token|password|secret|signature|auth)=)[^&\s]+/gi, '$1[REDACTED]')
+      .replace(/([?&](?:key|token|sig)=)[^&\s]+/gi, '$1[REDACTED]')
+      .replace(/[\r\n\t]/g, ' ')
       .slice(0, maxLength);
   }
 
@@ -59,8 +60,8 @@
   }
 
   function flushFallbackQueue() {
-    if (queue.length) reportToGoogleAnalytics(queue.shift());
-    queue.length = 0;
+    const pending = queue.splice(0, MAX_QUEUE);
+    pending.forEach(reportToGoogleAnalytics);
   }
 
   function report(error, title) {
@@ -120,11 +121,15 @@
         app_version: payload.version
       });
 
-      if (queue.length) {
-        const first = queue.shift();
-        queue.length = 0;
-        logException(first);
-      }
+      const pending = queue.splice(0, MAX_QUEUE);
+      pending.forEach(payload => {
+        try {
+          logException(payload);
+        } catch (error) {
+          reportToGoogleAnalytics(payload);
+          console.warn('[NEXORA monitoring] Queued Firebase event failed:', clean(error?.message || error, 180));
+        }
+      });
       firebaseInitializationFinished = true;
       console.info('[NEXORA monitoring] Firebase Analytics error reporting initialized.');
       return true;
